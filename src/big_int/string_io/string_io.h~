@@ -1,6 +1,6 @@
-#ifndef BIG-INT_STRING-IO_STRING-IO_H_
-#define BIG-INT_STRING-IO_STRING-IO_H_
+#ifndef BIG_INT__STRING_IO__STRING_IO_H_
+#define BIG_INT__STRING_IO__STRING_IO_H_
 
-char *big_int_to_s(struct BigInt *big_int);
+char *big_int_to_string(struct BigInt *big_int);
 
-#endif /* ifndef BIG-INT_STRING-IO_STRING-IO_H_ */
+#endif /* ifndef BIG_INT__STRING_IO__STRING_IO_H_ */

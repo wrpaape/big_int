@@ -9,7 +9,7 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
-TARGET=build/libYOUR_LIBRARY.a
+TARGET=build/libbig_int.a
 SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 
 # The Target Build
@@ -20,21 +20,21 @@ dev: all
 
 $(TARGET): CFLAGS += -fPIC
 $(TARGET): build $(OBJECTS)
-       ar rcs $@ $(OBJECTS)
-       ranlib $@
+	ar rcs $@ $(OBJECTS)
+	ranlib $@
 
 $(SO_TARGET): $(TARGET) $(OBJECTS)
-       $(CC) -shared -o $@ $(OBJECTS)
+	$(CC) -shared -o $@ $(OBJECTS)
 
 build:
-       @mkdir -p build
-       @mkdir -p bin
+	@mkdir -p build
+	@mkdir -p bin
 
 # The Unit Tests
 .PHONY: tests
 tests: CFLAGS += $(TARGET)
 tests: $(TESTS)
-       sh ./tests/runtests.sh
+	sh ./tests/runtests.sh
 
 valgrind:
 	VALGRIND="valgrind --log-file=/tmp/valgrind-%p.log" $(MAKE)
