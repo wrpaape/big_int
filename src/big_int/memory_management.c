@@ -1,4 +1,5 @@
-#include "memory_management.h"
+#include "big_int.h"
+#include "memory_management/memory_management.h"
 
 /************************************************************************
  *			init_big_int(1)					*
