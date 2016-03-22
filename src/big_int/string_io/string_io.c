@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include "big_int/big_int.h"
-
-
-int main(void)
-{
-	struct BigInt *big_int = init_big_int(-1031);
-
-	printf("to_s: %s\n", big_int_to_s(big_int));
-
-	return 0;
-}
-
-
-
-
+#define CHARS_PER_DIGIT
 char *big_int_to_s(struct BigInt *big_int)
 {
 	char *dig_str = handle_malloc(sizeof(char) *
@@ -33,5 +18,3 @@ char *big_int_to_s(struct BigInt *big_int)
 
 	return dig_str;
 }
-
-#undef CHARS_PER_DIGIT

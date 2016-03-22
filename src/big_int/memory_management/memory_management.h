@@ -1,1 +1,6 @@
+#ifndef BIG-INT_MEMORY-MANAGEMENT_MEMORY-MANAGEMENT_H_
+#define BIG-INT_MEMORY-MANAGEMENT_MEMORY-MANAGEMENT_H_
+
 struct BigInt *init_big_int(long long int init_val);
+
+#endif /* ifndef BIG-INT_MEMORY-MANAGEMENT_MEMORY-MANAGEMENT_H_ */

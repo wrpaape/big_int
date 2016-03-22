@@ -1,3 +1,6 @@
+#ifndef BIG-INT_BIG-INT_H_
+#define BIG-INT_BIG-INT_H_
+
 enum Sign {
 	NEG = -1,
 	ZRO =  0,
@@ -10,3 +13,5 @@ struct BigInt {
 	unsigned int num_alloc;
 	unsigned long long int *words;
 };
+
+#endif /* ifndef BIG-INT_BIG-INT_H_ */
