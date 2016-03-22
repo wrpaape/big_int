@@ -1,5 +1,5 @@
 #include "big_int.h"
-#include "memory_management/memory_management.h"
+#include "memory_management.h"
 
 /************************************************************************
  *			init_big_int(1)					*
@@ -35,7 +35,7 @@ struct BigInt *init_big_int(long long int init_val)
 		big_int->sign     = NEG;
 		big_int->words[0] = (unsigned long long int) -init_val;
 
-	} else
+	} else {
 		big_int->sign     = ZRO;
 		big_int->words[0] = 0llu;
 	}

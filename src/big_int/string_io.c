@@ -1,5 +1,5 @@
 #include "big_int.h"
-#include "string_io/string_io.h"
+#include "string_io.h"
 
 #define CHARS_PER_DIGIT 20
 
@@ -13,7 +13,7 @@ char *big_int_to_string(struct BigInt *big_int)
 
 	unsigned long long int *digit = big_int->words;
 
-	if (big_int->sign == MINUS) {
+	if (big_int->sign == NEG) {
 		*dig_char = '-';
 		++dig_char;
 	}

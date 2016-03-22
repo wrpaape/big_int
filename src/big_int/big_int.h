@@ -1,8 +1,8 @@
-#ifndef BIG_INT__BIG_INT_H_
-#define BIG_INT__BIG_INT_H_
+#ifndef BIG_INT_BIG_INT_H_
+#define BIG_INT_BIG_INT_H_
 
-#include "memory_management/memory_management.h"
-#include "string_io/string_io.h"
+#include "memory_management.h"
+#include "string_io.h"
 
 enum Sign {
 	NEG = -1,
@@ -17,4 +17,4 @@ struct BigInt {
 	unsigned long long int *words;
 };
 
-#endif /* ifndef BIG_INT__BIG_INT_H_ */
+#endif /* ifndef BIG_INT_BIG_INT_H_ */
