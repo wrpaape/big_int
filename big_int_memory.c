@@ -1,17 +1,9 @@
-#include <stdio.h>
-#include "big_int.h"
-
-
-int main(void)
-{
-	struct BigInt *big_int = init_big_int(-1031);
-
-	printf("to_s: %s\n", big_int_to_s(big_int));
-
-	return 0;
-}
-
-
+/************************************************************************
+ *			init_big_int(1)					*
+ *									*
+ * Allocates memory for a BigInt and initializes its sign and magnitude	*
+ * corresponding to input integer 'init_val'.				*
+ ************************************************************************/
 struct BigInt *init_big_int(long long int init_val)
 {
 	/* allocate BigInt struct
@@ -50,26 +42,3 @@ struct BigInt *init_big_int(long long int init_val)
 
 	return big_int;
 }
-
-
-char *big_int_to_s(struct BigInt *big_int)
-{
-	char *dig_str = handle_malloc(sizeof(char) *
-				      ((big_int->size * CHARS_PER_DIGIT)
-				       + 2lu));
-
-	char *dig_char = dig_str;
-
-	unsigned int *digit = big_int->digits;
-
-	if (big_int->sign == MINUS) {
-		*dig_char = '-';
-		++dig_char;
-	}
-
-	sprintf(dig_char, "%u", *digit);
-
-	return dig_str;
-}
-
-#undef CHARS_PER_DIGIT
