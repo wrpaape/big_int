@@ -28,19 +28,21 @@ ALLOBJS = $(MAINOBJ) $(ROOTOBJ) $(SUBOBJS)
 MAINBIN	= $(DESTDIR)/$(MAINMOD)
 
 define MAKEOBJ =
-$(1): $(2) $(3)
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(OBJSDIR)/$1.o: $(SRCSDIR)/$1.c $(DEPSDIR)/$1.h
+	$(CC) $(CFLAGS) -c -o $$@ $$<
 endef
-OBJSRCDEP = $(OBJSDIR)/$(1).o $(SRCSDIR)/$(1).c $(DEPSDIR)/$(1).h
 
-SUBOSD    = $(call OBJSRCDEP,$(1)) $(ROOTDEP)
 
+
+# SUBOSD    = $(call OBJSRCDEP,$1),$(ROOTDEP)
 
 CC	= gcc
 CFLAGS	= -g -I$(DEPSDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
-all:
-	@echo $(call SUBOSD,mem_mgmt)
+
+$(eval $(call MAKEOBJ,$(call SUBOSD,mem_mgmt)))
+
+all: $(OBJSDIR)/mem_mgmt.o
 # all: $(MAINBIN)
 
 # $(MAINBIN): $(ALLOBJS)
