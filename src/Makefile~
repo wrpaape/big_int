@@ -1,40 +1,49 @@
-BINNAME	= main
-HEADMOD = big_int
+.PHONY: all clean
+
+MAINMOD	= demo
+ROOTMOD = big_int
 SUBMODS = mem_mgmt string_io
 
-SRCSDIR = ./$(HEADMOD)
+MAINDIR = .
+SRCSDIR = $(MAINDIR)/$(ROOTMOD)
 DEPSDIR = $(SRCSDIR)
-OBJSDIR = ../obj
-DESTDIR = ../bin
+OBJSDIR = $(MAINDIR)/../obj
+DESTDIR = $(MAINDIR)/../bin
 
-MAINBIN	= $(DESTDIR)/$(PROG)
 
-MODULES	= $(HEADMOD) $(SUBMODS)
-SOURCES = $(patsubst %,$(SRCDIR)/%.c,$(MODULES))
-OBJECTS = $(patsubst %,$(OBJDIR)/%.o,$(MODULES))
-
-HEADSRC = $(patsubst %,$(SRCSDIR)/%.c,$(HEADMOD))
-HEADOBJ = $(patsubst %,$(OBJSDIR)/%.o,$(HEADMOD))
-GLOBDEP = $(patsubst %,$(DEPSDIR)/%.h,$(HEADMOD))
+ROOTSRC = $(patsubst %,$(SRCSDIR)/%.c,$(ROOTMOD))
+ROOTOBJ = $(patsubst %,$(OBJSDIR)/%.o,$(ROOTMOD))
+ROOTDEP = $(patsubst %,$(DEPSDIR)/%.h,$(ROOTMOD))
 
 SUBSRCS = $(patsubst %,$(SRCSDIR)/%.c,$(SUBMODS))
 SUBOBJS = $(patsubst %,$(OBJSDIR)/%.o,$(SUBMODS))
-SUBDEPS = $(patsubst %,$(DEPSDIR)/%.h,$(SUBMODS))
+SUBDEPS = $(patsubst %,$(DEPSDIR)/%.h,$(SUBMODS)) $(ROOTDEP)
+
+MAINSRC = $(patsubst %,$(MAINDIR)/%.c,$(MAINMOD))
+MAINOBJ = $(patsubst %,$(OBJSDIR)/%.o,$(MAINMOD))
+MAINDEP = $(ROOTDEP)
+
+ALLOBJS = $(MAINOBJ) $(ROOTOBJ) $(SUBOBJS)
+
+MAINBIN	= $(DESTDIR)/$(MAINMOD)
 
 
 CC	= gcc
-CFLAGS	= -g -I$(SRCSDIR) -std=99 -Wall -D__USE_FIXED_PROTOTYPES__
+CFLAGS	= -g -I$(DEPSDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
 all: $(MAINBIN)
 
-$(MAINBIN): $(OBJECTS)
+$(MAINBIN): $(ALLOBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(HEADOBJ): $(HEADSRC) $(GLOBDEP)
+$(MAINOBJ): $(MAINSRC) $(MAINDEP)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(SUBOBJS): $(SUBSRCS) $(SUBDEPS) $(GLOBDEP)
+$(ROOTOBJ): $(ROOTSRC) $(ROOTDEP)
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(SUBOBJS): $(SUBSRCS) $(SUBDEPS)
+	$(CC) $(CFLAGS) -c -o $@ $(SUBSRCS)
 
 clean:
 	$(RM) $(SRCSDIR)/*~ $(DEPSDIR)/*~ $(OBJSDIR)/*.o $(MAINBIN)
