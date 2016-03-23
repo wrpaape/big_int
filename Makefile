@@ -1,8 +1,8 @@
 .PHONY: all clean
 
 SRCDIR = src
-MFLAGS = -C -j5 LAST=550
+MFLAGS = -j5 LAST=550
 
 all clean:
-	$(MAKE) $(MFLAGS) $(SRCDIR) $@
+	$(MAKE) $(MFLAGS) -C $(SRCDIR) $@
 
