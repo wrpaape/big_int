@@ -3,7 +3,7 @@
 
 int main(void)
 {
-	struct BigInt *big_int = init_big_int_with_val(-1031ll);
+	struct BigInt *big_int = init_big_int(-1031ll);
 
 	printf("to_s: %s\n", big_int_to_string(big_int));
 

@@ -40,13 +40,16 @@ struct BigInt {
 
 #define FORMAT_ERROR(MSG) "\n\e[31m\e[5mERROR:\e[25m\t\e[4m" MSG "\e[0m\n"
 
-#define PRINT_CONTEXT()							\
+#define PRINT_CONTEXT_AND_EXIT_ON_FAILURE()				\
+do {									\
 	fprintf(stderr,							\
 		"\n\e[31merrno:\t%s\n\n"				\
 		"file:\t%s\n\n"						\
 		"func:\t%s\n\n"						\
 		"line:\t%d\e[0m\n",					\
-		strerror(errno), __FILE__, __func__, __LINE__)		\
+		strerror(errno), __FILE__, __func__, __LINE__);		\
+	exit(EXIT_FAILURE);						\
+} while(0)
 
 
 #define HANDLE_MALLOC(ptr, size)					\
@@ -54,10 +57,9 @@ do {									\
 	ptr = malloc(size);						\
 	if (ptr == NULL) {						\
 		fprintf(stderr,						\
-			FORMAT_ERROR("failed to allocate %lu bytes")	\
+			FORMAT_ERROR("failed to allocate %lu bytes"),	\
 			size);						\
-		PRINT_CONTEXT();					\
-		exit(EXIT_FAILURE);					\
+		PRINT_CONTEXT_AND_EXIT_ON_FAILURE();			\
 	}								\
 } while(0)
 

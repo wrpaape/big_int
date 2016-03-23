@@ -20,7 +20,6 @@
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-extern inline size_t next_num_alloc(size_t num_alloc);
 extern inline void free_big_int(struct BigInt *big_int);
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -30,54 +29,26 @@ extern inline void free_big_int(struct BigInt *big_int);
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 /************************************************************************
- *			init_big_int_with_words(1)			*
- *									*
- * Allocates memory for a BigInt with number of allocated words		*
- * 'num_alloc'.								*
- ************************************************************************/
-struct BigInt *init_big_int_with_words(size_t num_alloc)
-{
-	/* allocate BigInt struct
-	 * ================================================================== */
-	struct BigInt *big_int;
-
-	HANDLE_MALLOC(big_int, sizeof(struct BigInt));
-
-
-	/* allocate words for storage of magnitude
-	 * ================================================================== */
-	HANDLE_MALLOC(big_int->words,
-		      sizeof(unsigned long long int) * num_alloc);
-
-	big_int->num_alloc = num_alloc;
-
-	return big_int;
-}
-
-
-/************************************************************************
- *			init_big_int_with_val(1)			*
+ *			init_big_int(1)					*
  *									*
  * Allocates memory for a BigInt with 2 words then initializes its sign	*
  * and magnitude corresponding to input integer 'init_val'.		*
  ************************************************************************/
-struct BigInt *init_big_int_with_val(long long int init_val)
+struct BigInt *init_big_int(long long int init_val)
 {
 	/* allocate BigInt struct
 	 * ================================================================== */
-	struct BigInt *big_int;
+	struct BigInt *big;
 
-	HANDLE_MALLOC(big_int, sizeof(struct BigInt));
+	HANDLE_MALLOC(big, sizeof(struct BigInt));
 
 
 	/* allocate 2 words for storage of magnitude
 	 * ================================================================== */
-	HANDLE_MALLOC(big_int->words,
-		      sizeof(unsigned long long int) * 2lu);
+	HANDLE_MALLOC(big->words, sizeof(unsigned long long int) * 2lu);
 
-	big_int->num_alloc = num_alloc;
+	big->num_alloc = 2lu;
 
-	return big_int;
 
 	/* assign sign and set first word to magnitude of 'init_val'
 	 * ================================================================== */
@@ -100,6 +71,31 @@ struct BigInt *init_big_int_with_val(long long int init_val)
 	return big;
 }
 
+
+
+/************************************************************************
+ *			expand_big_int_words(1)				*
+ *									*
+ * Allocates additional space for 'words' array of 'big'.		*
+ ************************************************************************/
+void expand_big_int(struct BigInt *big)
+{
+	const size_t expanded = next_pow_two(big->num_alloc);
+
+	if (realloc(big->words,
+		    sizeof(unsigned long long int) * expanded) == NULL) {
+
+		fprintf(stderr,
+			FORMAT_ERROR("failed to reallocate number of "
+				     "words from %lu to %lu"),
+			big->num_alloc, expanded);
+
+		PRINT_CONTEXT_AND_EXIT_ON_FAILURE();
+	}
+
+	big->num_alloc = expanded;
+}
+
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -113,7 +109,7 @@ struct BigInt *init_big_int_with_val(long long int init_val)
  ************************************************************************/
 inline size_t next_pow_two(size_t num)
 {
-	return 1lu << (sizeof(size_t) - __builtin_clzl(num_alloc - 1lu));
+	return 1lu << (sizeof(size_t) - __builtin_clzl(num - 1lu));
 }
 
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
