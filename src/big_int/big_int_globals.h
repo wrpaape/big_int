@@ -1,20 +1,33 @@
-#ifndef BIG_INT_BIG_INT_UTILS_H_
-#define BIG_INT_BIG_INT_UTILS_H_
+#ifndef BIG_INT_BIG_INT_GLOBALS_H_
+#define BIG_INT_BIG_INT_GLOBALS_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include <stdlib.h>		/* malloc, free, exit, size_t */
-#include <stdio.h>		/* fprintf, printf */
-#include <errno.h>		/* errno */
-#include <string.h>		/* strerror */
-
-#include "big_int_typespec.h"	/* global definitions, declarations */
+#include <stdlib.h>	/* malloc, free, exit, size_t */
+#include <stdio.h>	/* fprintf, printf */
+#include <errno.h>	/* errno */
+#include <string.h>	/* strerror */
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
-/* HELPER MODULES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-/* HELPER MODULES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+/* ENUM AND STRUCT DEFINITIONS, TYPEDEFS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+enum Sign {
+	NEG = -1,
+	ZRO =  0,
+	POS =  1
+};
+
+
+struct BigInt {
+	enum Sign sign;
+	size_t num_words;
+	size_t num_alloc;
+	unsigned long long int *words;
+};
+
+/* ENUM AND STRUCT DEFINITIONS, TYPEDEFS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
@@ -60,4 +73,4 @@ int test_fun(void);
 
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_UTILS_H_ */
+#endif /* ifndef BIG_INT_BIG_INT_GLOBALS_H_ */

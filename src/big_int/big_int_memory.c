@@ -1,4 +1,5 @@
-#include "big_int.h"
+#include "big_int_memory.h"
+
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 extern inline struct BigInt *init_big_int_with_words(size_t num_words);

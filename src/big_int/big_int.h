@@ -1,9 +1,8 @@
 #ifndef BIG_INT_H_
-#define BIG_INT_H_ value
+#define BIG_INT_H_
 /* MODULES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include "big_int_typespec.h"
-#include "big_int_utils.h"
+#include "big_int_globals.h"
 #include "big_int_memory.h"
 #include "big_int_string.h"
 

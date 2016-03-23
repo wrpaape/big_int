@@ -1,8 +1,8 @@
-#ifndef BIG_INT_STRING_IO_H_
-#define BIG_INT_STRING_IO_H_
+#ifndef BIG_INT_BIG_INT_STRING_H_
+#define BIG_INT_BIG_INT_STRING_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include <stdio.h>
+#include "big_int_globals.h"	/* shared definitions, declarations, etc... */
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -33,4 +33,4 @@ char *big_int_to_string(struct BigInt *big_int);
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_STRING_IO_H_ */
+#endif /* ifndef BIG_INT_BIG_INT_STRING_H_ */

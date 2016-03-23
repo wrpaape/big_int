@@ -1,4 +1,4 @@
-#include "big_int_utils.h"
+#include "big_int_globals.h"
 
 int test_fun(void)
 {
