@@ -17,9 +17,13 @@
  ************************************************************************/
 char *big_int_to_string(struct BigInt *big_int)
 {
-	char *dig_str = malloc(sizeof(char) *
-			       ((big_int->num_words *
-				 CHARS_PER_DIGIT) + 2lu));
+	/* char *dig_str = malloc(sizeof(char) * ((big_int->num_words * CHARS_PER_DIGIT) + 2lu)); */
+
+	char *dig_str;
+
+	HANDLE_MALLOC(dig_str,
+		      (sizeof(char) * (big_int->num_words * CHARS_PER_DIGIT))
+		      + 2lu);
 
 	char *dig_char = dig_str;
 

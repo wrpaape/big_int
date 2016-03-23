@@ -1,11 +1,6 @@
-#ifndef BIG_INT_MEM_MGMT_H_
-#define BIG_INT_MEM_MGMT_H_
+#ifndef BIG_INT_BIG_INT_MEMORY_H_
+#define BIG_INT_BIG_INT_MEMORY_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-/* #include <stdlib.h>	/1* malloc, free, exit, size_t *1/ */
-/* #include <stdio.h>	/1* perror *1/ */
-/* #include <errono.h>	/1* errno *1/ */
-
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -18,15 +13,14 @@
 
 
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 struct BigInt *init_big_int(long long int init_val);
-
-static inline void *handle_malloc(const size_t total_bytes);
-
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -49,20 +43,17 @@ inline struct BigInt *init_big_int_with_words(size_t num_alloc)
 {
 	/* allocate BigInt struct
 	 * ================================================================== */
-	struct BigInt *big_int = malloc(sizeof(struct BigInt));
+	struct BigInt *big_int;
 
-	if (big_int == NULL)
-		exit_malloc_failure(sizeof(struct BigInt));
+	HANDLE_MALLOC(big_int, sizeof(struct BigInt));
+
 
 	/* allocate words for storage of magnitude
 	 * ================================================================== */
-	big_int->words = malloc(sizeof(unsigned long long int) * num_alloc);
-
-	if (big_int->words == NULL)
-		return NULL;
+	HANDLE_MALLOC(big_int->words,
+		      sizeof(unsigned long long int) * num_alloc);
 
 	big_int->num_alloc = num_alloc;
-
 
 	return big_int;
 }
@@ -80,4 +71,4 @@ inline void free_big_int(struct BigInt *big_int)
 }
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_MEM_MGMT_H_ */
+#endif /* ifndef BIG_INT_BIG_INT_MEMORY_H_ */
