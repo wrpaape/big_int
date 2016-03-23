@@ -1,63 +1,58 @@
 .PHONY: all clean
 
-MAINMOD	= demo
-ROOTMOD = big_int
-SUBMODS = mem_mgmt string_io
-
 MAINDIR = .
-SRCSDIR = $(MAINDIR)/$(ROOTMOD)
+SRCSDIR = $(MAINDIR)/big_int
 DEPSDIR = $(SRCSDIR)
 OBJSDIR = $(MAINDIR)/../obj
 DESTDIR = $(MAINDIR)/../bin
 
 
-ROOTSRC = $(patsubst %,$(SRCSDIR)/%.c,$(ROOTMOD))
-ROOTOBJ = $(patsubst %,$(OBJSDIR)/%.o,$(ROOTMOD))
-ROOTDEP = $(patsubst %,$(DEPSDIR)/%.h,$(ROOTMOD))
+GLOBDEPS = $(DEPSDIR)/big_int.h
 
-# SUBSRCS = $(patsubst %,$(SRCSDIR)/%.c,$(SUBMODS))
-# SUBOBJS = $(patsubst %,$(OBJSDIR)/%.o,$(SUBMODS))
-# SUBDEPS = $(patsubst %,$(DEPSDIR)/%.h,$(SUBMODS)) $(ROOTDEP)
+big_int_OBJ  = $(OBJSDIR)/big_int.o
+big_int_SRC  = $(SRCSDIR)/big_int.c
+big_int_DEPS = $(GLOBDEPS)
+big_int_PREQ = $(big_int_SRC) $(big_int_DEPS)
 
-MAINSRC = $(patsubst %,$(MAINDIR)/%.c,$(MAINMOD))
-MAINOBJ = $(patsubst %,$(OBJSDIR)/%.o,$(MAINMOD))
-MAINDEP = $(ROOTDEP)
+mem_mgmt_OBJ  = $(OBJSDIR)/mem_mgmt.o
+mem_mgmt_SRC  = $(SRCSDIR)/mem_mgmt.c
+mem_mgmt_DEPS = $(DEPSDIR)/mem_mgmt.h $(GLOBDEPS)
+mem_mgmt_PREQ = $(mem_mgmt_SRC) $(mem_mgmt_DEPS)
 
-ALLOBJS = $(MAINOBJ) $(ROOTOBJ) $(SUBOBJS)
+string_io_OBJ  = $(OBJSDIR)/string_io.o
+string_io_SRC  = $(SRCSDIR)/string_io.c
+string_io_DEPS = $(DEPSDIR)/string_io.h $(GLOBDEPS)
+string_io_PREQ = $(string_io_SRC) $(string_io_DEPS)
 
-MAINBIN	= $(DESTDIR)/$(MAINMOD)
+demo_OBJ  = $(OBJSDIR)/demo.o
+demo_SRC  = $(MAINDIR)/demo.c
+demo_DEPS = $(GLOBDEPS)
+demo_PREQ = $(demo_SRC) $(demo_DEPS)
 
-define MAKEOBJ =
-$(OBJSDIR)/$1.o: $(SRCSDIR)/$1.c $(DEPSDIR)/$1.h
-	$(CC) $(CFLAGS) -c -o $$@ $$<
-endef
+ALLMODS = demo big_int mem_mgmt string_io
+ALLOBJS = $(foreach obj, $(ALLMODS), $($(obj)_OBJ))
+BINFILE = $(DESTDIR)/demo
 
-
-
-# SUBOSD    = $(call OBJSRCDEP,$1),$(ROOTDEP)
 
 CC	= gcc
 CFLAGS	= -g -I$(DEPSDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
+all: $(BINFILE)
 
-$(eval $(call MAKEOBJ,$(call SUBOSD,mem_mgmt)))
+$(BINFILE): $(ALLOBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-all: $(OBJSDIR)/mem_mgmt.o
-# all: $(MAINBIN)
+$(demo_OBJ): $(demo_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# $(MAINBIN): $(ALLOBJS)
-# 	$(CC) $(CFLAGS) -o $@ $^
+$(big_int_OBJ): $(big_int_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# $(MAINOBJ): $(MAINSRC) $(MAINDEP)
-# 	$(CC) $(CFLAGS) -c -o $@ $<
+$(mem_mgmt_OBJ): $(mem_mgmt_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# $(ROOTOBJ): $(ROOTSRC) $(ROOTDEP)
-# 	$(CC) $(CFLAGS) -c -o $@ $<
-
-# $(foreach mod,$(SUBMODS),$(eval $(call MAKEOBJ,$(call SUBOSD,$(mod)))))
-
-# $(SUBOBJS): $(SUBSRCS) $(SUBDEPS)
-# 	$(CC) $(CFLAGS) -c -o $@ $(SUBSRCS)
+$(string_io_OBJ): $(string_io_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) $(SRCSDIR)/*~ $(DEPSDIR)/*~ $(OBJSDIR)/*.o $(MAINBIN)

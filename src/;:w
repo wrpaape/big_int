@@ -2,9 +2,7 @@
 #define BIG_INT_MEM_MGMT_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-/* #include <stdlib.h>	/1* malloc, free, exit, size_t *1/ */
-/* #include <stdio.h>	/1* perror *1/ */
-/* #include <errono.h>	/1* errno *1/ */
+#include <stdlib.h>
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -12,9 +10,10 @@
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define MIN_WORDS 2lu
+#define MIN_WORDS 2llu
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
 
 
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -24,9 +23,6 @@
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 struct BigInt *init_big_int(long long int init_val);
-
-static inline void *handle_malloc(const size_t total_bytes);
-
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -43,28 +39,24 @@ static inline void *handle_malloc(const size_t total_bytes);
  *			init_big_int_with_words(1)			*
  *									*
  * Allocates memory for a BigInt with number of allocated words		*
- * 'num_alloc'.								*
+ * 'num_words'.								*
  ************************************************************************/
-inline struct BigInt *init_big_int_with_words(size_t num_alloc)
+inline struct BigInt *init_big_int_with_words(size_t num_words)
 {
 	/* allocate BigInt struct
-	 * ================================================================== */
+	 * ===================================================================*/
 	struct BigInt *big_int = malloc(sizeof(struct BigInt));
 
 	if (big_int == NULL)
-		exit_malloc_failure(sizeof(struct BigInt));
 
 	/* allocate words for storage of magnitude
-	 * ================================================================== */
-	big_int->words = malloc(sizeof(unsigned long long int) * num_alloc);
+	 * ===================================================================*/
+	big_int->words = malloc(sizeof(unsigned long long int) * num_words);
 
 	if (big_int->words == NULL)
 		return NULL;
 
-	big_int->num_alloc = num_alloc;
-
-
-	return big_int;
+	big_int->num_alloc = num_words;
 }
 
 
