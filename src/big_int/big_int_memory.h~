@@ -6,19 +6,6 @@
 
 
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-#define HANDLE_REALLOC_WORDS(big, size)					\
-do {									\
-	if (realloc(ptr, size) == NULL) {				\
-		fprintf(stderr,						\
-			FORMAT_ERROR("failed to reallocate words size"	\
-				     "from %lu to %lu bytes")		\
-			size);						\
-		PRINT_CONTEXT();					\
-		exit(EXIT_FAILURE);					\
-	}								\
-} while(0)
-
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 

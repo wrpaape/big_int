@@ -73,7 +73,7 @@ struct BigInt *init_big_int_with_val(long long int init_val)
 	/* allocate 2 words for storage of magnitude
 	 * ================================================================== */
 	HANDLE_MALLOC(big_int->words,
-		      sizeof(unsigned long long int) * 2lu);
+		      sizeof(unsigned long long int) * num_alloc);
 
 	big_int->num_alloc = num_alloc;
 
