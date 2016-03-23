@@ -1,8 +1,0 @@
-#ifndef BIG_INT_MEMORY_MANAGEMENT_H_
-#define BIG_INT_MEMORY_MANAGEMENT_H_
-
-#include <stdlib>
-
-struct BigInt *init_big_int(long long int init_val);
-
-#endif /* ifndef BIG_INT_MEMORY_MANAGEMENT_H_ */

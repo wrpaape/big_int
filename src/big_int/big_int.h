@@ -1,7 +1,7 @@
 #ifndef BIG_INT_BIG_INT_H_
 #define BIG_INT_BIG_INT_H_
 
-#include "memory_management.h"
+#include "mem_mgmt.h"
 #include "string_io.h"
 
 enum Sign {
@@ -16,5 +16,7 @@ struct BigInt {
 	unsigned int num_alloc;
 	unsigned long long int *words;
 };
+
+int test_fun(void);
 
 #endif /* ifndef BIG_INT_BIG_INT_H_ */

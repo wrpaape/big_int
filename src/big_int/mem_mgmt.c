@@ -1,5 +1,5 @@
 #include "big_int.h"
-#include "memory_management.h"
+#include "mem_mgmt.h"
 
 /************************************************************************
  *			init_big_int(1)					*
