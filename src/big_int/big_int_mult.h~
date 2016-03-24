@@ -1,10 +1,13 @@
-#ifndef BIG_INT_BIG_INT_ADD_H_
-#define BIG_INT_BIG_INT_ADD_H_
+#ifndef BIG_INT_BIG_INT_MULT_H_
+#define BIG_INT_BIG_INT_MULT_H_
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-void add_big_ints(struct BigInt *result,
-		  struct BigInt *big1,
-		  struct BigInt *big2);
+void big_int_ash_left(struct BigInt *result,
+		      struct BigInt *big,
+		      const size_t shift);
+void big_int_ash_right(struct BigInt *result,
+		       struct BigInt *big,
+		       const size_t shift);
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -17,4 +20,4 @@ void add_big_ints(struct BigInt *result,
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_ADD_H_ */
+#endif /* ifndef BIG_INT_BIG_INT_MULT_H_ */

@@ -1,7 +1,8 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int_globals.h"
-#include "big_int_utils.h"
+#include "big_int_memory.h"
+#include "big_int_mult.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -20,36 +21,40 @@
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
+void big_int_ash_left(struct BigInt *result,
+		      struct BigInt *big,
+		      const size_t shift)
 {
-	if (big1->sign > big2->sign)
-		return POS;
+	const unsigned long long int SHIFT_UP_MASK = ~(ULLONG_MAX >> shift);
+	const size_t required = big->num_words + 1;
 
-	if (big1->sign < big2->sign)
-		return NEG;
+	if (result->num_alloc < required)
+		expand_big_int(result, required);
 
-	if (big1->num_words < big2->num_words)
-		return POS;
+	result->sign = big->sign;
 
-	if (big1->num_words > big2->num_words)
-		return NEG;
+	size_t i = 0lu;
+	size_t j = 1lu;
+	unsigned long long int shift_up;
 
-
-	size_t i = big1->num_words;
 
 	while (1) {
-		if (big1->words[i] > big2->words[i])
-			return POS;
+		result->words[i] = big->words[i] << shift;
 
-		if (big1->words[i] < big2->words[i])
-			return NEG;
+		shift_up = big->words[i] & SHIFT_UP_MASK;
 
-		if (i == 0lu)
-			return ZRO;
-
-		--i;
+		if (j == required)
+			break;
 	}
+
+	if (shift_up == 0lu) {
+		result->num_words = big->num_words;
+		return;
+	}
+
+	result->num_words = required;
 }
+
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
