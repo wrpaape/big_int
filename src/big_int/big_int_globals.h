@@ -38,15 +38,15 @@ struct BigInt {
 
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define FORMAT_ERROR(MSG) "\n\e[31m\e[5mERROR:\e[25m\t\e[4m" MSG "\e[0m\n"
-
-#define PRINT_CONTEXT_AND_EXIT_ON_FAILURE()				\
+#define EXIT_ON_FAILURE(format, ...)					\
 do {									\
 	fprintf(stderr,							\
-		"\n\e[31merrno:\t%s\n\n"				\
+		"\n\e[31m\e[5mERROR:\e[25m\t\e[4m" format "\e[24m\n\n"	\
+		"errno:\t%s\n\n"					\
 		"file:\t%s\n\n"						\
 		"func:\t%s\n\n"						\
 		"line:\t%d\e[0m\n",					\
+		##__VA_ARGS__,						\
 		strerror(errno), __FILE__, __func__, __LINE__);		\
 	exit(EXIT_FAILURE);						\
 } while(0)
@@ -55,12 +55,8 @@ do {									\
 #define HANDLE_MALLOC(ptr, size)					\
 do {									\
 	ptr = malloc(size);						\
-	if (ptr == NULL) {						\
-		fprintf(stderr,						\
-			FORMAT_ERROR("failed to allocate %lu bytes"),	\
-			size);						\
-		PRINT_CONTEXT_AND_EXIT_ON_FAILURE();			\
-	}								\
+	if (ptr == NULL)						\
+		EXIT_ON_FAILURE("failed to allocate %lu bytes", size);	\
 } while(0)
 
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
