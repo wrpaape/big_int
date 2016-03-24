@@ -23,10 +23,23 @@
 enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
 {
 	if (big1->num_words != big2->num_words)
-		return (big1->num_words > big2->num_words) ? 1 : -1;
+		return (big1->num_words > big2->num_words) ? POS : NEG;
 
-	const size_t required;
-	/* expand_big_int() */
+
+	size_t i = big1->num_words;
+
+	while (1) {
+		if (big1->words[i] > big2->words[i])
+			return POS;
+
+		if (big1->words[i] < big2->words[i])
+			return NEG;
+
+		if (i == 0lu)
+			return ZRO;
+
+		--i;
+	}
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
