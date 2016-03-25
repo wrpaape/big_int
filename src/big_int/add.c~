@@ -7,17 +7,13 @@
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
-/* EXTERNAL API ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+/* EXTERNAL INLINE FUNCTION PROTOTYPES  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 extern inline void add_big_ints(struct BigInt *result,
 				struct BigInt *big1,
 				struct BigInt *big2);
 
-extern inline void add_big_ints_same_sign(struct BigInt *result,
-					  struct BigInt *big1,
-					  struct BigInt *big2);
-
-/* EXTERNAL API ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+/* EXTERNAL INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -41,9 +37,6 @@ void add_big_ints_same_sign(struct BigInt *result,
 	if (big2->word_count > big1->word_count)
 		VAR_SWAP(big1, big2);
 
-	const word_t *lrg_words = big1->words;
-	const word_t *sml_words = big2->words;
-
 	const size_t lrg_wc = big1->word_count;
 	const size_t sml_wc = big2->word_count;
 	const size_t req_wc = lrg_wc + 1lu;
@@ -53,26 +46,48 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	result->sign = big1->sign;
 
-
-	buff_t add_buffer;
-
-	word_t carry;
-
-	size_t i = 0lu;
-
-	while (1) {
-
-		add_buffer = sml_words[i] + big_words[i];
+	word_t *lrg_words = big1->words;
+	word_t *sml_words = big2->words;
+	word_t *res_words = res->words;
 
 
+
+	buff_t add_buffer = lrg_words[0] + sml_words[0];
+	word_t carry	  = (word_t) (add_buffer >> WORD_BITS);
+
+	res_words[0] = (word_t) add_buffer;
+
+	size_t i = 1lu;
+
+	while (i < sml_wc) {
+		add_buffer   = lrg_words[i] + sml_words[i]
+		res_words[i] = ((word_t) add_buffer) + carry;
+		carry	     = (word_t) (add_buffer >> WORD_BITS);
+		++i
 	}
 
 
+	while (i < lrg_wc) {
 
-	for (int i = 0; i < count; ++i) {
-		
+		if (carry == 0llu) {
+			memcpy(&res_words[i], &lrg_words[i], lrg_wc - i);
+			result->num_words = lrg_wc;
+			return;
+		}
+
+		add_buffer   = lrg_words[i] + carry;
+		res_words[i] = (word_t) add_buffer;
+		carry	     = (word_t) (add_buffer >> WORD_BITS);
+		++i;
 	}
 
+	if (carry == 0llu) {
+		result->num_words = lrg_wc;
+		return;
+	}
+
+	result->words[lrg_wc] = carry;
+	result->num_words     = req_wc;
 
 }
 
