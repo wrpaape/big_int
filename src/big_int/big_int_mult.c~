@@ -7,7 +7,6 @@
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
-
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -26,31 +25,36 @@ void big_int_ash_left(struct BigInt *result,
 		      const size_t shift)
 {
 	const unsigned long long int SHIFT_UP_MASK = ~(ULLONG_MAX >> shift);
-	const size_t required = big->num_words + 1;
+	const size_t complement	   = WORD_BITS - shift;
+	const size_t big_num_words = big->num_words;
+	const size_t required	   = big_num_words + 1lu;
+
+	unsigned long long int shift_up;
 
 	if (result->num_alloc < required)
 		expand_big_int(result, required);
 
 	result->sign = big->sign;
 
-	size_t i = 0lu;
-	size_t j = 1lu;
-	unsigned long long int shift_up;
+	result->words[0] = big->words[0] << shift;
 
+	shift_up = big->words[0] & SHIFT_UP_MASK;
 
-	while (1) {
-		result->words[i] = big->words[i] << shift;
+	for (size_t i = 1lu; i < big_num_words; ++i) {
+
+		result->words[i] = (big->words[i] << shift) &
+				   (shift_up >> complement);
 
 		shift_up = big->words[i] & SHIFT_UP_MASK;
-
-		if (j == required)
-			break;
 	}
 
 	if (shift_up == 0lu) {
-		result->num_words = big->num_words;
+		result->num_words = big_num_words;
 		return;
 	}
+
+	result->words[big_num_words] = (big->words[big_num_words] << shift) &
+				       (shift_up >> complement);
 
 	result->num_words = required;
 }
