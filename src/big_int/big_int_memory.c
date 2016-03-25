@@ -45,7 +45,7 @@ struct BigInt *init_big_int(const long long int init_val)
 	 * ================================================================== */
 	HANDLE_MALLOC(big->words, sizeof(word_t) * 2lu);
 
-	big->num_alloc = 2lu;
+	big->alloc_count = 2lu;
 
 
 	/* assign sign and set first word to magnitude of 'init_val'
@@ -63,7 +63,7 @@ struct BigInt *init_big_int(const long long int init_val)
 		big->words[0] = 0llu;
 	}
 
-	big->num_words = 1u;
+	big->word_count = 1u;
 
 
 	return big;
@@ -84,10 +84,10 @@ void expand_big_int(struct BigInt *big, const size_t required)
 
 		EXIT_ON_FAILURE("failed to reallocate number of words"
 				"from %lu to %lu",
-				big->num_alloc, expanded);
+				big->alloc_count, expanded);
 	}
 
-	big->num_alloc = expanded;
+	big->alloc_count = expanded;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

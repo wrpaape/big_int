@@ -27,14 +27,14 @@ enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
 	if (big1->sign < big2->sign)
 		return NEG;
 
-	if (big1->num_words < big2->num_words)
+	if (big1->word_count < big2->word_count)
 		return POS;
 
-	if (big1->num_words > big2->num_words)
+	if (big1->word_count > big2->word_count)
 		return NEG;
 
 
-	size_t i = big1->num_words;
+	size_t i = big1->word_count;
 
 	while (1) {
 		if (big1->words[i] > big2->words[i])

@@ -54,21 +54,23 @@ void add_big_ints(struct BigInt *result,
 		return;
 	}
 
-	const size_t big1_num_words = big1->num_words;
-	const size_t required	    = big1_num_words + 1lu;
+	const size_t big1_wc  = big1->word_count;
+	const size_t req_wc = big1_wc + 1lu;
 
-	if (result->num_alloc < required)
-		expand_big_int(result, required);
+	if (result->alloc_count < req_wc)
+		expand_big_int(result, req_wc);
 
 	result->sign = big1->sign;
 
 	if (big2->sign == ZRO) {
-		result->num_words = big1_num_words;
+		result->word_count = big1_wc;
 		memcpy(result->words,
 		       big1->words,
-		       sizeof(word_t) * big1_num_words);
+		       sizeof(word_t) * big1_wc);
 		return;
 	}
+
+	const size_t big2_wc = big2->word_count;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
