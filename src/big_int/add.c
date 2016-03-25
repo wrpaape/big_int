@@ -1,10 +1,10 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include "big_int_globals.h"
-#include "big_int_memory.h"
-#include "big_int_utils.h"
-#include "big_int_mult.h"
-#include "big_int_add.h"
+#include "big_int/globals.h"
+#include "big_int/memory.h"
+#include "big_int/utils.h"
+#include "big_int/multiply.h"
+#include "big_int/add.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

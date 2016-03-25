@@ -2,9 +2,9 @@
 #define BIG_INT_H_
 /* MODULES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include "big_int_globals.h"
-#include "big_int_memory.h"
-#include "big_int_string.h"
+#include "big_int/globals.h"
+#include "big_int/memory.h"
+#include "big_int/string.h"
 
 /* MODULES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 #endif /* ifndef BIG_INT_H_ */

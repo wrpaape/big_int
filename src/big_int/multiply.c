@@ -1,56 +1,69 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include "big_int_globals.h"
-#include "big_int_string.h"
+#include "big_int/globals.h"
+#include "big_int/memory.h"
+#include "big_int/multiply.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
-
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-#define CHARS_PER_DIGIT 20lu
-
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-/************************************************************************
- *			big_int_to_string(1)				*
- *									*
- * Returns the decimal representation of the integer value of 'big_int'	*
- * as a NULL-terminated ASCII string of digits.				*
- ************************************************************************/
-char *big_int_to_string(struct BigInt *big_int)
+void big_int_ash_left(struct BigInt *result,
+		      struct BigInt *big,
+		      const size_t shift)
 {
-	/* char *dig_str = malloc(sizeof(char) * ((big_int->word_count * CHARS_PER_DIGIT) + 2lu)); */
+	result->sign = big->sign;
 
-	char *dig_str;
-
-	HANDLE_MALLOC(dig_str,
-		      (sizeof(char) * (big_int->word_count * CHARS_PER_DIGIT))
-		      + 2lu);
-
-	char *dig_char = dig_str;
-
-	unsigned long long int *digit = big_int->words;
-
-	if (big_int->sign == NEG) {
-		*dig_char = '-';
-		++dig_char;
+	if (result->sign == ZRO) {
+		result->word_count = 1lu;
+		result->words[0]  = 0llu;
+		return;
 	}
 
-	sprintf(dig_char, "%llu", *digit);
+	const word_t SHIFT_MASK = ~(WORD_MAX >> shift);
+	const size_t complement = WORD_BITS - shift;
+	const size_t big_wc	= big->word_count;
+	const size_t req_wc	= big_wc + 1lu;
 
-	return dig_str;
+	word_t shift_up;
+
+	if (result->alloc_count < req_wc)
+		expand_big_int(result, req_wc);
+
+	result->words[0] = big->words[0] << shift;
+
+	shift_up = big->words[0] & SHIFT_MASK;
+
+	for (size_t i = 1lu; i < big_wc; ++i) {
+
+		result->words[i] = (big->words[i] << shift) &
+				   (shift_up >> complement);
+
+		shift_up = big->words[i] & SHIFT_MASK;
+	}
+
+	if (shift_up == 0lu) {
+		result->word_count = big_wc;
+		return;
+	}
+
+	result->words[big_wc] = shift_up >> complement;
+
+	result->word_count = req_wc;
 }
+
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

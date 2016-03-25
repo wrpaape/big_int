@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "big_int.h"
+#include "big_int/big_int.h"
 
 int main(void)
 {
@@ -8,6 +8,8 @@ int main(void)
 	printf("to_s: %s\n", big_int_to_string(big_int));
 
 	printf("test: %d\n", test_fun());
+
+	printf("WORD_MAX: %llu\n", WORD_MAX);
 
 	return 0;
 }

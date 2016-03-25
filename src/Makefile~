@@ -7,36 +7,36 @@ OBJSDIR = $(MAINDIR)/../obj
 DESTDIR = $(MAINDIR)/../bin
 
 
-GLOBDEPS = $(DEPSDIR)/big_int_globals.h
+GLOBDEPS = $(DEPSDIR)/globals.h
 
-globals_OBJ  = $(OBJSDIR)/big_int_globals.o
-globals_SRC  = $(SRCSDIR)/big_int_globals.c
+globals_OBJ  = $(OBJSDIR)/globals.o
+globals_SRC  = $(SRCSDIR)/globals.c
 globals_DEPS = $(GLOBDEPS)
 globals_PREQ = $(globals_SRC) $(globals_DEPS)
 
-utils_OBJ  = $(OBJSDIR)/big_int_utils.o
-utils_SRC  = $(SRCSDIR)/big_int_utils.c
-utils_DEPS = $(DEPSDIR)/big_int_utils.h $(GLOBDEPS)
+utils_OBJ  = $(OBJSDIR)/utils.o
+utils_SRC  = $(SRCSDIR)/utils.c
+utils_DEPS = $(DEPSDIR)/utils.h $(GLOBDEPS)
 utils_PREQ = $(utils_SRC) $(utils_DEPS)
 
-memory_OBJ  = $(OBJSDIR)/big_int_memory.o
-memory_SRC  = $(SRCSDIR)/big_int_memory.c
-memory_DEPS = $(DEPSDIR)/big_int_memory.h $(GLOBDEPS)
+memory_OBJ  = $(OBJSDIR)/memory.o
+memory_SRC  = $(SRCSDIR)/memory.c
+memory_DEPS = $(DEPSDIR)/memory.h $(GLOBDEPS)
 memory_PREQ = $(memory_SRC) $(memory_DEPS)
 
-add_OBJ  = $(OBJSDIR)/big_int_add.o
-add_SRC  = $(SRCSDIR)/big_int_add.c
-add_DEPS = $(DEPSDIR)/big_int_add.h $(DEPSDIR)/big_int_memory.h $(DEPSDIR)/big_int_mult.h $(DEPSDIR)/big_int_utils.h $(GLOBDEPS)
+add_OBJ  = $(OBJSDIR)/add.o
+add_SRC  = $(SRCSDIR)/add.c
+add_DEPS = $(DEPSDIR)/add.h $(DEPSDIR)/memory.h $(DEPSDIR)/multiply.h $(DEPSDIR)/utils.h $(GLOBDEPS)
 add_PREQ = $(add_SRC) $(add_DEPS)
 
-mult_OBJ  = $(OBJSDIR)/big_int_mult.o
-mult_SRC  = $(SRCSDIR)/big_int_mult.c
-mult_DEPS = $(DEPSDIR)/big_int_mult.h $(DEPSDIR)/big_int_memory.h $(GLOBDEPS)
-mult_PREQ = $(mult_SRC) $(mult_DEPS)
+multiply_OBJ  = $(OBJSDIR)/multiply.o
+multiply_SRC  = $(SRCSDIR)/multiply.c
+multiply_DEPS = $(DEPSDIR)/multiply.h $(DEPSDIR)/memory.h $(GLOBDEPS)
+multiply_PREQ = $(multiply_SRC) $(multiply_DEPS)
 
-string_OBJ  = $(OBJSDIR)/big_int_string.o
-string_SRC  = $(SRCSDIR)/big_int_string.c
-string_DEPS = $(DEPSDIR)/big_int_string.h $(GLOBDEPS)
+string_OBJ  = $(OBJSDIR)/string.o
+string_SRC  = $(SRCSDIR)/string.c
+string_DEPS = $(DEPSDIR)/string.h $(GLOBDEPS)
 string_PREQ = $(string_SRC) $(string_DEPS)
 
 demo_OBJ  = $(OBJSDIR)/demo.o
@@ -44,13 +44,13 @@ demo_SRC  = $(MAINDIR)/demo.c
 demo_DEPS = $(DEPSDIR)/big_int.h
 demo_PREQ = $(demo_SRC) $(demo_DEPS)
 
-ALLMODS = demo globals utils memory add mult string
+ALLMODS = demo globals utils memory add multiply string
 ALLOBJS = $(foreach obj, $(ALLMODS), $($(obj)_OBJ))
 BINFILE = $(DESTDIR)/demo
 
 
 CC	= gcc
-CFLAGS	= -g -I$(DEPSDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
+CFLAGS	= -g -I$(MAINDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
 
 all: $(BINFILE)
 
@@ -72,7 +72,7 @@ $(memory_OBJ): $(memory_PREQ)
 $(add_OBJ): $(add_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(mult_OBJ): $(mult_PREQ)
+$(multiply_OBJ): $(multiply_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(string_OBJ): $(string_PREQ)
