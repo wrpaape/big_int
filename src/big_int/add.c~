@@ -16,6 +16,7 @@ extern inline void add_big_ints(struct BigInt *result,
 extern inline void add_big_ints_same_sign(struct BigInt *result,
 					  struct BigInt *big1,
 					  struct BigInt *big2);
+
 /* EXTERNAL API ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -33,33 +34,29 @@ extern inline void add_big_ints_same_sign(struct BigInt *result,
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-void add_big_ints_same_sign_ordered(struct BigInt *result,
-				    struct BigInt *big1,
-				    struct BigInt *big2)
+void add_big_ints_same_sign(struct BigInt *result,
+			    struct BigInt *big1,
+			    struct BigInt *big2)
 {
+	if (big2->word_count > big1->word_count)
+		VAR_SWAP(big1, big2);
+
+	const word_t *lrg_words = big1->words;
+	const word_t *sml_words = big2->words;
+
+	const size_t lrg_wc = big1->word_count;
+	const size_t sml_wc = big2->word_count;
+	const size_t req_wc = lrg_wc + 1lu;
+
 
 	result->sign = big1->sign;
 
 	if (result->alloc_count < req_wc)
 		expand_big_int(result, req_wc);
 
-	const size_t big1_wc  = big1->word_count;
-	const size_t req_wc = big1_wc + 1lu;
+	:w
 
-	if (result->alloc_count < req_wc)
-		expand_big_int(result, req_wc);
 
-	result->sign = big1->sign;
-
-	if (big2->sign == ZRO) {
-		result->word_count = big1_wc;
-		memcpy(result->words,
-		       big1->words,
-		       sizeof(word_t) * big1_wc);
-		return;
-	}
-
-	const size_t big2_wc = big2->word_count;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
