@@ -30,26 +30,10 @@ inline void add_big_ints(struct BigInt *result,
 			 struct BigInt *big1,
 			 struct BigInt *big2)
 {
-
-	if (big1->sign == big2->sign) {
+	if (big1->sign == big2->sign)
 		add_big_ints_same_sign(result, big1, big2);
-		return;
-	}
-
-
-
-
-	size_t req_wc;
-
-
-		result->sign = big1->sign;
-
-		if (result->alloc_count < req_wc)
-			expand_big_int(result, req_wc);
-
-
-	}
-
+	else
+		subtract_big_ints_same_sign(result, big1, big2);
 }
 
 /* { */

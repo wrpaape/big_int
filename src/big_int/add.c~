@@ -48,13 +48,30 @@ void add_big_ints_same_sign(struct BigInt *result,
 	const size_t sml_wc = big2->word_count;
 	const size_t req_wc = lrg_wc + 1lu;
 
-
-	result->sign = big1->sign;
-
 	if (result->alloc_count < req_wc)
 		expand_big_int(result, req_wc);
 
-	:w
+	result->sign = big1->sign;
+
+
+	buff_t add_buffer;
+
+	word_t carry;
+
+	size_t i = 0lu;
+
+	while (1) {
+
+		add_buffer = sml_words[i] + big_words[i];
+
+
+	}
+
+
+
+	for (int i = 0; i < count; ++i) {
+		
+	}
 
 
 }
