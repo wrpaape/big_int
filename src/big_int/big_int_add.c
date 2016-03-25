@@ -27,6 +27,8 @@ void add_big_ints(struct BigInt *result,
 		  struct BigInt *big1,
 		  struct BigInt *big2)
 {
+	struct BigInt *smaller;
+
 	/* ensure big1 >= big2
 	 * ================================================================== */
 	switch (compare_big_ints(big1, big2)) {
@@ -34,7 +36,7 @@ void add_big_ints(struct BigInt *result,
 		case NEG:
 			/* big1 < big1, swap pointers
 			 * ================================================== */
-			struct BigInt *smaller = big1;
+			smaller = big1;
 			big1 = big2;
 			big2 = smaller;
 			break;
@@ -55,9 +57,10 @@ void add_big_ints(struct BigInt *result,
 		default:
 			/* big1 > big1, do nothing
 			 * ================================================== */
+			break;
 	}
 
-	const size_t required;
+	/* const size_t required; */
 	/* expand_big_int() */
 }
 

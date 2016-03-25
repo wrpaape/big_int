@@ -14,6 +14,8 @@
 
 /* ENUM AND STRUCT DEFINITIONS, TYPEDEFS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+typedef unsigned long long int word_t;
+
 enum Sign {
 	NEG = -1,
 	ZRO =  0,
@@ -25,7 +27,7 @@ struct BigInt {
 	enum Sign sign;
 	size_t num_words;
 	size_t num_alloc;
-	unsigned long long int *words;
+	word_t *words;
 };
 
 /* ENUM AND STRUCT DEFINITIONS, TYPEDEFS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -34,8 +36,7 @@ struct BigInt {
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define WORD_SIZE sizeof(unsigned long long int)
-#define WORD_BITS (WORD_SIZE * CHAR_BIT)
+#define WORD_BITS (sizeof(word_t) * CHAR_BIT)
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

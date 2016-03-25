@@ -41,18 +41,5 @@ inline void free_big_int(struct BigInt *big_int)
 	free(big_int);
 }
 
-
-/************************************************************************
- *			max_num_alloc(2)				*
- *									*
- * Frees all memory occupied by BigInt struct 'big_int'.		*
- ************************************************************************/
-inline void max_num_alloc(struct BigInt *big_int)
-{
-	free(big_int->words);
-	free(big_int);
-}
-
-
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 #endif /* ifndef BIG_INT_BIG_INT_MEMORY_H_ */

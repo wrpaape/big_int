@@ -43,7 +43,7 @@ struct BigInt *init_big_int(const long long int init_val)
 
 	/* allocate 2 words for storage of magnitude
 	 * ================================================================== */
-	HANDLE_MALLOC(big->words, WORD_SIZE * 2lu);
+	HANDLE_MALLOC(big->words, sizeof(word_t) * 2lu);
 
 	big->num_alloc = 2lu;
 
@@ -52,11 +52,11 @@ struct BigInt *init_big_int(const long long int init_val)
 	 * ================================================================== */
 	if (init_val > 0) {
 		big->sign     = POS;
-		big->words[0] = (unsigned long long int)  init_val;
+		big->words[0] = (word_t)  init_val;
 
 	} else if (init_val < 0) {
 		big->sign     = NEG;
-		big->words[0] = (unsigned long long int) -init_val;
+		big->words[0] = (word_t) -init_val;
 
 	} else {
 		big->sign     = ZRO;
@@ -80,7 +80,7 @@ void expand_big_int(struct BigInt *big, const size_t required)
 {
 	const size_t expanded = next_pow_two(required);
 
-	if (realloc(big->words, WORD_SIZE * expanded) == NULL) {
+	if (realloc(big->words, sizeof(word_t) * expanded) == NULL) {
 
 		EXIT_ON_FAILURE("failed to reallocate number of words"
 				"from %lu to %lu",

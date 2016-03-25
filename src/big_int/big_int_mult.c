@@ -24,12 +24,12 @@ void big_int_ash_left(struct BigInt *result,
 		      struct BigInt *big,
 		      const size_t shift)
 {
-	const unsigned long long int SHIFT_UP_MASK = ~(ULLONG_MAX >> shift);
+	const word_t SHIFT_UP_MASK = ~(ULLONG_MAX >> shift);
 	const size_t complement	   = WORD_BITS - shift;
 	const size_t big_num_words = big->num_words;
 	const size_t required	   = big_num_words + 1lu;
 
-	unsigned long long int shift_up;
+	word_t shift_up;
 
 	if (result->num_alloc < required)
 		expand_big_int(result, required);
