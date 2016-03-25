@@ -41,7 +41,7 @@ string_PREQ = $(string_SRC) $(string_DEPS)
 
 demo_OBJ  = $(OBJSDIR)/demo.o
 demo_SRC  = $(MAINDIR)/demo.c
-demo_DEPS = $(DEPSDIR)/big_int.h
+demo_DEPS = $(MAINDIR)/big_int.h
 demo_PREQ = $(demo_SRC) $(demo_DEPS)
 
 ALLMODS = demo globals utils memory add multiply string

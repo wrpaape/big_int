@@ -2,8 +2,7 @@
 #define BIG_INT_BIG_INT_GLOBALS_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include <stdlib.h>	/* malloc, free, exit, size_t */
-#include <stddef.h>	/* uint64_t, int128_t */
+#include <stdlib.h>	/* malloc, free, exit, size_t, uint64_t, __int128_t */
 #include <stdio.h>	/* fprintf, printf */
 #include <errno.h>	/* errno */
 #include <string.h>	/* strerror */

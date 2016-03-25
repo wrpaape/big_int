@@ -1,5 +1,5 @@
-#ifndef BIG_INT_BIG_INT_MEMORY_H_
-#define BIG_INT_BIG_INT_MEMORY_H_
+#ifndef BIG_INT_MEMORY_H_
+#define BIG_INT_MEMORY_H_
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -42,4 +42,4 @@ inline void free_big_int(struct BigInt *big_int)
 }
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_MEMORY_H_ */
+#endif /* ifndef BIG_INT_MEMORY_H_ */

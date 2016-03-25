@@ -1,5 +1,5 @@
-#ifndef BIG_INT_BIG_INT_MULT_H_
-#define BIG_INT_BIG_INT_MULT_H_
+#ifndef BIG_INT_MULTIPLY_H_
+#define BIG_INT_MULTIPLY_H_
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 void big_int_ash_left(struct BigInt *result,
@@ -20,4 +20,4 @@ void big_int_ash_right(struct BigInt *result,
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_MULT_H_ */
+#endif /* ifndef BIG_INT_MULTIPLY_H_ */

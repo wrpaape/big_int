@@ -1,5 +1,5 @@
-#ifndef BIG_INT_BIG_INT_UTILS_H_
-#define BIG_INT_BIG_INT_UTILS_H_
+#ifndef BIG_INT_UTILS_H_
+#define BIG_INT_UTILS_H_
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #define VAR_SWAP(x, y)				\
@@ -29,4 +29,4 @@ enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2);
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_UTILS_H_ */
+#endif /* ifndef BIG_INT_UTILS_H_ */

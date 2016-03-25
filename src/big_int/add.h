@@ -1,5 +1,5 @@
-#ifndef BIG_INT_BIG_INT_ADD_H_
-#define BIG_INT_BIG_INT_ADD_H_
+#ifndef BIG_INT_ADD_H_
+#define BIG_INT_ADD_H_
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 void add_big_ints(struct BigInt *result,
@@ -17,4 +17,4 @@ void add_big_ints(struct BigInt *result,
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-#endif /* ifndef BIG_INT_BIG_INT_ADD_H_ */
+#endif /* ifndef BIG_INT_ADD_H_ */
