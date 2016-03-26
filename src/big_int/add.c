@@ -48,7 +48,7 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	word_t *lrg_words = big1->words;
 	word_t *sml_words = big2->words;
-	word_t *res_words = res->words;
+	word_t *res_words = result->words;
 
 
 

@@ -38,7 +38,6 @@ char *big_int_to_string(struct BigInt *big)
 
 	char *digits;
 	char *root;
-	char *digit;
 
 	HANDLE_MALLOC(digits, MAX_LENGTH);
 
@@ -56,41 +55,43 @@ char *big_int_to_string(struct BigInt *big)
 	word_t *words = big->words;
 	word_t word   = words[i];
 
-	size_t rem_digits = num_dec_digits(word);
+	size_t j = num_dec_digits(word);
 
-	root += (char *) rem_digits;
+	root += (char *) j;
 
-	digit = root - 1;
 
 	while (1) {
+		root[-j] = ((char) (word % 10llu)) + '0';
 
-		*ddigit = (char) word % 10llu;
-
-		if (j == digit_count)
+		if (j == 1lu)
 			break;
 
 		word /= 10llu;
 
-		++j;
+		--j;
 	}
 
 
 	while (i > 0lu) {
 		word  = words[i];
-		root += MAX_DEC_DIGITS_PER_WORD;
-		j     = 1lu;
+
+		j = MAX_DEC_DIGITS_PER_WORD - 1lu;
 
 		while (1) {
 
-			root[-j] = (char) word % 10llu;
+			root[j] = ((char) (word % 10llu)) + '0';
 
-			if (word < 9llu)
+			if (word < 10llu)
 				break;
 
 			word /= 10llu;
 
-			++j;
+			--j;
 		}
+
+		memset(root, '0', j);
+
+		root += (char *) MAX_DEC_DIGITS_PER_WORD;
 	}
 
 
