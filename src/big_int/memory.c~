@@ -1,15 +1,13 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int/globals.h"
-#include "big_int/string.h"
+#include "big_int/utils.h"
+#include "big_int/memory.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
-
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-#define MAX_DEC_DIGITS_PER_WORD 20lu
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -19,84 +17,78 @@
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
+/* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+extern inline void free_big_int(struct BigInt *big_int);
+
+/* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 /************************************************************************
- *			big_int_to_string(1)				*
+ *			init_big_int(1)					*
  *									*
- * Returns the decimal representation of the integer value of 'big' as	*
- * a NULL-terminated ASCII string of digits.				*
+ * Allocates memory for a BigInt with 2 words then initializes its sign	*
+ * and magnitude corresponding to input integer 'init_val'.		*
  ************************************************************************/
-char *big_int_to_string(struct BigInt *big)
+struct BigInt *init_big_int(const long long int init_val)
 {
+	/* allocate BigInt struct
+	 * ================================================================== */
+	struct BigInt *big;
 
-	const size_t MAX_LENGTH = sizeof(char)
-				* big->word_count
-				* MAX_DEC_DIGITS_PER_WORD
-				+ 2lu;
+	HANDLE_MALLOC(big, sizeof(struct BigInt));
 
-	char *digits;
-	char *root;
-	char *digit;
 
-	HANDLE_MALLOC(digits, MAX_LENGTH);
+	/* allocate 2 words for storage of magnitude
+	 * ================================================================== */
+	HANDLE_MALLOC(big->words, sizeof(word_t) * 2lu);
 
-	root = digits;
+	big->alloc_count = 2lu;
 
-	if (big->sign == NEG) {
-		*root = '-';
-		++root;
+
+	/* assign sign and set first word to magnitude of 'init_val'
+	 * ================================================================== */
+	if (init_val > 0) {
+		big->sign     = POS;
+		big->words[0] = (word_t)  init_val;
+
+	} else if (init_val < 0) {
+		big->sign     = NEG;
+		big->words[0] = (word_t) -init_val;
+
+	} else {
+		big->sign     = ZRO;
+		big->words[0] = 0llu;
 	}
 
+	big->word_count = 1u;
 
 
-	size_t i = big->word_count - 1lu;
+	return big;
+}
 
-	word_t *words = big->words;
-	word_t word   = words[i];
 
-	size_t rem_digits = num_dec_digits(word);
 
-	root += (char *) rem_digits;
+/************************************************************************
+ *			expand_big_int_words(1)				*
+ *									*
+ * Allocates additional space for 'words' array of 'big'.		*
+ ************************************************************************/
+void expand_big_int(struct BigInt *big, const size_t required)
+{
+	const size_t expanded = next_pow_two(required);
 
-	digit = root - 1;
+	if (realloc(big->words, sizeof(word_t) * expanded) == NULL) {
 
-	while (1) {
-
-		*digit = (char) word % 10llu;
-
-		if (j == digit_count)
-			break;
-
-		word /= 10llu;
-
-		++j;
+		EXIT_ON_FAILURE("failed to reallocate number of words"
+				"from %lu to %lu",
+				big->alloc_count, expanded);
 	}
 
-
-	while (i > 0lu) {
-		word  = words[i];
-		root += MAX_DEC_DIGITS_PER_WORD;
-		j     = 1lu;
-
-		while (1) {
-
-			root[-j] = (char) word % 10llu;
-
-			if (word < 9llu)
-				break;
-
-			word /= 10llu;
-
-			++j;
-		}
-	}
-
-
-	*root = '\0';
-
-	return digits;
+	big->alloc_count = expanded;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -104,29 +96,4 @@ char *big_int_to_string(struct BigInt *big)
 
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-inline size_t num_dec_digits(word_t word)
-{
-	if (word < 10llu)			return  1lu;
-	if (word < 100llu)			return  2lu;
-	if (word < 1000llu)			return  3lu;
-	if (word < 10000llu)			return  4lu;
-	if (word < 100000llu)			return  5lu;
-	if (word < 1000000llu)			return  6lu;
-	if (word < 10000000llu)			return  7lu;
-	if (word < 100000000llu)		return  8lu;
-	if (word < 1000000000llu)		return  9lu;
-	if (word < 10000000000llu)		return 10lu;
-	if (word < 100000000000llu)		return 11lu;
-	if (word < 1000000000000llu)		return 12lu;
-	if (word < 10000000000000llu)		return 13lu;
-	if (word < 100000000000000llu)		return 14lu;
-	if (word < 1000000000000000llu)		return 15lu;
-	if (word < 10000000000000000llu)	return 16lu;
-	if (word < 100000000000000000llu)	return 17lu;
-	if (word < 1000000000000000000llu)	return 18lu;
-	if (word < 10000000000000000000llu)	return 19lu;
-
-	return MAX_DEC_DIGITS_PER_WORD; /* 20 for 64 bit word */
-}
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
