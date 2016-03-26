@@ -1,15 +1,19 @@
 #include <stdio.h>
+#include <limits.h>
 #include "big_int.h"
 
 int main(void)
 {
-	struct BigInt *big_int = init_big_int(-1031ll);
+	struct BigInt *big1 = init_big_int(INT_MAX);
+	struct BigInt *big2 = init_big_int(INT_MAX);
+	struct BigInt *big3 = init_big_int(0);
 
-	printf("to_s: %s\n", big_int_to_string(big_int));
+	add_big_ints(big1, big2, big3);
 
-	printf("test: %d\n", test_fun());
 
-	printf("WORD_MAX: %llu\n", WORD_MAX);
+	printf("big1: %s\n", big_int_to_string(big1));
+	printf("big2: %s\n", big_int_to_string(big2));
+	printf("big3: %s\n", big_int_to_string(big3));
 
 	return 0;
 }

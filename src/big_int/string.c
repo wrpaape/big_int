@@ -9,7 +9,7 @@
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define CHARS_PER_DIGIT 20lu
+#define DEC_DIGITS_PER_WORD 20lu
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -25,29 +25,38 @@
 /************************************************************************
  *			big_int_to_string(1)				*
  *									*
- * Returns the decimal representation of the integer value of 'big_int'	*
- * as a NULL-terminated ASCII string of digits.				*
+ * Returns the decimal representation of the integer value of 'big' as	*
+ * a NULL-terminated ASCII string of digits.				*
  ************************************************************************/
-char *big_int_to_string(struct BigInt *big_int)
+char *big_int_to_string(struct BigInt *big)
 {
-	/* char *dig_str = malloc(sizeof(char) * ((big_int->word_count * CHARS_PER_DIGIT) + 2lu)); */
 
-	char *dig_str;
+	char *big_digits;
 
-	HANDLE_MALLOC(dig_str,
-		      (sizeof(char) * (big_int->word_count * CHARS_PER_DIGIT))
+	HANDLE_MALLOC(big_digits,
+		      (sizeof(char) * (big->word_count * DEC_DIGITS_PER_WORD))
 		      + 2lu);
 
-	char *dig_char = dig_str;
+	char *word_digits = big_digits;
 
-	unsigned long long int *digit = big_int->words;
+	word_t *word = big->words;
 
-	if (big_int->sign == NEG) {
-		*dig_char = '-';
-		++dig_char;
+	if (big->sign == NEG) {
+		*word_digits = '-';
+		++word_digits;
 	}
 
-	sprintf(dig_char, "%llu", *digit);
+
+	size_t i = big->word_count - 1;
+
+	while (1) {
+		sprintf(word_digits, "%llu", big->words[i]);
+
+		if (i == 0llu)
+			return big_digits;
+	}
+
+
 
 	return dig_str;
 }

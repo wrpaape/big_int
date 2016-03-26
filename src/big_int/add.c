@@ -52,7 +52,9 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 
 
-	buff_t add_buffer = lrg_words[0] + sml_words[0];
+	buff_t add_buffer = ((buff_t) lrg_words[0])
+			  + ((buff_t) sml_words[0]);
+
 	word_t carry	  = (word_t) (add_buffer >> WORD_BITS);
 
 	res_words[0] = (word_t) add_buffer;
@@ -60,7 +62,9 @@ void add_big_ints_same_sign(struct BigInt *result,
 	size_t i = 1lu;
 
 	while (i < sml_wc) {
-		add_buffer   = lrg_words[i] + sml_words[i]
+		add_buffer   = ((buff_t) lrg_words[i])
+			     + ((buff_t) sml_words[i]);
+
 		res_words[i] = ((word_t) add_buffer) + carry;
 		carry	     = (word_t) (add_buffer >> WORD_BITS);
 		++i
