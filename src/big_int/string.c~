@@ -92,6 +92,8 @@ char *big_int_to_string(struct BigInt *big)
 		memset(root, '0', j);
 
 		root += (char *) MAX_DEC_DIGITS_PER_WORD;
+
+		--i;
 	}
 
 
