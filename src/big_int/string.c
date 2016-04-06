@@ -59,12 +59,11 @@ char *big_int_to_string(struct BigInt *big)
 
 	const size_t sig_word_digits = num_dec_digits(word);
 
+	printf("sig: %zu\n", sig_word_digits);
+
 	root += sig_word_digits;
 
 	j = 1lu;
-
-	/* printf("j: %zu\n", j); */
-	/* printf("i: %zu\n", i); */
 
 	while (1) {
 		root[-j] = ((char) (word % 10llu)) + '0';
