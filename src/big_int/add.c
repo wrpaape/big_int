@@ -57,9 +57,6 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	word_t carry	  = (word_t) (add_buffer >> WORD_BITS);
 
-	printf("carry: %llu\n", carry);
-	printf("bitss: %zu\n", WORD_BITS);
-
 	res_words[0] = (word_t) add_buffer;
 
 	size_t i = 1lu;

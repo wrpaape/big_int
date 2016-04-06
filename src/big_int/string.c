@@ -38,6 +38,10 @@ char *big_int_to_string(struct BigInt *big)
 
 	char *digits;
 	char *root;
+	word_t *words;
+	word_t word;
+	size_t i;
+	size_t j;
 
 	HANDLE_MALLOC(digits, MAX_LENGTH);
 
@@ -48,28 +52,31 @@ char *big_int_to_string(struct BigInt *big)
 		++root;
 	}
 
+	i = big->word_count - 1lu;
 
+	words = big->words;
+	word  = words[i];
 
-	size_t i = big->word_count - 1lu;
+	const size_t sig_word_digits = num_dec_digits(word);
 
-	word_t *words = big->words;
-	word_t word   = words[i];
+	root += sig_word_digits;
 
-	size_t j = num_dec_digits(word);
+	j = 1lu;
 
-	root += j;
-
+	/* printf("j: %zu\n", j); */
+	/* printf("i: %zu\n", i); */
 
 	while (1) {
 		root[-j] = ((char) (word % 10llu)) + '0';
 
-		if (j == 1lu)
+		if (j == sig_word_digits)
 			break;
 
 		word /= 10llu;
 
-		--j;
+		++j;
 	}
+
 
 
 	while (i > 0lu) {
