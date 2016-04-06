@@ -67,7 +67,7 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 		res_words[i] = ((word_t) add_buffer) + carry;
 		carry	     = (word_t) (add_buffer >> WORD_BITS);
-		++i
+		++i;
 	}
 
 
@@ -75,7 +75,7 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 		if (carry == 0llu) {
 			memcpy(&res_words[i], &lrg_words[i], lrg_wc - i);
-			result->num_words = lrg_wc;
+			result->word_count = lrg_wc;
 			return;
 		}
 
@@ -86,12 +86,12 @@ void add_big_ints_same_sign(struct BigInt *result,
 	}
 
 	if (carry == 0llu) {
-		result->num_words = lrg_wc;
+		result->word_count = lrg_wc;
 		return;
 	}
 
 	result->words[lrg_wc] = carry;
-	result->num_words     = req_wc;
+	result->word_count    = req_wc;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

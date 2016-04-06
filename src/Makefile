@@ -26,8 +26,13 @@ memory_PREQ = $(memory_SRC) $(memory_DEPS)
 
 add_OBJ  = $(OBJSDIR)/add.o
 add_SRC  = $(SRCSDIR)/add.c
-add_DEPS = $(DEPSDIR)/add.h $(DEPSDIR)/memory.h $(DEPSDIR)/multiply.h $(DEPSDIR)/utils.h $(GLOBDEPS)
+add_DEPS = $(DEPSDIR)/add.h $(DEPSDIR)/subtract.h $(DEPSDIR)/memory.h $(DEPSDIR)/multiply.h $(DEPSDIR)/utils.h $(GLOBDEPS)
 add_PREQ = $(add_SRC) $(add_DEPS)
+
+subtract_OBJ  = $(OBJSDIR)/subtract.o
+subtract_SRC  = $(SRCSDIR)/subtract.c
+subtract_DEPS = $(DEPSDIR)/subtract.h $(DEPSDIR)/add.h $(DEPSDIR)/memory.h $(DEPSDIR)/multiply.h $(DEPSDIR)/utils.h $(GLOBDEPS)
+subtract_PREQ = $(subtract_SRC) $(subtract_DEPS)
 
 multiply_OBJ  = $(OBJSDIR)/multiply.o
 multiply_SRC  = $(SRCSDIR)/multiply.c
@@ -44,7 +49,7 @@ demo_SRC  = $(MAINDIR)/demo.c
 demo_DEPS = $(MAINDIR)/big_int.h
 demo_PREQ = $(demo_SRC) $(demo_DEPS)
 
-ALLMODS = demo globals utils memory add multiply string
+ALLMODS = demo globals utils memory add subtract multiply string
 ALLOBJS = $(foreach obj, $(ALLMODS), $($(obj)_OBJ))
 BINFILE = $(DESTDIR)/demo
 
@@ -70,6 +75,9 @@ $(memory_OBJ): $(memory_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(add_OBJ): $(add_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(subtract_OBJ): $(subtract_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(multiply_OBJ): $(multiply_PREQ)

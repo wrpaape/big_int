@@ -57,7 +57,7 @@ char *big_int_to_string(struct BigInt *big)
 
 	size_t j = num_dec_digits(word);
 
-	root += (char *) j;
+	root += j;
 
 
 	while (1) {
@@ -91,7 +91,7 @@ char *big_int_to_string(struct BigInt *big)
 
 		memset(root, '0', j);
 
-		root += (char *) MAX_DEC_DIGITS_PER_WORD;
+		root += MAX_DEC_DIGITS_PER_WORD;
 
 		--i;
 	}

@@ -4,6 +4,8 @@
 
 #include "big_int/globals.h"
 #include "big_int/add.h"
+#include "big_int/subtract.h"
+#include "big_int/multiply.h"
 #include "big_int/memory.h"
 #include "big_int/string.h"
 

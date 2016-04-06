@@ -2,7 +2,7 @@
 
 #include "big_int/globals.h"
 #include "big_int/memory.h"
-#include "big_int/add.h"
+#include "big_int/utils.h"
 #include "big_int/subtract.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

@@ -27,19 +27,6 @@
 
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-inline enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
-{
-	if (big1->sign > big2->sign)
-		return POS;
-
-	if (big1->sign < big2->sign)
-		return NEG;
-
-	return compare_big_int_mags(big1, big2);
-}
-
-
 inline enum Sign compare_big_int_mags(struct BigInt *big1, struct BigInt *big2)
 {
 	if (big1->word_count < big2->word_count)
@@ -64,5 +51,16 @@ inline enum Sign compare_big_int_mags(struct BigInt *big1, struct BigInt *big2)
 	}
 }
 
+
+inline enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
+{
+	if (big1->sign > big2->sign)
+		return POS;
+
+	if (big1->sign < big2->sign)
+		return NEG;
+
+	return compare_big_int_mags(big1, big2);
+}
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 #endif /* ifndef BIG_INT_UTILS_H_ */

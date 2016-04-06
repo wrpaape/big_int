@@ -2,7 +2,10 @@
 #define BIG_INT_ADD_H_
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#include "big_int/subtract.h"
+/* #include "big_int/subtract.h" */
+extern void subtract_big_ints_same_sign(struct BigInt *result,
+					struct BigInt *big1,
+					struct BigInt *big2);
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
