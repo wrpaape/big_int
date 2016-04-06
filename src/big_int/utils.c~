@@ -18,6 +18,7 @@
 
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
 extern inline buff_t add_words(word_t word1,
 			       word_t word2);
 
@@ -33,6 +34,7 @@ extern inline enum Sign compare_big_ints(struct BigInt *big1,
 
 extern inline enum Sign compare_big_int_mags(struct BigInt *big1,
 					     struct BigInt *big2);
+
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 

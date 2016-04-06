@@ -2,12 +2,12 @@
 #define BIG_INT_UTILS_H_
 /* FUNCTION-LIKE MACROS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define VAR_SWAP(x, y)			\
-do {					\
-	__typeof__(x) __swap_tmp = x;	\
-	x = y;				\
-	y = __swap_tmp;			\
-} while(0)
+#define VAR_SWAP(x, y)				\
+	do {					\
+		__typeof__(x) __swap_tmp = x;	\
+		x = y;				\
+		y = __swap_tmp;			\
+	} while(0)
 
 
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

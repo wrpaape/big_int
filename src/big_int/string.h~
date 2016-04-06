@@ -28,6 +28,8 @@ static inline size_t num_dec_digits(word_t num);
 
 static inline void free_big_digits(struct BigDigits *big);
 
+static inline void add_word_to_big_digits(struct BigDigits *big,
+					  word_t word);
 static inline void add_digit_to_big_digits(struct BigDigits *big,
 					   digit_t digit);
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
