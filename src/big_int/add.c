@@ -50,19 +50,12 @@ void add_big_ints_same_sign(struct BigInt *result,
 	word_t *sml_words = big2->words;
 	word_t *res_words = result->words;
 
+	buff_t add_buffer = ((buff_t) lrg_words[0])
+			  + ((buff_t) sml_words[0]);
 
+	word_t carry	  = (word_t) (add_buffer >> WORD_BITS);
 
-	struct WordBuffer add_buffer;
-	word_t carry;
-
-	add_words(add_buffer, lrg_words[0lu], sml_words[0lu]);
-
-	/* word_t carry	  = (word_t) (add_buffer >> WORD_BITS); */
-	/* word_t carry	  = WORD_MAX & (add_buffer >> WORD_BITS); */
-
-	/* res_words[0] = (word_t) add_buffer; */
-	res_words[0] = add_buffer.lower;
-	carry	     = add_buffer.upper;
+	res_words[0] = (word_t) add_buffer;
 
 	printf("res_words[0]: %llu\n", res_words[0]);
 
@@ -70,15 +63,13 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	/* add 'sml_words' to 'lrg_words', accumulating word overflow 'carry' */
 	while (i < sml_wc) {
-		/* add_buffer   = ((buff_t) lrg_words[i]) */
-		/* 	     + ((buff_t) sml_words[i]); */
+		add_buffer   = ((buff_t) lrg_words[i])
+			     + ((buff_t) sml_words[i]);
 
-		/* res_words[i] = ((word_t) add_buffer) + carry; */
-		res_words[i] = (WORD_MAX & add_buffer) + carry;
+		res_words[i] = ((word_t) add_buffer) + carry;
 
 		printf("res_words[%zu]: %llu\n", i, res_words[i]);
-		/* carry	     = (word_t) (add_buffer >> WORD_BITS); */
-		carry	  = WORD_MAX & (add_buffer >> WORD_BITS);
+		carry	     = (word_t) (add_buffer >> WORD_BITS);
 		++i;
 	}
 
@@ -95,11 +86,8 @@ void add_big_ints_same_sign(struct BigInt *result,
 		add_buffer   = ((buff_t) lrg_words[i])
 			     + ((buff_t) carry);
 
-		/* res_words[i] = (word_t) add_buffer; */
-		res_words[i] = WORD_MAX & add_buffer;
-
-		/* carry	     = (word_t) (add_buffer >> WORD_BITS); */
-		carry	  = WORD_MAX & (add_buffer >> WORD_BITS);
+		res_words[i] = (word_t) add_buffer;
+		carry	     = (word_t) (add_buffer >> WORD_BITS);
 		++i;
 	}
 

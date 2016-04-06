@@ -17,7 +17,8 @@
 
 typedef uint64_t word_t;
 
-/* typedef __uint128_t buff_t; */
+typedef __uint128_t buff_t;
+
 struct WordBuffer {
 	word_t lower;
 	word_t upper;
@@ -88,7 +89,7 @@ int test_fun(void);
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline void add_words(struct WordBuffer *buffer,
+inline buff_t add_words(
 		      word_t word1,
 		      word_t word2)
 {
