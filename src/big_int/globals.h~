@@ -14,7 +14,6 @@
 
 /* TYPEDEFS, ENUM AND STRUCT DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-
 typedef uint64_t word_t;
 
 typedef __uint128_t buff_t;

@@ -9,11 +9,12 @@
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+#define DIGIT_BITS (sizeof(digit_t) * CHAR_BIT)
 #define MAX_DEC_DIGITS_PER_WORD 20lu
 
-static const digit_t BASE_DEC_DIGITS[] = {
-	1, 8, 4, 4, 6, 7, 4, 4, 0, 7, 3, 7, 0, 9, 5, 5, 1, 6, 1, 6
-};
+/* static const digit_t BASE_DEC_DIGITS[] = { */
+/* 	1, 8, 4, 4, 6, 7, 4, 4, 0, 7, 3, 7, 0, 9, 5, 5, 1, 6, 1, 6 */
+/* }; */
 /* static const char CHAR_MAP[] = { */
 /* 	'0', '1', '2', '3', '4', '5', '6', '7', */
 /* 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F', */
@@ -140,7 +141,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	for (first_word = words[0lu]; first_word > 0lu; first_word /= 10lu) {
 
-		add_digit_to_big_digits(big,
+		add_word_to_big_digits(big,
 					(digit_t) (first_word % 10lu));
 	}
 
@@ -152,7 +153,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 			for (j = 0lu; j < MAX_DEC_DIGITS_PER_WORD; ++j) {
 
-				add_digit_to_big_digits(big,
+				add_word_to_big_digits(big,
 							BASE_DEC_DIGITS[j]);
 			}
 		}
@@ -165,14 +166,46 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-inline void add_digit_to_big_digits(struct BigDigits *big,
-				    digit_t digit)
+inline word_t add_digits(digit_t digit1,
+			 digit_t digit2)
+{
+	return ((word_t) digit1) + ((word_t) digit2);
+}
+
+inline word_t add_digit_to_word(word_t word,
+				digit_t digit)
+{
+	return word + ((word_t) digit);
+}
+
+inline digit_t upper_digit(word_t word)
+{
+	return (digit_t) (word >> DIGIT_BITS);
+}
+
+inline digit_t lower_digit(word_t word)
+{
+	return (digit_t) word;
+}
+
+inline void add_word_to_big_digits(struct BigDigits *big,
+				   word_t word)
+
+inline void add_word_to_big_digits(struct BigDigits *big,
+				   word_t word)
 {
 	digit_t *digits = big->digits;
 	size_t count	= big->count;
 
+	word_t sum_buffer = add_digits(lower_digit(word),
+				       digits[0lu])
 	digit_t carry;
-	digit_t carry;
+	size_t i = 0lu;
+
+
+	while (1) {
+	}
+
 }
 
 inline size_t num_dec_digits(word_t word)
