@@ -41,15 +41,20 @@ multiply_PREQ = $(multiply_SRC) $(multiply_DEPS)
 
 string_OBJ  = $(OBJSDIR)/string.o
 string_SRC  = $(SRCSDIR)/string.c
-string_DEPS = $(DEPSDIR)/string.h $(GLOBDEPS)
+string_DEPS = $(DEPSDIR)/string.h $(DEPSDIR)/big_digits.h $(GLOBDEPS)
 string_PREQ = $(string_SRC) $(string_DEPS)
+
+big_digits_OBJ  = $(OBJSDIR)/big_digits.o
+big_digits_SRC  = $(SRCSDIR)/big_digits.c
+big_digits_DEPS = $(DEPSDIR)/big_digits.h $(GLOBDEPS)
+big_digits_PREQ = $(big_digits_SRC) $(big_digits_DEPS)
 
 demo_OBJ  = $(OBJSDIR)/demo.o
 demo_SRC  = $(MAINDIR)/demo.c
 demo_DEPS = $(MAINDIR)/big_int.h
 demo_PREQ = $(demo_SRC) $(demo_DEPS)
 
-ALLMODS = demo globals utils memory add subtract multiply string
+ALLMODS = demo globals utils memory add subtract multiply string big_digits
 ALLOBJS = $(foreach obj, $(ALLMODS), $($(obj)_OBJ))
 BINFILE = $(DESTDIR)/demo
 
@@ -84,6 +89,9 @@ $(multiply_OBJ): $(multiply_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(string_OBJ): $(string_PREQ)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(big_digits_OBJ): $(big_digits_PREQ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:

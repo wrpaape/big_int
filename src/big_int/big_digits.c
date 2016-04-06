@@ -1,16 +1,22 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int/globals.h"
-#include "big_int/string.h"
 #include "big_int/big_digits.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
+
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define MAX_DEC_DIGITS_PER_WORD 20lu
+static const digit_t BASE_DEC_DIGITS[] = {
+	1, 8, 4, 4, 6, 7, 4, 4, 0, 7, 3, 7, 0, 9, 5, 5, 1, 6, 1, 6
+};
+/* static const char CHAR_MAP[] = { */
+/* 	'0', '1', '2', '3', '4', '5', '6', '7', */
+/* 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F', */
+/* }; */
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -21,92 +27,59 @@
 
 
 
+/* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+extern inline void free_big_digits(struct BigDigits *big);
+
+/* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+
+
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 /************************************************************************
- *			big_int_to_string(1)				*
+ *			words_to_big_digits(1)				*
  *									*
- * Returns the decimal representation of the integer value of 'big' as	*
- * a NULL-terminated ASCII string of digits.				*
+ * Returns an unsigned base 10 representation of the integer value of	*
+ * word_t array 'words'.						*
  ************************************************************************/
-char *big_int_to_string(struct BigInt *big)
+struct BigDigits *words_to_big_digits(const size_t word_count,
+				      word_t *words)
 {
-
-	const size_t MAX_LENGTH = sizeof(char)
-				* big->word_count
-				* MAX_DEC_DIGITS_PER_WORD
-				+ 2lu;
-
-	char *digits;
-	char *root;
-	word_t *words;
-	word_t word;
-	size_t i;
+	struct BigDigits *big;
+	word_t first_word;
+	word_t i;
 	size_t j;
+	word_t n;
 
-	HANDLE_MALLOC(digits, MAX_LENGTH);
+	HANDLE_MALLOC(big, sizeof(struct BigDigits));
+	HANDLE_MALLOC(big->digits,
+		      sizeof(digit_t) * MAX_DEC_DIGITS_PER_WORD * word_count);
 
-	root = digits;
+	big->digits[0lu] = 0u;
+	big->count	 = 1lu;
 
-	if (big->sign == NEG) {
-		*root = '-';
-		++root;
-	}
+	/* for (first_word = words[0lu]; first_word > 0lu; first_word /= 10lu) { */
 
-	i = big->word_count - 1lu;
-
-	words = big->words;
-	word  = words[i];
-
-	const size_t sig_word_digits = num_dec_digits(word);
-
-	printf("sig: %zu\n", sig_word_digits);
-
-	root += sig_word_digits;
-
-	j = 1lu;
-
-	while (1) {
-		root[-j] = ((char) (word % 10llu)) + '0';
-
-		if (j == sig_word_digits)
-			break;
-
-		word /= 10llu;
-
-		++j;
-	}
+	/* 	add_digit_to_big_digits(big, */
+	/* 				(digit_t) (first_word % 10lu)); */
+	/* } */
 
 
 
-	while (i > 0lu) {
-		word  = words[i];
+	/* for (n = 1lu; n < word_count; ++n) { */
 
-		j = MAX_DEC_DIGITS_PER_WORD - 1lu;
+	/* 	for (i = words[n] * ((word_t) n); i > 0llu; --i) { */
 
-		while (1) {
+	/* 		/1* for (j = 0lu; j < MAX_DEC_DIGITS_PER_WORD; ++j) { *1/ */
 
-			root[j] = ((char) (word % 10llu)) + '0';
+	/* 			add_digit_to_big_digits(big, */
+	/* 						BASE_DEC_DIGITS[j]); */
+	/* 		/1* } *1/ */
+	/* 	} */
+	/* } */
 
-			if (word < 10llu)
-				break;
-
-			word /= 10llu;
-
-			--j;
-		}
-
-		memset(root, '0', j);
-
-		root += MAX_DEC_DIGITS_PER_WORD;
-
-		--i;
-	}
-
-
-	*root = '\0';
-
-	return digits;
+	return big;
 }
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -114,29 +87,21 @@ char *big_int_to_string(struct BigInt *big)
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline size_t num_dec_digits(word_t word)
+inline void add_digit_to_big_digits(struct BigDigits *big,
+				    digit_t digit)
 {
-	if (word < 10llu)			return  1lu;
-	if (word < 100llu)			return  2lu;
-	if (word < 1000llu)			return  3lu;
-	if (word < 10000llu)			return  4lu;
-	if (word < 100000llu)			return  5lu;
-	if (word < 1000000llu)			return  6lu;
-	if (word < 10000000llu)			return  7lu;
-	if (word < 100000000llu)		return  8lu;
-	if (word < 1000000000llu)		return  9lu;
-	if (word < 10000000000llu)		return 10lu;
-	if (word < 100000000000llu)		return 11lu;
-	if (word < 1000000000000llu)		return 12lu;
-	if (word < 10000000000000llu)		return 13lu;
-	if (word < 100000000000000llu)		return 14lu;
-	if (word < 1000000000000000llu)		return 15lu;
-	if (word < 10000000000000000llu)	return 16lu;
-	if (word < 100000000000000000llu)	return 17lu;
-	if (word < 1000000000000000000llu)	return 18lu;
-	if (word < 10000000000000000000llu)	return 19lu;
+	/* digit_t *digits = big->digits; */
+	/* size_t count	= big->count; */
 
-	return MAX_DEC_DIGITS_PER_WORD; /* 20 for 64 bit word */
+	/* word_t sum_buffer = add_digits(lower_digit(word), */
+	/* 			       digits[0lu]) */
+	/* digit_t carry; */
+	/* size_t i = 0lu; */
+
+
+	/* while (1) { */
+	/* } */
+
 }
 
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
