@@ -18,10 +18,10 @@
 typedef uint64_t word_t;
 
 /* typedef __uint128_t buff_t; */
-typedef struct PrimitiveBuffer {
+struct WordBuffer {
 	word_t lower;
 	word_t upper;
-} buff_t;
+};
 
 
 enum Sign {
@@ -88,10 +88,12 @@ int test_fun(void);
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline void add_words(buff_t buffer, word_t word1, word_t word2)
+inline void add_words(struct WordBuffer *buffer,
+		      word_t word1,
+		      word_t word2)
 {
-	buffer.lower = word1 + word2;
-	buffer.upper = (word1 > WORD_MAX - word2) ? 1llu : 0llu;
+	buffer->lower = word1 + word2;
+	buffer->upper = (word1 > WORD_MAX - word2) ? 1llu : 0llu;
 }
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
