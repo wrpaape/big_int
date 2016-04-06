@@ -19,12 +19,6 @@ typedef uint64_t word_t;
 
 typedef __uint128_t buff_t;
 
-struct WordBuffer {
-	word_t lower;
-	word_t upper;
-};
-
-
 enum Sign {
 	NEG = -1,
 	ZRO =  0,
@@ -89,12 +83,26 @@ int test_fun(void);
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline buff_t add_words(
-		      word_t word1,
-		      word_t word2)
+inline buff_t add_words(word_t word1,
+			word_t word2)
 {
-	buffer->lower = word1 + word2;
-	buffer->upper = (word1 > WORD_MAX - word2) ? 1llu : 0llu;
+	return ((buff_t) word1) + ((buff_t) word2);
+}
+
+inline buff_t add_word_to_buffer(buff_t buffer,
+				 word_t word)
+{
+	return buffer + ((buff_t) word);
+}
+
+inline word_t upper_word(buff_t buffer)
+{
+	return (word_t) (buffer >> WORD_BITS);
+}
+
+inline word_t lower_word(buff_t buffer)
+{
+	return (word_t) buffer;
 }
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
