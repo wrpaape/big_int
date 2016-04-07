@@ -154,7 +154,7 @@ void subtract_big_digits(struct BigDigits *restrict result,
 		carry = 0u;
 	}
 
-	for (i = 1lu; i < sml_count; i++) {
+	for (i = 1lu; i < sml_count; ++i) {
 
 		lrg = lrg_digits[i];
 		sml = sml_digits[i];
@@ -177,6 +177,39 @@ void subtract_big_digits(struct BigDigits *restrict result,
 		}
 	}
 
+	if (i == lrg_count) {
+
+		if (carry > 0lu)
+			EXIT_ON_FAILURE("AWOOGA, big2 > big1");
+
+		/* rewind to first nonzero digit */
+		do {
+			--i
+		} while ((i > 0lu) && (res_digits[i] == 0u));
+
+		result->count = i + 1lu;
+		return;
+	}
+
+	/* propogate carry to upper digits */
+	if (carry == 1u) {
+
+		while (lrg_digits[i] == 0u) {
+			res_digits[i] = 9u;
+			++i;
+
+			if (i == lrg_count)
+				EXIT_ON_FAILURE("AWOOGA, segfault immenent, malformed big1");
+		}
+
+		res_digits[i] = lrg_digits[i] - 1lu;
+		++i;
+	}
+
+	/* copy remaining digits directly */
+	memcpy(res_digits, &lrg_digits[i], sizeof(digit_t) * (lrg_count - i));
+
+	result->count = lrg_count;
 }
 
 /* Karatsuba, big1->count >= big2->count */
