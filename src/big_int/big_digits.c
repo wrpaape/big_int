@@ -32,6 +32,10 @@ static const digit_t BASE_DEC_DIGITS[] = {
 extern inline struct BigDigits *init_big_digits(const size_t alloc_count);
 extern inline void free_big_digits(struct BigDigits *big);
 
+extern inline void multiply_big_digits(struct BigDigits *restrict result,
+				       struct BigDigits *restrict big1,
+				       struct BigDigits *restrict big2);
+
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -212,10 +216,10 @@ void subtract_big_digits(struct BigDigits *restrict result,
 	result->count = lrg_count;
 }
 
-/* Karatsuba, big1->count >= big2->count */
-void multiply_big_digits(struct BigDigits *restrict result,
-			 struct BigDigits *restrict big1,
-			 struct BigDigits *restrict big2)
+/* Karatsuba, big1->count == big2->count */
+void do_multiply_big_digits(struct BigDigits *restrict result,
+			    struct BigDigits *restrict big1,
+			    struct BigDigits *restrict big2)
 {
 	if (big2->count == 1lu) {
 		multiply_big_digits_by_digit(result,
@@ -302,17 +306,17 @@ void multiply_big_digits(struct BigDigits *restrict result,
 		       &lower2,
 		       &upper);
 
-	multiply_big_digits(mlt_tmp_1a,
-			    &lower1,
-			    &lower2);
+	do_multiply_big_digits(mlt_tmp_1a,
+			       &lower1,
+			       &lower2);
 
-	multiply_big_digits(mlt_tmp_1b,
-			    add_tmp_1a,
-			    add_tmp_1b);
+	do_multiply_big_digits(mlt_tmp_1b,
+			       add_tmp_1a,
+			       add_tmp_1b);
 
-	multiply_big_digits(mlt_tmp_1c,
-			    &upper1,
-			    &upper2);
+	do_multiply_big_digits(mlt_tmp_1c,
+			       &upper1,
+			       &upper2);
 
 	subtract_big_digits(sub_tmp_1a,
 			    mlt_tmp_1b,
@@ -337,6 +341,17 @@ void multiply_big_digits(struct BigDigits *restrict result,
 		       mlt_tmp_2c);
 
 	add_big_digits(result, mlt_tmp_2b, add_tmp_2a);
+
+	free_big_digits(add_tmp_1a);
+	free_big_digits(add_tmp_1b);
+	free_big_digits(mlt_tmp_1a);
+	free_big_digits(mlt_tmp_1b);
+	free_big_digits(mlt_tmp_1c);
+	free_big_digits(sub_tmp_1a);
+	free_big_digits(sub_tmp_1b);
+	free_big_digits(mlt_tmp_2a);
+	free_big_digits(mlt_tmp_2b);
+	free_big_digits(add_tmp_2a);
 }
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,

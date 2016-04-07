@@ -13,9 +13,10 @@ void subtract_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
 			 struct BigDigits *restrict big2);
 
-void multiply_big_digits(struct BigDigits *restrict result,
-			 struct BigDigits *restrict big1,
-			 struct BigDigits *restrict big2);
+
+void do_multiply_big_digits(struct BigDigits *restrict result,
+			    struct BigDigits *restrict big1,
+			    struct BigDigits *restrict big2);
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,
 				  struct BigDigits *restrict big,
@@ -40,6 +41,10 @@ static inline void add_digit_to_big_digits(struct BigDigits *big,
 
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+inline void multiply_big_digits(struct BigDigits *restrict result,
+				struct BigDigits *restrict big1,
+				struct BigDigits *restrict big2)
+
 
 inline struct BigDigits *init_big_digits(const size_t alloc_count)
 {
