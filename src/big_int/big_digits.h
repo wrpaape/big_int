@@ -9,6 +9,10 @@ void add_big_digits(struct BigDigits *restrict result,
 		    struct BigDigits *restrict big1,
 		    struct BigDigits *restrict big2);
 
+void subtract_big_digits(struct BigDigits *restrict result,
+			 struct BigDigits *restrict big1,
+			 struct BigDigits *restrict big2);
+
 void multiply_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
 			 struct BigDigits *restrict big2);

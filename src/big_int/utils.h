@@ -3,6 +3,8 @@
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #define BUFF_ZERO ((buff_t) 0llu)
+#define BUFF_ONE ((buff_t) 1llu)
+#define BUFF_TEN ((buff_t) 10llu)
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -23,27 +25,48 @@ do {					\
 
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
 /* HELPER FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-static inline digit_t priv_nth_pow_digit(const digit_t lil,
-					 const digit_t big,
-					 const int n);
-static inline word_t priv_nth_pow_word(const word_t lil,
-				       const word_t big,
-				       const int n);
-static inline buff_t priv_nth_pow_buffer(const buff_t lil,
-					 const buff_t big,
-					 const int n);
+
+
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+#define priv_nth_pow_body(fun)						\
+do {									\
+	if (n == 0) return lil;						\
+	if (n == 1) return big * lil;					\
+	if (n & 1)  return fun(big * lil, big * big, (n - 1) / 2);	\
+	else	    return fun(lil,       big * big, n / 2);		\
+} while (0)
+
+inline digit_t priv_nth_pow_digit(const digit_t lil,
+				  const digit_t big,
+				  const int n)
+{
+	priv_nth_pow_body(priv_nth_pow_digit);
+}
+
+inline word_t priv_nth_pow_word(const word_t lil,
+				const word_t big,
+				const int n)
+{
+	priv_nth_pow_body(priv_nth_pow_word);
+}
+
+inline buff_t priv_nth_pow_buffer(const buff_t lil,
+				  const buff_t big,
+				  const int n)
+{
+	priv_nth_pow_body(priv_nth_pow_buffer);
+}
+#undef priv_nth_pow_body
 
 inline digit_t nth_pow_digit(const digit_t base,
 			     const int n)
@@ -60,7 +83,7 @@ inline word_t nth_pow_word(const word_t base,
 inline buff_t nth_pow_buffer(const buff_t base,
 			     const int n)
 {
-	return priv_nth_pow_buffer((buff_t) 1llu, base, n);
+	return priv_nth_pow_buffer(BUFF_ONE, base, n);
 }
 
 inline buff_t add_words(word_t word1,
@@ -127,28 +150,10 @@ inline enum Sign compare_big_ints(struct BigInt *big1, struct BigInt *big2)
 	return compare_big_int_mags(big1, big2);
 }
 
-
-
-#define priv_nth_pow_body(fun)						\
-do {									\
-	if (n == 0) return lil;						\
-	if (n == 1) return big * lil;					\
-	if (n & 1)  return fun(big * lil, big * big, (n - 1) / 2);	\
-	else	    return fun(lil,       big * big, n / 2);		\
-} while (0)
-inline digit_t priv_nth_pow_digit(digit_t lil, digit_t big, const int n)
-{
-	priv_nth_pow_body(priv_nth_pow_digit);
-}
-inline word_t priv_nth_pow_word(word_t lil, word_t big, const int n);
-{
-	priv_nth_pow_body(priv_nth_pow_word);
-}
-inline buff_t priv_nth_pow_buffer(buff_t lil, buff_t big, const int n);
-{
-	priv_nth_pow_body(priv_nth_pow_buffer);
-}
-#undef priv_nth_pow_body
-
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+
+
+/* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+/* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 #endif /* ifndef BIG_INT_UTILS_H_ */

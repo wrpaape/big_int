@@ -18,14 +18,14 @@
 
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-inline digit_t nth_pow_digit(const digit_t base,
-			     const int n);
+extern inline digit_t nth_pow_digit(const digit_t base,
+				    const int n);
 
-inline word_t nth_pow_word(const word_t base,
-			   const int n);
+extern inline word_t nth_pow_word(const word_t base,
+				  const int n);
 
-inline buff_t nth_pow_buffer(const buff_t base,
-			     const int n);
+extern inline buff_t nth_pow_buffer(const buff_t base,
+				    const int n);
 
 extern inline buff_t add_words(word_t word1,
 			       word_t word2);
@@ -45,6 +45,19 @@ extern inline enum Sign compare_big_ints(struct BigInt *big1,
 
 extern inline enum Sign compare_big_int_mags(struct BigInt *big1,
 					     struct BigInt *big2);
+
+extern inline digit_t priv_nth_pow_digit(const digit_t lil,
+					 const digit_t big,
+					 const int n);
+
+extern inline word_t priv_nth_pow_word(const word_t lil,
+				       const word_t big,
+				       const int n);
+
+extern inline buff_t priv_nth_pow_buffer(const buff_t lil,
+					 const buff_t big,
+					 const int n);
+
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 

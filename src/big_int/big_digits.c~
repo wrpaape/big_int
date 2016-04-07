@@ -1,6 +1,7 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int/globals.h"
+#include "big_int/utils.h"
 #include "big_int/big_digits.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -9,9 +10,6 @@
 
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-#define BUFF_TEN ((buff_t) 10llu)
-
 static const digit_t BASE_DEC_DIGITS[] = {
 	1, 8, 4, 4, 6, 7, 4, 4, 0, 7, 3, 7, 0, 9, 5, 5, 1, 6, 1, 6
 };
@@ -129,25 +127,140 @@ void add_big_digits(struct BigDigits *restrict result,
 	}
 }
 
-/* Karatsuba */
+/* big1 >= big2 */
+void subtract_big_digits(struct BigDigits *restrict result,
+			 struct BigDigits *restrict big1,
+			 struct BigDigits *restrict big2)
+{
+	const size_t lrg_count = big1->count;
+	const size_t sml_count = big2->count;
+
+	digit_t *lrg_digits = big1->digits;
+	digit_t *sml_digits = big2->digits;
+	digit_t *res_digits  = result->digits;
+
+	digit_t lrg = lrg_digits[0lu];
+	digit_t sml = sml_digits[0lu];
+
+	digit_t carry;
+	size_t i = 1lu;
+
+	if (lrg < sml) {
+		res_digits[0lu] = (10u + lrg) - sml;
+		carry = 1u;
+
+	} else {
+		res_digits[0lu] = lrg - sml;
+		carry = 0u;
+	}
+
+	for (i = 1lu; i < sml_count; i++) {
+
+		lrg = lrg_digits[i];
+		sml = sml_digits[i];
+
+		/* only possible when lrg == 0 and carry == 1 */
+		if (lrg < carry) {
+			res_digits[i] = 9u - sml;
+			continue;
+		}
+
+		lrg -= carry;
+
+		if (lrg < sml) {
+			res_digits[i] = (10u + lrg) - sml;
+			carry = 1u;
+
+		} else {
+			res_digits[i] = lrg - sml;
+			carry = 0u;
+		}
+	}
+
+}
+
+/* Karatsuba, big1->count >= big2->count */
 void multiply_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
 			 struct BigDigits *restrict big2)
 {
 	if (big2->count == 1lu) {
-		multiply_big_digits_by_digit(result, big1);
-		return
+		multiply_big_digits_by_digit(result,
+					     big1,
+					     big2->digits[0lu]);
+		return;
 	}
 
-	const size_t m_half = big1->count / 2lu;
+	/* round up if odd count, ensure split is even or left-biased */
+	const size_t m_half = (big1->count & 1lu)
+			    ? (big1->count / 2lu) + 1lu
+			    : big1->count / 2lu;
+
+	/* split digits of 'big1', 'big2' */
+	struct BigDigits lower1;
+	struct BigDigits lower2;
+	struct BigDigits upper1;
+	struct BigDigits upper2;
+
+	lower1 = {
+		.count  = m_half,
+		.digits = big1->digits
+	};
+
+	upper1 = {
+		.count  = big1->count  - m_half,
+		.digits = big1->digits + m_half
+	};
+
+
+	/* ensure count of 'upper2' is at least 1 */
+	if (big2->count > m_half) {
+
+		lower2 = {
+			.count  = m_half,
+			.digits = big2->digits
+		};
+
+		upper2 = {
+			.count  = big2->count  - m_half,
+			.digits = big2->digits + m_half
+		};
+
+	} else {
+
+		lower2 = {
+			.count  = big2->count,
+			.digits = big2->digits
+		};
+
+		upper2 = {
+			.count  = 1lu,
+			.digits = {0u}
+		};
+	}
+
+	/* allocate space for temporary intermediate BigDigits */
 	const size_t m_res_size = big1->count + 2lu;
 	const size_t a_res_size = m_half + 1lu;
 
-	struct a_res1 = init_big_digits(a_res_size);
-	struct a_res2 = init_big_digits(a_res_size);
-	struct m_res1 = init_big_digits(m_res_size);
-	struct m_res2 = init_big_digits(m_res_size);
-	struct m_res3 = init_big_digits(m_res_size);
+	struct BigDigits *a_res1 = init_big_digits(a_res_size);
+	struct BigDigits *a_res2 = init_big_digits(a_res_size);
+	struct BigDigits *m_res1 = init_big_digits(m_res_size);
+	struct BigDigits *m_res2 = init_big_digits(m_res_size);
+	struct BigDigits *m_res3 = init_big_digits(m_res_size);
+	struct BigDigits *m_res4 = init_big_digits(m_res_size + m_half);
+	struct BigDigits *m_res5 = init_big_digits(m_res_size + (m_half * 2lu));
+
+
+	add_big_digits(a_res1, &lower1, &upper);
+	add_big_digits(a_res2, &lower2, &upper);
+
+	multiply_big_digits(m_res1, &lower1, &lower2);
+	multiply_big_digits(m_res2, a_res1,  a_res2);
+	multiply_big_digits(m_res3, &upper1, &upper2);
+
+	const digit_t ten_raised_m_half = nth_pow_digit(10u, (int) m_half);
+
 
 }
 
@@ -212,11 +325,6 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline buff_t multiply_word_by_digit(word_t word,
-				     digit_t digit)
-{
-	return ((buff_t) word) * ((buff_t) digit);
-}
 
 
 inline void add_digit_to_big_digits(struct BigDigits *big,

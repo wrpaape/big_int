@@ -1,20 +1,5 @@
 #ifndef BIG_INT_BIG_DIGITS_H_
 #define BIG_INT_BIG_DIGITS_H_
-/* TYPEDEFS, ENUM AND STRUCT DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-/* TYPEDEFS, ENUM AND STRUCT DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-
-
-
-/* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-#define DIGIT_BITS (sizeof(digit_t) * CHAR_BIT)
-#define MAX_DIGITS_PER_WORD 20lu
-
-/* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
-
-
-
-
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 struct BigDigits *words_to_big_digits(const size_t word_count,
@@ -23,6 +8,10 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 void add_big_digits(struct BigDigits *restrict result,
 		    struct BigDigits *restrict big1,
 		    struct BigDigits *restrict big2);
+
+void subtract_big_digits(struct BigDigits *restrict result,
+			 struct BigDigits *restrict big1,
+			 struct BigDigits *restrict big2);
 
 void multiply_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
