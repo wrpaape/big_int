@@ -134,6 +134,21 @@ void multiply_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
 			 struct BigDigits *restrict big2)
 {
+	if (big2->count == 1lu) {
+		multiply_big_digits_by_digit(result, big1);
+		return
+	}
+
+	const size_t m_half = big1->count / 2lu;
+	const size_t m_res_size = big1->count + 2lu;
+	const size_t a_res_size = m_half + 1lu;
+
+	struct a_res1 = init_big_digits(a_res_size);
+	struct a_res2 = init_big_digits(a_res_size);
+	struct m_res1 = init_big_digits(m_res_size);
+	struct m_res2 = init_big_digits(m_res_size);
+	struct m_res3 = init_big_digits(m_res_size);
+
 }
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,
@@ -155,6 +170,7 @@ void multiply_big_digits_by_digit(struct BigDigits *restrict result,
 	} while (i < count);
 
 	while (buffer > 0u) {
+
 		res_digits[i] = buffer % 10u;
 		buffer /= 10u;
 		++i;
@@ -182,6 +198,7 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 	} while (i < count);
 
 	while (buffer > BUFF_ZERO) {
+
 		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
 		buffer /= BUFF_TEN;
 		++i;
