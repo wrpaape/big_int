@@ -31,6 +31,7 @@ static const digit_t BASE_DEC_DIGITS[] = {
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+extern inline struct BigDigits *init_big_digits(const size_t alloc_count);
 extern inline void free_big_digits(struct BigDigits *big);
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -48,15 +49,12 @@ extern inline void free_big_digits(struct BigDigits *big);
 struct BigDigits *words_to_big_digits(const size_t word_count,
 				      word_t *words)
 {
-	struct BigDigits *big;
 	word_t first_word;
 	word_t i;
 	size_t j;
 	word_t n;
 
-	HANDLE_MALLOC(big, sizeof(struct BigDigits));
-	HANDLE_MALLOC(big->digits,
-		      sizeof(digit_t) * MAX_DEC_DIGITS_PER_WORD * word_count);
+	struct BigDigits *big = init_big_digits(MAX_DIGITS_PER_WORD * word_count);
 
 	big->digits[0lu] = 0u;
 	big->count	 = 1lu;
@@ -73,7 +71,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	/* 	for (i = words[n] * ((word_t) n); i > 0llu; --i) { */
 
-	/* 		/1* for (j = 0lu; j < MAX_DEC_DIGITS_PER_WORD; ++j) { *1/ */
+	/* 		/1* for (j = 0lu; j < MAX_DIGITS_PER_WORD; ++j) { *1/ */
 
 	/* 			add_digit_to_big_digits(big, */
 	/* 						BASE_DEC_DIGITS[j]); */
@@ -84,36 +82,112 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	return big;
 }
 
-void multiply_big_digits(struct BigDigits *restrict res,
+/* big1->count >= big2->count */
+void add_big_digits(struct BigDigits *restrict result,
+		    struct BigDigits *restrict big1,
+		    struct BigDigits *restrict big2)
+{
+	const size_t lrg_count = big1->count;
+	const size_t sml_count = big2->count;
+
+	digit_t *lrg_digits = big1->digits;
+	digit_t *sml_digits = big2->digits;
+	digit_t *res_digits = result->digits;
+
+
+	digit_t sum_buffer = 0u;
+	size_t i = 0lu;
+
+	do {
+		sum_buffer += (sml_digits[i] + lrg_digits[i]);
+
+		res_digits[i] = (sum_buffer % 10u);
+
+		sum_buffer /= 10u;
+
+		++i;
+
+	} while (i < sml_count);
+
+	while (i < lrg_count) {
+
+		sum_buffer += lrg_digits[i];
+
+		res_digits[i] = (sum_buffer % 10u);
+
+		sum_buffer /= 10u;
+
+		++i;
+	}
+
+	if (sum_buffer == 0u) {
+		result->count = lrg_count;
+
+	} else {
+		res_digits[i] = sum_buffer;
+		result->count = lrg_count + 1lu;
+	}
+}
+
+/* Karatsuba */
+void multiply_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
 			 struct BigDigits *restrict big2)
 {
 }
 
-void multiply_big_digits_by_word(struct BigDigits *restrict res,
-				 struct BigDigits *restrict big,
-				 word_t word);
+void multiply_big_digits_by_digit(struct BigDigits *restrict result,
+				  struct BigDigits *restrict big,
+				  digit_t digit)
 {
-	digit_t *res_digits = res->digits;
+	digit_t *res_digits = result->digits;
 	digit_t *big_digits = big->digits;
-	size_t count	= big->count;
-	buff_t buffer	= BUFF_ZERO;
+	digit_t buffer = 0u;
+	size_t count = big->count;
 	size_t i = 0lu;
 
-	for (size_t i = 0lu; i < count; ++i) {
+	do {
+		buffer += (digit * big_digits[i]);
+		res_digits[i] = buffer % 10u;
+		buffer /= 10u;
+		++i;
 
-		buffer += multiply_digit_with_word(word,
-						   big_digits[i]);
-		res_digits[i] = pop_digit(&buffer);
-	}
+	} while (i < count);
 
-	while (buffer > BUFF_ZERO) {
-
-		digits[i] = pop_digit(&buffer);
+	while (buffer > 0u) {
+		res_digits[i] = buffer % 10u;
+		buffer /= 10u;
 		++i;
 	}
 
-	res->count = i;
+	result->count = i;
+}
+
+void multiply_big_digits_by_word(struct BigDigits *restrict result,
+				 struct BigDigits *restrict big,
+				 word_t word)
+{
+	digit_t *res_digits = result->digits;
+	digit_t *big_digits = big->digits;
+	buff_t buffer = BUFF_ZERO;
+	size_t count = big->count;
+	size_t i = 0lu;
+
+	do {
+		buffer += multiply_word_by_digit(word, big_digits[i]);
+		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
+		buffer /= BUFF_TEN;
+		++i;
+
+	} while (i < count);
+
+	while (buffer > BUFF_ZERO) {
+		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
+		buffer /= BUFF_TEN;
+		++i;
+	}
+
+	result->count = i;
 }
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -121,17 +195,8 @@ void multiply_big_digits_by_word(struct BigDigits *restrict res,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline digit_t pop_digit(buff_t *buffer)
-{
-	const digit_t digit = (digit_t) ((*buffer) % BUFF_TEN);
-
-	(*buffer) /= BUFF_TEN;
-
-	return digit;
-}
-
-inline buff_t multiply_digit_with_word(word_t word,
-				       digit_t digit)
+inline buff_t multiply_word_by_digit(word_t word,
+				     digit_t digit)
 {
 	return ((buff_t) word) * ((buff_t) digit);
 }
