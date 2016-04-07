@@ -273,26 +273,71 @@ void multiply_big_digits(struct BigDigits *restrict result,
 	}
 
 	/* allocate space for temporary intermediate BigDigits */
-	const size_t m_res_size = big1->count + 2lu;
-	const size_t a_res_size = m_half + 1lu;
+	const size_t add_alloc_1  = m_half	 + 1lu;
+	const size_t mlt_alloc_1  = big1->count  + 2lu;
+	const size_t mlt_alloc_2a = mlt_alloc_1  + m_half;
+	const size_t mlt_alloc_2b = mlt_alloc_2a + m_half;
+	const size_t add_alloc_2  = mlt_alloc_2b + 1lu;
 
-	struct BigDigits *a_res1 = init_big_digits(a_res_size);
-	struct BigDigits *a_res2 = init_big_digits(a_res_size);
-	struct BigDigits *m_res1 = init_big_digits(m_res_size);
-	struct BigDigits *m_res2 = init_big_digits(m_res_size);
-	struct BigDigits *m_res3 = init_big_digits(m_res_size);
-	struct BigDigits *m_res4 = init_big_digits(m_res_size + m_half);
-	struct BigDigits *m_res5 = init_big_digits(m_res_size + (m_half * 2lu));
+	struct BigDigits *add_tmp_1a = init_big_digits(add_alloc_1);
+	struct BigDigits *add_tmp_1b = init_big_digits(add_alloc_1);
 
+	struct BigDigits *mlt_tmp_1a = init_big_digits(mlt_alloc_1);
+	struct BigDigits *mlt_tmp_1b = init_big_digits(mlt_alloc_1);
+	struct BigDigits *mlt_tmp_1c = init_big_digits(mlt_alloc_1);
 
-	add_big_digits(a_res1, &lower1, &upper);
-	add_big_digits(a_res2, &lower2, &upper);
+	struct BigDigits *sub_tmp_1a = init_big_digits(mlt_alloc_1);
+	struct BigDigits *sub_tmp_1b = init_big_digits(mlt_alloc_1);
 
-	multiply_big_digits(m_res1, &lower1, &lower2);
-	multiply_big_digits(m_res2, a_res1,  a_res2);
-	multiply_big_digits(m_res3, &upper1, &upper2);
+	struct BigDigits *mlt_tmp_2a = init_big_digits(mlt_alloc_2a);
+	struct BigDigits *mlt_tmp_2b = init_big_digits(mlt_alloc_2b);
 
-	const digit_t ten_raised_m_half = nth_pow_digit(10u, (int) m_half);
+	struct BigDigits *add_tmp_2a = init_big_digits(add_alloc_2);
+
+	add_big_digits(add_tmp_1a,
+		       &lower1,
+		       &upper);
+
+	add_big_digits(add_tmp_1b,
+		       &lower2,
+		       &upper);
+
+	multiply_big_digits(mlt_tmp_1a,
+			    &lower1,
+			    &lower2);
+
+	multiply_big_digits(mlt_tmp_1b,
+			    add_tmp_1a,
+			    add_tmp_1b);
+
+	multiply_big_digits(mlt_tmp_1c,
+			    &upper1,
+			    &upper2);
+
+	subtract_big_digits(sub_tmp_1a,
+			    mlt_tmp_1b,
+			    mlt_tmp_1c);
+
+	subtract_big_digits(sub_tmp_1b,
+			    sub_tmp_1a,
+			    mlt_tmp_1a);
+
+	/* const digit_t ten_raised_m_half = nth_pow_digit(10u, (int) m_half); */
+
+	/* multiply_big_digits_by_digit(mlt_tmp_2a, */
+	/* 			     sub_tmp_1b, */
+	/* 			     ten_raised_m_half); */
+
+	/* multiply_big_digits_by_digit(mlt_tmp_2b, */
+	/* 			     mlt_tmp_1c, */
+	/* 			     ten_raised_m_half * ten_raised_m_half); */
+
+	add_big_digits(add_tmp_2a,
+		       mlt_tmp_2a,
+		       mlt_tmp_2c);
+
+	add_big_digits(result, mlt_tmp_2b, add_tmp_2a);
+
 
 
 }
