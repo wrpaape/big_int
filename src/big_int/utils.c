@@ -18,6 +18,8 @@
 
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+extern inline size_t next_pow_two(size_t num);
+
 extern inline digit_t nth_pow_digit(const digit_t base,
 				    const int n);
 

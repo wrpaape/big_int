@@ -10,14 +10,7 @@
 
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-static const digit_t BASE_DEC_DIGITS[] = {
-	1, 8, 4, 4, 6, 7, 4, 4, 0, 7, 3, 7, 0, 9, 5, 5, 1, 6, 1, 6
-};
-/* static const char CHAR_MAP[] = { */
-/* 	'0', '1', '2', '3', '4', '5', '6', '7', */
-/* 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F', */
-/* }; */
-
+#define DIGITS_PER_WORD_BASE 20lu
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -51,35 +44,74 @@ extern inline void multiply_big_digits(struct BigDigits *restrict result,
 struct BigDigits *words_to_big_digits(const size_t word_count,
 				      word_t *words)
 {
-	word_t first_word;
-	word_t i;
-	size_t j;
-	word_t n;
+	struct BigDigits *big;
+	size_t i;
+	size_t digits_count;
+	word_t word;
+	digit_t *digits;
 
-	struct BigDigits *big = init_big_digits(MAX_DIGITS_PER_WORD * word_count);
+	size_t alloc_count = MAX_DIGITS_PER_WORD;
+	size_t alloc_acc   = MAX_DIGITS_PER_WORD * 2;
 
-	big->digits[0lu] = 0u;
-	big->count	 = 1lu;
-
-	/* for (first_word = words[0lu]; first_word > 0lu; first_word /= 10lu) { */
-
-	/* 	add_digit_to_big_digits(big, */
-	/* 				(digit_t) (first_word % 10lu)); */
-	/* } */
+	for (i = 1lu; i < word_count; ++i) {
+		alloc_count += (alloc_acc + 1lu);
+		alloc_acc   += MAX_DIGITS_PER_WORD;
+	}
 
 
+	const size_t buffer_size = sizeof(digit_t) * next_pow_two(alloc_count);
 
-	/* for (n = 1lu; n < word_count; ++n) { */
+	HANDLE_MALLOC(digits, buffer_size);
 
-	/* 	for (i = words[n] * ((word_t) n); i > 0llu; --i) { */
+	word = words[0lu];
 
-	/* 		/1* for (j = 0lu; j < MAX_DIGITS_PER_WORD; ++j) { *1/ */
+	i = 0lu;
 
-	/* 			add_digit_to_big_digits(big, */
-	/* 						BASE_DEC_DIGITS[j]); */
-	/* 		/1* } *1/ */
-	/* 	} */
-	/* } */
+	do {
+		digits[i] = word % 10lu;
+		word /= 10lu;
+		++i;
+
+	} while (word > 0lu);
+
+	digits_count = i;
+
+	if (word_count == 1lu)
+		goto SET_BIG_AND_RETURN;
+
+	struct BigDigits *base_acc;
+	digit_t *acc_digits;
+
+	digit_t word_base_digits[] = {
+		1u, 8u, 4u, 4u, 6u, 7u, 4u, 4u, 0u, 7u,
+		3u, 7u, 0u, 9u, 5u, 5u, 1u, 6u, 1u, 6u
+	};
+
+	struct BigDigits base = {
+		.count  = DIGITS_PER_WORD_BASE,
+		.digits = word_base_digits
+	};
+
+
+	HANDLE_MALLOC(acc_digits, buffer_size);
+
+	memcpy(acc_digits, base.digits, sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+
+	HANDLE_MALLOC(base_acc, sizeof(struct BigDigits));
+
+	base_acc->count  = DIGITS_PER_WORD_BASE;
+	base_acc->digits = acc_digits;
+
+
+
+	free_big_digits(base_acc);
+
+SET_BIG_AND_RETURN:
+
+	HANDLE_MALLOC(big, sizeof(struct BigDigits));
+
+	big->count  = digits_count;
+	big->digits = digits;
 
 	return big;
 }
@@ -188,7 +220,7 @@ void subtract_big_digits(struct BigDigits *restrict result,
 
 		/* rewind to first nonzero digit */
 		do {
-			--i
+			--i;
 		} while ((i > 0lu) && (res_digits[i] == 0u));
 
 		result->count = i + 1lu;
@@ -221,110 +253,98 @@ void do_multiply_big_digits(struct BigDigits *restrict result,
 			    struct BigDigits *restrict big1,
 			    struct BigDigits *restrict big2)
 {
-	if (big2->count == 1lu) {
-		multiply_big_digits_by_digit(result,
-					     big1,
-					     big2->digits[0lu]);
-		return;
-	}
+	/* if (big2->count == 1lu) { */
+	/* 	multiply_big_digits_by_digit(result, */
+	/* 				     big1, */
+	/* 				     big2->digits[0lu]); */
+	/* 	return; */
+	/* } */
 
-	/* round up if odd count, ensure split is even or left-biased */
-	const size_t m_half = (big1->count & 1lu)
-			    ? (big1->count / 2lu) + 1lu
-			    : big1->count / 2lu;
+	/* /1* round up if odd count, ensure split is even or left-biased *1/ */
+	/* const size_t m_half = (big1->count & 1lu) */
+	/* 		    ? (big1->count / 2lu) + 1lu */
+	/* 		    : big1->count / 2lu; */
 
-	/* split digits of 'big1', 'big2' */
-	struct BigDigits lower1;
-	struct BigDigits lower2;
-	struct BigDigits upper1;
-	struct BigDigits upper2;
+	/* /1* split digits of 'big1', 'big2' *1/ */
+	/* struct BigDigits lower1; */
+	/* struct BigDigits lower2; */
+	/* struct BigDigits upper1; */
+	/* struct BigDigits upper2; */
 
-	lower1 = {
-		.count  = m_half,
-		.digits = big1->digits
-	};
+	/* lower1.count  = m_half; */
+	/* lower1.digits = big1->digits; */
 
-	upper1 = {
-		.count  = big1->count  - m_half,
-		.digits = big1->digits + m_half
-	};
+	/* upper1.count  = big1->count  - m_half; */
+	/* upper1.digits = big1->digits + m_half; */
 
 
-	/* ensure count of 'upper2' is at least 1 */
-	if (big2->count > m_half) {
+	/* /1* ensure count of 'upper2' is at least 1 *1/ */
+	/* if (big2->count > m_half) { */
 
-		lower2 = {
-			.count  = m_half,
-			.digits = big2->digits
-		};
+	/* 	lower2.count  = m_half; */
+	/* 	lower2.digits = big2->digits; */
 
-		upper2 = {
-			.count  = big2->count  - m_half,
-			.digits = big2->digits + m_half
-		};
+	/* 	upper2.count  = big2->count  - m_half; */
+	/* 	upper2.digits = big2->digits + m_half; */
 
-	} else {
+	/* } else { */
 
-		lower2 = {
-			.count  = big2->count,
-			.digits = big2->digits
-		};
+	/* 	lower2.count  = big2->count; */
+	/* 	lower2.digits = big2->digits; */
 
-		upper2 = {
-			.count  = 1lu,
-			.digits = {0u}
-		};
-	}
+	/* 	upper2.count  = 1lu; */
+	/* 	upper2.digits = {0u}; */
+	/* } */
 
-	/* allocate space for temporary intermediate BigDigits */
-	const size_t add_alloc_1  = m_half	 + 1lu;
-	const size_t mlt_alloc_1  = big1->count  + 2lu;
-	const size_t mlt_alloc_2a = mlt_alloc_1  + m_half;
-	const size_t mlt_alloc_2b = mlt_alloc_2a + m_half;
-	const size_t add_alloc_2  = mlt_alloc_2b + 1lu;
+	/* /1* allocate space for temporary intermediate BigDigits *1/ */
+	/* const size_t add_alloc_1  = m_half	 + 1lu; */
+	/* const size_t mlt_alloc_1  = big1->count  + 2lu; */
+	/* const size_t mlt_alloc_2a = mlt_alloc_1  + m_half; */
+	/* const size_t mlt_alloc_2b = mlt_alloc_2a + m_half; */
+	/* const size_t add_alloc_2  = mlt_alloc_2b + 1lu; */
 
-	struct BigDigits *add_tmp_1a = init_big_digits(add_alloc_1);
-	struct BigDigits *add_tmp_1b = init_big_digits(add_alloc_1);
+	/* struct BigDigits *add_tmp_1a = init_big_digits(add_alloc_1); */
+	/* struct BigDigits *add_tmp_1b = init_big_digits(add_alloc_1); */
 
-	struct BigDigits *mlt_tmp_1a = init_big_digits(mlt_alloc_1);
-	struct BigDigits *mlt_tmp_1b = init_big_digits(mlt_alloc_1);
-	struct BigDigits *mlt_tmp_1c = init_big_digits(mlt_alloc_1);
+	/* struct BigDigits *mlt_tmp_1a = init_big_digits(mlt_alloc_1); */
+	/* struct BigDigits *mlt_tmp_1b = init_big_digits(mlt_alloc_1); */
+	/* struct BigDigits *mlt_tmp_1c = init_big_digits(mlt_alloc_1); */
 
-	struct BigDigits *sub_tmp_1a = init_big_digits(mlt_alloc_1);
-	struct BigDigits *sub_tmp_1b = init_big_digits(mlt_alloc_1);
+	/* struct BigDigits *sub_tmp_1a = init_big_digits(mlt_alloc_1); */
+	/* struct BigDigits *sub_tmp_1b = init_big_digits(mlt_alloc_1); */
 
-	struct BigDigits *mlt_tmp_2a = init_big_digits(mlt_alloc_2a);
-	struct BigDigits *mlt_tmp_2b = init_big_digits(mlt_alloc_2b);
+	/* struct BigDigits *mlt_tmp_2a = init_big_digits(mlt_alloc_2a); */
+	/* struct BigDigits *mlt_tmp_2b = init_big_digits(mlt_alloc_2b); */
 
-	struct BigDigits *add_tmp_2a = init_big_digits(add_alloc_2);
+	/* struct BigDigits *add_tmp_2a = init_big_digits(add_alloc_2); */
 
-	add_big_digits(add_tmp_1a,
-		       &lower1,
-		       &upper);
+	/* add_big_digits(add_tmp_1a, */
+	/* 	       &lower1, */
+	/* 	       &upper); */
 
-	add_big_digits(add_tmp_1b,
-		       &lower2,
-		       &upper);
+	/* add_big_digits(add_tmp_1b, */
+	/* 	       &lower2, */
+	/* 	       &upper); */
 
-	do_multiply_big_digits(mlt_tmp_1a,
-			       &lower1,
-			       &lower2);
+	/* do_multiply_big_digits(mlt_tmp_1a, */
+	/* 		       &lower1, */
+	/* 		       &lower2); */
 
-	do_multiply_big_digits(mlt_tmp_1b,
-			       add_tmp_1a,
-			       add_tmp_1b);
+	/* do_multiply_big_digits(mlt_tmp_1b, */
+	/* 		       add_tmp_1a, */
+	/* 		       add_tmp_1b); */
 
-	do_multiply_big_digits(mlt_tmp_1c,
-			       &upper1,
-			       &upper2);
+	/* do_multiply_big_digits(mlt_tmp_1c, */
+	/* 		       &upper1, */
+	/* 		       &upper2); */
 
-	subtract_big_digits(sub_tmp_1a,
-			    mlt_tmp_1b,
-			    mlt_tmp_1c);
+	/* subtract_big_digits(sub_tmp_1a, */
+	/* 		    mlt_tmp_1b, */
+	/* 		    mlt_tmp_1c); */
 
-	subtract_big_digits(sub_tmp_1b,
-			    sub_tmp_1a,
-			    mlt_tmp_1a);
+	/* subtract_big_digits(sub_tmp_1b, */
+	/* 		    sub_tmp_1a, */
+	/* 		    mlt_tmp_1a); */
 
 	/* const digit_t ten_raised_m_half = nth_pow_digit(10u, (int) m_half); */
 
@@ -336,22 +356,22 @@ void do_multiply_big_digits(struct BigDigits *restrict result,
 	/* 			     mlt_tmp_1c, */
 	/* 			     ten_raised_m_half * ten_raised_m_half); */
 
-	add_big_digits(add_tmp_2a,
-		       mlt_tmp_2a,
-		       mlt_tmp_2c);
+	/* add_big_digits(add_tmp_2a, */
+	/* 	       mlt_tmp_2a, */
+	/* 	       mlt_tmp_2c); */
 
-	add_big_digits(result, mlt_tmp_2b, add_tmp_2a);
+	/* add_big_digits(result, mlt_tmp_2b, add_tmp_2a); */
 
-	free_big_digits(add_tmp_1a);
-	free_big_digits(add_tmp_1b);
-	free_big_digits(mlt_tmp_1a);
-	free_big_digits(mlt_tmp_1b);
-	free_big_digits(mlt_tmp_1c);
-	free_big_digits(sub_tmp_1a);
-	free_big_digits(sub_tmp_1b);
-	free_big_digits(mlt_tmp_2a);
-	free_big_digits(mlt_tmp_2b);
-	free_big_digits(add_tmp_2a);
+	/* free_big_digits(add_tmp_1a); */
+	/* free_big_digits(add_tmp_1b); */
+	/* free_big_digits(mlt_tmp_1a); */
+	/* free_big_digits(mlt_tmp_1b); */
+	/* free_big_digits(mlt_tmp_1c); */
+	/* free_big_digits(sub_tmp_1a); */
+	/* free_big_digits(sub_tmp_1b); */
+	/* free_big_digits(mlt_tmp_2a); */
+	/* free_big_digits(mlt_tmp_2b); */
+	/* free_big_digits(add_tmp_2a); */
 }
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,

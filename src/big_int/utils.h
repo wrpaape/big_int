@@ -38,6 +38,18 @@ do {					\
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+/************************************************************************
+ *			next_pow_two(1)					*
+ *									*
+ * Returns 'num' rounded up to the next closest power of two so long as	*
+ * num > 0.								*
+ ************************************************************************/
+inline size_t next_pow_two(size_t num)
+{
+	return 1lu << ((sizeof(size_t) * CHAR_BIT) - __builtin_clzl(num - 1lu));
+}
+
+
 #define priv_nth_pow_body(fun)						\
 do {									\
 	if (n == 0) return lil;						\
