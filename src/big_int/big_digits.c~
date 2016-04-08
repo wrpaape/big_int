@@ -474,7 +474,7 @@ inline struct BigDigits *init_big_digits(const size_t digits_size)
 	struct BigDigits *big;
 
 	HANDLE_MALLOC(big, sizeof(struct BigDigits));
-	HANDLE_CALLOC(big->digits, digits_size);
+	HANDLE_MALLOC(big->digits, digits_size);
 
 	return big;
 }
