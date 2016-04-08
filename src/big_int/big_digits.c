@@ -292,7 +292,7 @@ inline void multiply_big_digits(struct BigDigits *restrict result,
 	/* do recursive Karatsuba multiplication */
 	do_multiply_big_digits(result,
 			       big1->digits,
-			       big2->digits)
+			       big2->digits,
 			       next_pow_two(big1->count));
 
 	/* /1* revert counts of big1, big2 *1/ */
