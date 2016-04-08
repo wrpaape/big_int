@@ -537,9 +537,7 @@ size_t subtract_digits(digit_t *restrict res_digits,
 			} else {
 				res_digits[i] = large - small;
 			}
-
 		}
-
 	}
 
 	if (carry) {
@@ -567,7 +565,7 @@ size_t subtract_digits(digit_t *restrict res_digits,
 
 	memcpy(&res_digits[i],
 	       &digits1[i],
-	       count1 - i);
+	       sizeof(digit_t) * (count1 - i));
 
 	return count1;
 }
