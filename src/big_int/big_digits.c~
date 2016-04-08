@@ -277,9 +277,9 @@ void subtract_big_digits(struct BigDigits *restrict result,
  * head function for recursive 'do_multiply_big_digits'
  *
  * input conditions:
- *	- big1->count >= big2->count
- *	- each have plenty memory allocation
- *	- digits at indices >= count are zeroed
+ *	1. big1->count >= big2->count
+ *	2. each have plenty memory allocation
+ *	3. digits at indices >= count are zeroed
  */
 inline void multiply_big_digits(struct BigDigits *restrict result,
 				struct BigDigits *restrict big1,
@@ -300,7 +300,7 @@ inline void multiply_big_digits(struct BigDigits *restrict result,
  * sets 'res_digits' to product and returns count;
  *
  * input conditions:
- *	- big1->count == big2->count == 2ⁿ
+ *	1. big1->count == big2->count == 2ⁿ
  */
 size_t do_multiply_big_digits(digit_t *restrict res_digits,
 			      digit_t *restrict digits1,
@@ -343,6 +343,7 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 	digit_t mlt_res1[max_add_cnt * 2lu];
 	digit_t mlt_res2[count];
 	digit_t mlt_res3[count];
+	digit_t sub_res1[count];
 
 
 	size_t mlt_cnt1 = do_multiply_big_digits(&mlt_res1[0lu],
@@ -360,25 +361,29 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 						 digits2,
 						 half_count);
 
-	mlt_cnt1 = decrement_digits(&mlt_res1[0lu],
-				    &mlt_res2[0lu],
-				    mlt_cnt1,
-				    mlt_cnt2);
+	size_t sub_cnt1 = subtract_digits(&sub_res1[0lu],
+					  &mlt_res1[0lu],
+					  &mlt_res2[0lu],
+					  mlt_cnt1,
+					  mlt_cnt2);
 
-	switch (compare_digits(&mlt_res1[0lu],
+	switch (compare_digits(&sub_res1[0lu],
 			       &mlt_res3[0lu],
 			       mlt_cnt1,
 			       mlt_cnt3)) {
 	case POS:
-		mlt_cnt1 = decrement_digits(&mlt_res1[0lu],
-					    &mlt_res3[0lu],
-					    mlt_cnt1,
-					    mlt_cnt3);
+		digit_t sub_res2[mlt_cnt1];
 
-		digit_t app_res[mlt_cnt1 + half_count + 1lu];
+		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
+						  &sub_res1[0lu],
+						  &mlt_res3[0lu],
+						  mlt_cnt1,
+						  mlt_cnt3);
+
+		digit_t app_res[sub_cnt2 + half_count + 1lu];
 
 		size_t app_cnt = add_poly_pair(&app_res[0lu],
-					       &mlt_res1[0lu],
+					       &sub_res2[0lu],
 					       &mlt_res3[0lu],
 					       mlt_cnt1,
 					       mlt_cnt3,
@@ -392,7 +397,15 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 				     count);
 
 	case NEG:
-		digit_t app_res[mlt_cnt2 + count + 1lu];
+		digit_t sub_res2[mlt_cnt3];
+
+		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
+						  &mlt_res3[0lu],
+						  &sub_res1[0lu],
+						  mlt_cnt3,
+						  mlt_cnt1);
+
+		digit_t app_res[sub_cnt2 + count + 1lu];
 
 		size_t app_cnt = add_poly_pair(&app_res[0lu],
 					       &mlt_res2[0lu],
@@ -401,18 +414,13 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 					       mlt_cnt3,
 					       count);
 
-		mlt_cnt3 = decrement_digits(&mlt_res3[0lu],
-					    &mlt_res1[0lu],
-					    mlt_cnt3,
-					    mlt_cnt1);
-
 
 		return subtract_poly_pair(res_digits,
 					  &app_res[0lu],
-					  &mlt_res3[0lu],
+					  &sub_res2[0lu],
 					  app_cnt,
-					  mlt_cnt3,
-					  count);
+					  sub_cnt2,
+					  half_count);
 
 	default:
 		return add_poly_pair(res_digits,
@@ -430,7 +438,7 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
  * sets 'res_digits' to 'digits1 * 10ⁿ + digits2' and returns count
  *
  * input conditions:
- *	- digits1 * 10ⁿ >= digits2
+ *	1. digits1 * 10ⁿ >= digits2
  */
 size_t add_poly_pair(digit_t *restrict res_digits,
 		     digit_t *restrict digits1,
@@ -449,7 +457,7 @@ size_t add_poly_pair(digit_t *restrict res_digits,
  * sets 'res_digits' to 'digits1 - digits2 * 10ⁿ' and returns count
  *
  * input conditions:
- *	- digits1 >= digits2 * 10ⁿ
+ *	1. digits1 >= digits2 * 10ⁿ
  */
 size_t subtract_poly_pair(digit_t *restrict res_digits,
 			  digit_t *restrict digits1,
@@ -458,89 +466,38 @@ size_t subtract_poly_pair(digit_t *restrict res_digits,
 			  const size_t count2,
 			  const size_t n)
 {
-	bool carry;
-	digit_t large;
-	digit_t small;
-	size_t i;
-
 
 	/* copy lower digits of 'digits1' unaffected by shift */
 	memcpy(res_digits,
 	       digits1,
 	       sizeof(digit_t) * n);
 
+
+	subtract_digits(&res_digits[n],
+			&digits1[n],
+			digits2,
+			count1 - n,
+			count2) + n;
 	/* shift by 'n' */
 	res_digits += n;
 	digits1    += n;
 	count1     -= n;
-
-	large = digits1[0lu];
-	small = digits2[0lu];
-
-	if (small > large) {
-		digits[0lu] = (10u + large) - small;
-		carry = true;
-	} else {
-		digits[0lu] = large - small;
-		carry = false;
-	}
-
-	for (i = 1lu; i < count2; ++i) {
-
-		large = digits1[i];
-		small = digits2[i];
-
-		if (carry) {
-
-			if (small >= large) {
-				digits[i] = (9u + large) - small;
-
-			} else {
-				digits[i] = large - (small + 1lu);
-				carry = false;
-			}
-
-		} else {
-
-			if (small > large) {
-				digits[i] = (10u + large) - small;
-				carry = true;
-
-			} else {
-				digits[i] = large - small;
-			}
-
-		}
-
-	}
-
-	if (carry) {
-		while (digits[i] == 0u) {
-			digits[i] = 9u;
-			++i;
-		}
-
-		--digits[i];
-	}
-
-	for (i = count1 - 1lu; (i > 0lu) && (digits[i] == 0u); --i);
-
-	return i + 1u;
 
 }
 
 /*
  * hard-wired helper for karatsuba
  *
- * decrements 'digits1' by 'digits2' and returns count
+ * sets 'res_digits' to  'digits1 - digits2' and returns count
  *
  * input conditions:
- *	- digits1 >= digits2
+ *	1. digits1 >= digits2
  */
-size_t decrement_digits(digit_t *restrict digits1,
-			digit_t *restrict digits2,
-			const size_t count1,
-			const size_t count2)
+size_t subtract_digits(digit_t *restrict res_digits,
+		       digit_t *restrict digits1,
+		       digit_t *restrict digits2,
+		       const size_t count1,
+		       const size_t count2)
 {
 	bool carry;
 	digit_t large;
@@ -551,10 +508,10 @@ size_t decrement_digits(digit_t *restrict digits1,
 	small = digits2[0lu];
 
 	if (small > large) {
-		digits[0lu] = (10u + large) - small;
+		res_digits[0lu] = (10u + large) - small;
 		carry = true;
 	} else {
-		digits[0lu] = large - small;
+		res_digits[0lu] = large - small;
 		carry = false;
 	}
 
@@ -566,21 +523,21 @@ size_t decrement_digits(digit_t *restrict digits1,
 		if (carry) {
 
 			if (small >= large) {
-				digits[i] = (9u + large) - small;
+				res_digits[i] = (9u + large) - small;
 
 			} else {
-				digits[i] = large - (small + 1lu);
+				res_digits[i] = large - (small + 1lu);
 				carry = false;
 			}
 
 		} else {
 
 			if (small > large) {
-				digits[i] = (10u + large) - small;
+				res_digits[i] = (10u + large) - small;
 				carry = true;
 
 			} else {
-				digits[i] = large - small;
+				res_digits[i] = large - small;
 			}
 
 		}
@@ -588,15 +545,15 @@ size_t decrement_digits(digit_t *restrict digits1,
 	}
 
 	if (carry) {
-		while (digits[i] == 0u) {
-			digits[i] = 9u;
+		while (res_digits[i] == 0u) {
+			res_digits[i] = 9u;
 			++i;
 		}
 
-		--digits[i];
+		--res_digits[i];
 	}
 
-	for (i = count1 - 1lu; (i > 0lu) && (digits[i] == 0u); --i);
+	for (i = count1 - 1lu; (i > 0lu) && (res_digits[i] == 0u); --i);
 
 	return i + 1u;
 }

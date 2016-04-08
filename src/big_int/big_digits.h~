@@ -52,7 +52,8 @@ size_t add_split_digits(digit_t *restrict res_digits,
 			digit_t *restrict digits2,
 			const size_t count);
 
-size_t decrement_digits(digit_t *restrict digits1,
+size_t subtract_digits(digit_t *restrict res_digits,
+			digit_t *restrict digits1,
 			digit_t *restrict digits2,
 			const size_t count1,
 			const size_t count2);
@@ -69,8 +70,7 @@ size_t subtract_poly_pair(digit_t *restrict res_digits,
 			  digit_t *restrict digits2,
 			  const size_t count1,
 			  const size_t count2,
-			  const size_t n1,
-			  const size_t n2);
+			  const size_t n);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
