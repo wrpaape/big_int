@@ -38,7 +38,6 @@
 struct BigDigits *words_to_big_digits(const size_t word_count,
 				      word_t *words)
 {
-	struct BigDigits *big;
 	size_t i;
 	word_t word;
 	digit_t *digits;
@@ -52,12 +51,12 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	}
 
 
-	const size_t buffer_size = sizeof(digit_t) * next_pow_two(alloc_count);
+	const size_t buff_alloc = next_pow_two(alloc_count);
 
-	HANDLE_MALLOC(digits, buffer_size);
+	struct BigDigits *big = init_big_digits(buff_alloc);
 
+	digits = big->digits;
 	word = words[0lu];
-
 	i = 0lu;
 
 	do {
@@ -67,18 +66,17 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	} while (word > 0lu);
 
-	HANDLE_MALLOC(big, sizeof(struct BigDigits));
-
-	big->count  = i;
-	big->digits = digits;
-
 	if (word_count == 1lu)
 		return big;
 
-	struct BigDigits *base_acc;
-	struct BigDigits *buff1;
-	struct BigDigits *buff2;
-	struct BigDigits *tmp;
+	struct BigDigits *base	   = init_big_digits(buff_alloc);
+	struct BigDigits *base_acc = init_big_digits(buff_alloc);
+	struct BigDigits *buff1	   = init_big_digits(buff_alloc);
+	struct BigDigits *buff2	   = init_big_digits(buff_alloc);
+	/* struct BigDigits *base_acc; */
+	/* struct BigDigits *buff1; */
+	/* struct BigDigits *buff2; */
+	/* struct BigDigits *tmp; */
 	digit_t *acc_digits;
 	digit_t *buff_digits;
 
@@ -87,23 +85,18 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 		3u, 7u, 0u, 9u, 5u, 5u, 1u, 6u, 1u, 6u
 	};
 
-	struct BigDigits base = {
-		.count  = DIGITS_PER_WORD_BASE,
-		.digits = word_base_digits
-	};
+	base->count	= DIGITS_PER_WORD_BASE;
 
-
-	HANDLE_MALLOC(base_acc, sizeof(struct BigDigits));
-	HANDLE_MALLOC(buff1,	sizeof(struct BigDigits));
-	HANDLE_MALLOC(buff2,	sizeof(struct BigDigits));
-	HANDLE_MALLOC(base_acc->digits, buffer_size);
-	HANDLE_MALLOC(buff1->digits,	buffer_size);
-	HANDLE_MALLOC(buff2->digits,	buffer_size);
-
-	base_acc->count  = DIGITS_PER_WORD_BASE;
-	memcpy(base_acc->digits,
-	       base.digits,
+	memcpy(base->digits,
+	       word_base_digits,
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+
+	base_acc->count = DIGITS_PER_WORD_BASE;
+
+	memcpy(base_acc->digits,
+	       word_base_digits,
+	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+
 
 
 	i = 1lu;
@@ -122,6 +115,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 		++i;
 
 		if (i == word_count) {
+			free_big_digits(base);
 			free_big_digits(base_acc);
 			free_big_digits(buff1);
 			free_big_digits(big);
@@ -275,24 +269,62 @@ void subtract_big_digits(struct BigDigits *restrict result,
 	result->count = lrg_count;
 }
 
-/* Karatsuba, big1->count == big2->count */
 
+/*
+ * head function for recursive 'do_multiply_big_digits'
+ *
+ * input conditions:
+ *	- big1->count >= big2->count
+ *	- each have plenty memory allocation
+ *	- digits at indices >= count are zeroed
+ */
 inline void multiply_big_digits(struct BigDigits *restrict result,
 				struct BigDigits *restrict big1,
 				struct BigDigits *restrict big2)
 {
+	/* const size_t big1_count = big1->count; */
+	/* const size_t big2_count = big2->count; */
+
+	/* /1* temporarily force counts to the same power of 2 *1/ */
+	/* big1->count = next_pow_two(big1->count); */
+	/* big2->count = big1->count; */
+
+	/* do recursive Karatsuba multiplication */
+	do_multiply_big_digits(result,
+			       big1->digits,
+			       big2->digits)
+			       next_pow_two(big1->count));
+
+	/* /1* revert counts of big1, big2 *1/ */
+	/* big1->count = big1_count; */
+	/* big2->count = big2_count; */
 }
 
+/*
+ * Karatsuba multiplication
+ *
+ * input conditions:
+ *	- big1->count == big2->count == 2ⁿ
+ */
 void do_multiply_big_digits(struct BigDigits *restrict result,
-			    struct BigDigits *restrict big1,
-			    struct BigDigits *restrict big2)
+			    digit_t *restrict digits1,
+			    digit_t *restrict digits2,
+			    const size_t count)
 {
-	/* if (big2->count == 1lu) { */
-	/* 	multiply_big_digits_by_digit(result, */
-	/* 				     big1, */
-	/* 				     big2->digits[0lu]); */
-	/* 	return; */
-	/* } */
+	if (count == 1lu) {
+		digit_t buffer = digits1[0lu] * digits2[0lu];
+
+		if (buffer < 10u) {
+			result->count = 1lu;
+			result->digits[0lu] = buffer;
+		} else {
+			result->count = 2lu;
+			result->digits[0lu] = buffer % 10u;
+			result->digits[1lu] = buffer / 10u;
+		}
+
+		return;
+	}
 
 	/* /1* round up if odd count, ensure split is even or left-biased *1/ */
 	/* const size_t m_half = (big1->count & 1lu) */
@@ -469,12 +501,12 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline struct BigDigits *init_big_digits(const size_t digits_size)
+inline struct BigDigits *init_big_digits(const size_t count)
 {
 	struct BigDigits *big;
 
 	HANDLE_MALLOC(big, sizeof(struct BigDigits));
-	HANDLE_CALLOC(big->digits, digits_size);
+	HANDLE_CALLOC(big->digits, sizeof(digit_t), count);
 
 	return big;
 }
