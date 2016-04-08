@@ -3,6 +3,7 @@
 #include "big_int/globals.h"
 #include "big_int/utils.h"
 #include "big_int/big_digits.h"
+#include <stdbool.h>
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -368,7 +369,8 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 			       &mlt_res3[0lu],
 			       mlt_cnt1,
 			       mlt_cnt3)) {
-	case POS:
+	case POS: {
+
 		digit_t sub_res2[mlt_cnt1];
 
 		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
@@ -392,8 +394,10 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 				     mlt_cnt2,
 				     app_cnt,
 				     count);
+	}
 
-	case NEG:
+	case NEG: {
+
 		digit_t sub_res2[mlt_cnt3];
 
 		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
@@ -418,6 +422,7 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 					  app_cnt,
 					  sub_cnt2,
 					  half_count);
+	}
 
 	default:
 		return add_poly_pair(res_digits,
@@ -555,7 +560,7 @@ size_t subtract_digits(digit_t *restrict res_digits,
 
 			--i;
 
-			if (digits[i] > 0u)
+			if (res_digits[i] > 0u)
 				return i + 1u;
 		}
 	}
@@ -578,28 +583,43 @@ size_t add_split_digits(digit_t *restrict res_digits,
 			digit_t *restrict digits2,
 			const size_t count)
 {
-	digit_t res_digits = result->digits;
-	digit_t buffer;
-	digit_t carry = 0u;
+	bool carry;
 
-	for (size_t i = 0lu; i < count; ++i) {
-		buffer = digits1[i] + digits2[i] + carry;
+	res_digits[0lu] = digits1[0lu] + digits2[0lu];
 
-		if (buffer > 9u) {
-			res_digits[i] = buffer - 10u;
-			carry = 1u;
-		} else {
-			res_digits[i] = buffer;
-			carry = 0u;
+	if (res_digits[0lu] > 9u) {
+		res_digits[0lu] -= 10u;
+		carry = true;
+	} else {
+		carry = false;
+	}
+
+	for (size_t i = 1lu; i < count; ++i) {
+		res_digits[i] = digits1[i] + digits2[i];
+
+		if (carry) {
+
+			if (res_digits[i] > 8u) {
+				res_digits[i] -= 9u;
+
+			} else {
+				++res_digits[i];
+				carry = false;
+			}
+
+		} else if (res_digits[i] > 9u) {
+
+			res_digits[i] -= 10u;
+			carry = true;
 		}
 	}
 
-	if (carry == 0u)
-		return count;
+	if (carry) {
+		res_digits[count] = 1u;
+		return count * 2lu;
+	}
 
-	res_digits[count] = 1u;
-
-	return count * 2lu;
+	return count;
 }
 
 
