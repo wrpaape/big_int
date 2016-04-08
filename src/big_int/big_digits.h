@@ -53,10 +53,10 @@ size_t add_split_digits(digit_t *restrict res_digits,
 			const size_t count);
 
 size_t subtract_digits(digit_t *restrict res_digits,
-			digit_t *restrict digits1,
-			digit_t *restrict digits2,
-			const size_t count1,
-			const size_t count2);
+		       digit_t *restrict digits1,
+		       digit_t *restrict digits2,
+		       const size_t count1,
+		       const size_t count2);
 
 size_t add_poly_pair(digit_t *restrict res_digits,
 		     digit_t *restrict digits1,

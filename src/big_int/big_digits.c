@@ -76,10 +76,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	struct BigDigits *base_acc = init_zeroed_big_digits(buff_alloc);
 	struct BigDigits *buff1	   = init_zeroed_big_digits(buff_alloc);
 	struct BigDigits *buff2	   = init_zeroed_big_digits(buff_alloc);
-	/* struct BigDigits *base_acc; */
-	/* struct BigDigits *buff1; */
-	/* struct BigDigits *buff2; */
-	/* struct BigDigits *tmp; */
+	struct BigDigits *tmp;
 	digit_t *acc_digits;
 	digit_t *buff_digits;
 
@@ -473,16 +470,12 @@ size_t subtract_poly_pair(digit_t *restrict res_digits,
 	       sizeof(digit_t) * n);
 
 
+	/* shift by 'n' */
 	return n + subtract_digits(&res_digits[n],
 				   &digits1[n],
 				   digits2,
 				   count1 - n,
 				   count2);
-	/* shift by 'n' */
-	res_digits += n;
-	digits1    += n;
-	count1     -= n;
-
 }
 
 /*
@@ -545,17 +538,33 @@ size_t subtract_digits(digit_t *restrict res_digits,
 	}
 
 	if (carry) {
-		while (res_digits[i] == 0u) {
+		while (digits1[i] == 0u) {
 			res_digits[i] = 9u;
 			++i;
 		}
 
-		--res_digits[i];
+		res_digits[i] = digits1[i] - 1u;
+		++i;
 	}
 
-	for (i = count1 - 1lu; (i > 0lu) && (res_digits[i] == 0u); --i);
+	if (i == count1) {
 
-	return i + 1u;
+		while (1) {
+			if (i == 1u)
+				return 1u;
+
+			--i;
+
+			if (digits[i] > 0u)
+				return i + 1u;
+		}
+	}
+
+	memcpy(&res_digits[i],
+	       &digits1[i],
+	       count1 - i);
+
+	return count1;
 }
 
 
