@@ -10,7 +10,9 @@
 
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
 #define DIGITS_PER_WORD_BASE 20lu
+
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -53,7 +55,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	const size_t buff_alloc = next_pow_two(alloc_count);
 
-	struct BigDigits *big = init_big_digits(buff_alloc);
+	struct BigDigits *big = init_zeroed_big_digits(buff_alloc);
 
 	digits = big->digits;
 	word = words[0lu];
@@ -69,10 +71,10 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	if (word_count == 1lu)
 		return big;
 
-	struct BigDigits *base	   = init_big_digits(buff_alloc);
-	struct BigDigits *base_acc = init_big_digits(buff_alloc);
-	struct BigDigits *buff1	   = init_big_digits(buff_alloc);
-	struct BigDigits *buff2	   = init_big_digits(buff_alloc);
+	struct BigDigits *base	   = init_zeroed_big_digits(buff_alloc);
+	struct BigDigits *base_acc = init_zeroed_big_digits(buff_alloc);
+	struct BigDigits *buff1	   = init_zeroed_big_digits(buff_alloc);
+	struct BigDigits *buff2	   = init_zeroed_big_digits(buff_alloc);
 	/* struct BigDigits *base_acc; */
 	/* struct BigDigits *buff1; */
 	/* struct BigDigits *buff2; */
@@ -282,163 +284,154 @@ inline void multiply_big_digits(struct BigDigits *restrict result,
 				struct BigDigits *restrict big1,
 				struct BigDigits *restrict big2)
 {
-	/* const size_t big1_count = big1->count; */
-	/* const size_t big2_count = big2->count; */
-
-	/* /1* temporarily force counts to the same power of 2 *1/ */
-	/* big1->count = next_pow_two(big1->count); */
-	/* big2->count = big1->count; */
+	/* temporarily force counts to the same power of 2 */
 
 	/* do recursive Karatsuba multiplication */
-	do_multiply_big_digits(result,
-			       big1->digits,
-			       big2->digits,
-			       next_pow_two(big1->count));
-
-	/* /1* revert counts of big1, big2 *1/ */
-	/* big1->count = big1_count; */
-	/* big2->count = big2_count; */
+	result->count = do_multiply_big_digits(result->digits,
+					       big1->digits,
+					       big2->digits,
+					       next_pow_two(big1->count));
 }
 
 /*
- * Karatsuba multiplication
+ * Karatsuba multiplication:
+ *
+ * sets 'res_digits' to product and returns count;
  *
  * input conditions:
  *	- big1->count == big2->count == 2ⁿ
  */
-void do_multiply_big_digits(struct BigDigits *restrict result,
-			    digit_t *restrict digits1,
-			    digit_t *restrict digits2,
-			    const size_t count)
+size_t do_multiply_big_digits(digit_t *restrict res_digits,
+			      digit_t *restrict digits1,
+			      digit_t *restrict digits2,
+			      const size_t count)
 {
 	if (count == 1lu) {
 		digit_t buffer = digits1[0lu] * digits2[0lu];
 
 		if (buffer < 10u) {
-			result->count = 1lu;
-			result->digits[0lu] = buffer;
+			res_digits[0lu] = buffer;
+			return 1lu;
 		} else {
-			result->count = 2lu;
-			result->digits[0lu] = buffer % 10u;
-			result->digits[1lu] = buffer / 10u;
+			res_digits[0lu] = buffer % 10u;
+			res_digits[1lu] = buffer / 10u;
+			return 2lu;
 		}
-
-		return;
 	}
 
-	/* /1* round up if odd count, ensure split is even or left-biased *1/ */
-	/* const size_t m_half = (big1->count & 1lu) */
-	/* 		    ? (big1->count / 2lu) + 1lu */
-	/* 		    : big1->count / 2lu; */
+	const size_t half_count  = count / 2lu;
 
-	/* /1* split digits of 'big1', 'big2' *1/ */
-	/* struct BigDigits lower1; */
-	/* struct BigDigits lower2; */
-	/* struct BigDigits upper1; */
-	/* struct BigDigits upper2; */
+	digit_t *upper1 = digits1 + half_count;
+	digit_t *upper2 = digits2 + half_count;
 
-	/* lower1.count  = m_half; */
-	/* lower1.digits = big1->digits; */
+	digit_t add_res1[count];
+	digit_t add_res2[count];
 
-	/* upper1.count  = big1->count  - m_half; */
-	/* upper1.digits = big1->digits + m_half; */
+	size_t add_cnt1 = add_split_digits(&add_res1[0lu],
+					   digits1,
+					   upper1,
+					   half_count);
+
+	size_t add_cnt2 = add_split_digits(&add_res2[0lu],
+					   digits2,
+					   upper2,
+					   half_count);
+
+	size_t max_add_cnt = (add_cnt1 > add_cnt2) ? add_cnt1 : add_cnt2;
+
+	digit_t mlt_res1[max_add_cnt * 2lu];
+	digit_t mlt_res2[count];
+	digit_t mlt_res3[count];
 
 
-	/* /1* ensure count of 'upper2' is at least 1 *1/ */
-	/* if (big2->count > m_half) { */
+	size_t mlt_cnt1 = do_multiply_big_digits(&mlt_res1[0lu],
+						 &add_res1[0lu],
+						 &add_res2[0lu],
+						 max_add_cnt);
 
-	/* 	lower2.count  = m_half; */
-	/* 	lower2.digits = big2->digits; */
+	size_t mlt_cnt2 = do_multiply_big_digits(&mlt_res2[0lu],
+						 upper1,
+						 upper2,
+						 half_count);
 
-	/* 	upper2.count  = big2->count  - m_half; */
-	/* 	upper2.digits = big2->digits + m_half; */
+	size_t mlt_cnt3 = do_multiply_big_digits(&mlt_res3[0lu],
+						 digits1,
+						 digits2,
+						 half_count);
 
-	/* } else { */
-
-	/* 	lower2.count  = big2->count; */
-	/* 	lower2.digits = big2->digits; */
-
-	/* 	upper2.count  = 1lu; */
-	/* 	upper2.digits = {0u}; */
-	/* } */
-
-	/* /1* allocate space for temporary intermediate BigDigits *1/ */
-	/* const size_t add_alloc_1  = m_half	 + 1lu; */
-	/* const size_t mlt_alloc_1  = big1->count  + 2lu; */
-	/* const size_t mlt_alloc_2a = mlt_alloc_1  + m_half; */
-	/* const size_t mlt_alloc_2b = mlt_alloc_2a + m_half; */
-	/* const size_t add_alloc_2  = mlt_alloc_2b + 1lu; */
-
-	/* struct BigDigits *add_tmp_1a = init_big_digits(add_alloc_1); */
-	/* struct BigDigits *add_tmp_1b = init_big_digits(add_alloc_1); */
-
-	/* struct BigDigits *mlt_tmp_1a = init_big_digits(mlt_alloc_1); */
-	/* struct BigDigits *mlt_tmp_1b = init_big_digits(mlt_alloc_1); */
-	/* struct BigDigits *mlt_tmp_1c = init_big_digits(mlt_alloc_1); */
-
-	/* struct BigDigits *sub_tmp_1a = init_big_digits(mlt_alloc_1); */
-	/* struct BigDigits *sub_tmp_1b = init_big_digits(mlt_alloc_1); */
-
-	/* struct BigDigits *mlt_tmp_2a = init_big_digits(mlt_alloc_2a); */
-	/* struct BigDigits *mlt_tmp_2b = init_big_digits(mlt_alloc_2b); */
-
-	/* struct BigDigits *add_tmp_2a = init_big_digits(add_alloc_2); */
-
-	/* add_big_digits(add_tmp_1a, */
-	/* 	       &lower1, */
-	/* 	       &upper); */
-
-	/* add_big_digits(add_tmp_1b, */
-	/* 	       &lower2, */
-	/* 	       &upper); */
-
-	/* do_multiply_big_digits(mlt_tmp_1a, */
-	/* 		       &lower1, */
-	/* 		       &lower2); */
-
-	/* do_multiply_big_digits(mlt_tmp_1b, */
-	/* 		       add_tmp_1a, */
-	/* 		       add_tmp_1b); */
-
-	/* do_multiply_big_digits(mlt_tmp_1c, */
-	/* 		       &upper1, */
-	/* 		       &upper2); */
-
-	/* subtract_big_digits(sub_tmp_1a, */
-	/* 		    mlt_tmp_1b, */
-	/* 		    mlt_tmp_1c); */
-
-	/* subtract_big_digits(sub_tmp_1b, */
-	/* 		    sub_tmp_1a, */
-	/* 		    mlt_tmp_1a); */
-
-	/* const digit_t ten_raised_m_half = nth_pow_digit(10u, (int) m_half); */
-
-	/* multiply_big_digits_by_digit(mlt_tmp_2a, */
-	/* 			     sub_tmp_1b, */
-	/* 			     ten_raised_m_half); */
-
-	/* multiply_big_digits_by_digit(mlt_tmp_2b, */
-	/* 			     mlt_tmp_1c, */
-	/* 			     ten_raised_m_half * ten_raised_m_half); */
-
-	/* add_big_digits(add_tmp_2a, */
-	/* 	       mlt_tmp_2a, */
-	/* 	       mlt_tmp_2c); */
-
-	/* add_big_digits(result, mlt_tmp_2b, add_tmp_2a); */
-
-	/* free_big_digits(add_tmp_1a); */
-	/* free_big_digits(add_tmp_1b); */
-	/* free_big_digits(mlt_tmp_1a); */
-	/* free_big_digits(mlt_tmp_1b); */
-	/* free_big_digits(mlt_tmp_1c); */
-	/* free_big_digits(sub_tmp_1a); */
-	/* free_big_digits(sub_tmp_1b); */
-	/* free_big_digits(mlt_tmp_2a); */
-	/* free_big_digits(mlt_tmp_2b); */
-	/* free_big_digits(add_tmp_2a); */
+	mlt_cnt1 = dec_digits(&mlt_res1[0lu],
+			      &mlt_res2[0lu],
+			      mlt_cnt1,
+			      mlt_cnt2);
 }
+
+/*
+ * hard-wired helper for karatsuba
+ *
+ * decrements 'digits1' by 'digits2' and returns count
+ * */
+size_t dec_digits(digit_t *restrict digits1,
+		  digit_t *restrict digits2,
+		  const size_t count1,
+		  const size_t count2)
+{
+	bool carry;
+	digit_t large;
+	digit_t small;
+	size_t i;
+
+	large = digits1[0lu];
+	small = digits2[0lu];
+
+	if (small > large) {
+		digits[0lu] = (10u + large) - small;
+		carry = true;
+	} else {
+		digits[0lu] = large - small;
+		carry = false;
+	}
+
+	for (i = 1lu; i < count2; ++i) {
+
+	}
+}
+
+
+/*
+ * hard-wired helper for karatsuba
+ *
+ * sets 'res_digits' to sum and returns count
+ * */
+size_t add_split_digits(digit_t *restrict res_digits,
+			digit_t *restrict digits1,
+			digit_t *restrict digits2,
+			const size_t count)
+{
+	digit_t res_digits = result->digits;
+	digit_t buffer;
+	digit_t carry = 0u;
+
+	for (size_t i = 0lu; i < count; ++i) {
+		buffer = digits1[i] + digits2[i] + carry;
+
+		if (buffer > 9u) {
+			res_digits[i] = buffer - 10u;
+			carry = 1u;
+		} else {
+			res_digits[i] = buffer;
+			carry = 0u;
+		}
+	}
+
+	if (carry == 0u)
+		return count;
+
+	res_digits[count] = 1u;
+
+	return count * 2lu;
+}
+
+
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,
 				  struct BigDigits *restrict big,
@@ -501,7 +494,7 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline struct BigDigits *init_big_digits(const size_t count)
+inline struct BigDigits *init_zeroed_big_digits(const size_t count)
 {
 	struct BigDigits *big;
 

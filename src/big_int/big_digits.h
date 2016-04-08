@@ -14,10 +14,9 @@ void subtract_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big2);
 
 
-void do_multiply_big_digits(struct BigDigits *restrict result,
-			    digit_t *restrict digits1,
-			    digit_t *restrict digits2,
-			    const size_t count)
+static inline void multiply_big_digits(struct BigDigits *restrict result,
+				       struct BigDigits *restrict big1,
+				       struct BigDigits *restrict big2);
 
 void multiply_big_digits_by_digit(struct BigDigits *restrict result,
 				  struct BigDigits *restrict big,
@@ -33,16 +32,27 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 /* HELPER FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-static inline struct BigDigits *init_big_digits(const size_t count);
+static inline struct BigDigits *init_zeroed_big_digits(const size_t count);
 
 static inline void free_big_digits(struct BigDigits *big);
 
 static inline void add_digit_to_big_digits(struct BigDigits *big,
 					   digit_t digit);
 
-static inline void multiply_big_digits(struct BigDigits *restrict result,
-				       struct BigDigits *restrict big1,
-				       struct BigDigits *restrict big2);
+size_t do_multiply_big_digits(digit_t *restrict res_digits,
+			      digit_t *restrict digits1,
+			      digit_t *restrict digits2,
+			      const size_t count);
+
+size_t add_split_digits(digit_t *restrict res_digits,
+			digit_t *restrict digits1,
+			digit_t *restrict digits2,
+			const size_t count);
+
+size_t dec_digits(digit_t *restrict digits1,
+		  digit_t *restrict digits2,
+		  const size_t count1,
+		  const size_t count2);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
