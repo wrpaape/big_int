@@ -69,8 +69,7 @@ size_t subtract_poly_pair(digit_t *restrict res_digits,
 			  digit_t *restrict digits2,
 			  const size_t count1,
 			  const size_t count2,
-			  const size_t n1,
-			  const size_t n2);
+			  const size_t n);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
