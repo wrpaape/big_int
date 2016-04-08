@@ -365,44 +365,101 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 				    mlt_cnt1,
 				    mlt_cnt2);
 
-	const Enum Sign comparison = compare_digits(&mlt_res1[0lu],
-						    &mlt_res2[0lu],
-						    mlt_cnt1,
-						    mlt_cnt2);
+	switch (compare_digits(&mlt_res1[0lu],
+			       &mlt_res3[0lu],
+			       mlt_cnt1,
+			       mlt_cnt3)) {
+	case POS:
+		mlt_cnt1 = decrement_digits(&mlt_res1[0lu],
+					    &mlt_res3[0lu],
+					    mlt_cnt1,
+					    mlt_cnt3);
 
-	if (comparison == ZRO)
+		digit_t app_res[mlt_cnt1 + half_count + 1lu];
+
+		size_t app_cnt = add_poly_pair(&app_res[0lu],
+					       &mlt_res1[0lu],
+					       &mlt_res3[0lu],
+					       mlt_cnt1,
+					       mlt_cnt3,
+					       half_count);
+
+		return add_poly_pair(res_digits,
+				     &mlt_res2[0lu],
+				     &app_res[0lu],
+				     mlt_cnt2,
+				     app_cnt,
+				     count);
+
+	case NEG:
+		mlt_cnt3 = decrement_digits(&mlt_res3[0lu],
+					    &mlt_res1[0lu],
+					    mlt_cnt3,
+					    mlt_cnt1);
+
+		digit_t app_res[mlt_cnt3 + half_count + 1lu];
+
+		size_t app_cnt = add_poly_pair(&app_res[0lu],
+					       &mlt_res1[0lu],
+					       &mlt_res3[0lu],
+					       mlt_cnt1,
+					       mlt_cnt3,
+					       half_count);
+
+		return add_poly_pair(res_digits,
+				     &mlt_res2[0lu],
+				     &app_res[0lu],
+				     mlt_cnt2,
+				     app_cnt,
+				     count);
+
+	default:
 		return add_poly_pair(res_digits,
 				     &mlt_res2[0lu],
 				     &mlt_res3[0lu],
 				     mlt_cnt2,
 				     mlt_cnt3,
 				     count);
-
-
-	size_t dec_cnt;
-	digit_t *dec_res;
-
-	if (comparison == POS) {
-		dec_res = &mlt_res1[0lu];
-		dec_cnt = decrement_digits(dec_res,
-					   &mlt_res2[0lu],
-					   mlt_cnt1,
-					   mlt_cnt2);
-	} else {
-		dec_res = &mlt_res2[0lu];
-		dec_cnt = decrement_digits(dec_res,
-					   &mlt_res1[0lu],
-					   mlt_cnt2,
-					   mlt_cnt1);
 	}
 }
 
+/*
+ * hard-wired helper for karatsuba
+ *
+ * sets 'res_digits' to 'digits1 * 10ⁿ + digits2' and returns count
+ *
+ * input conditions:
+ *	- digits1 * 10ⁿ >= digits2
+ */
 size_t add_poly_pair(digit_t *restrict res_digits,
 		     digit_t *restrict digits1,
 		     digit_t *restrict digits2,
 		     const size_t count1,
 		     const size_t count2,
-		     const size_t n);
+		     const size_t n)
+{
+
+	return 42;
+}
+
+/*
+ * hard-wired helper for karatsuba
+ *
+ * sets 'res_digits' to 'digits1 * 10ⁿ¹ - digits2 * 10ⁿ²' and returns count
+ *
+ * input conditions:
+ *	- digits1 * 10ⁿ¹ >= digits2 * 10ⁿ²
+ */
+size_t subtract_poly_pair(digit_t *restrict res_digits,
+			  digit_t *restrict digits1,
+			  digit_t *restrict digits2,
+			  const size_t count1,
+			  const size_t count2,
+			  const size_t n1,
+			  const size_t n2)
+{
+	return 42;
+}
 
 /*
  * hard-wired helper for karatsuba
