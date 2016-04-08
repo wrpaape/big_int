@@ -24,6 +24,7 @@
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+extern inline void free_big_digits(struct BigDigits *big);
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -359,21 +360,62 @@ size_t do_multiply_big_digits(digit_t *restrict res_digits,
 						 digits2,
 						 half_count);
 
-	mlt_cnt1 = dec_digits(&mlt_res1[0lu],
-			      &mlt_res2[0lu],
-			      mlt_cnt1,
-			      mlt_cnt2);
+	mlt_cnt1 = decrement_digits(&mlt_res1[0lu],
+				    &mlt_res2[0lu],
+				    mlt_cnt1,
+				    mlt_cnt2);
+
+	const Enum Sign comparison = compare_digits(&mlt_res1[0lu],
+						    &mlt_res2[0lu],
+						    mlt_cnt1,
+						    mlt_cnt2);
+
+	if (comparison == ZRO)
+		return add_poly_pair(res_digits,
+				     &mlt_res2[0lu],
+				     &mlt_res3[0lu],
+				     mlt_cnt2,
+				     mlt_cnt3,
+				     count);
+
+
+	size_t dec_cnt;
+	digit_t *dec_res;
+
+	if (comparison == POS) {
+		dec_res = &mlt_res1[0lu];
+		dec_cnt = decrement_digits(dec_res,
+					   &mlt_res2[0lu],
+					   mlt_cnt1,
+					   mlt_cnt2);
+	} else {
+		dec_res = &mlt_res2[0lu];
+		dec_cnt = decrement_digits(dec_res,
+					   &mlt_res1[0lu],
+					   mlt_cnt2,
+					   mlt_cnt1);
+	}
 }
+
+size_t add_poly_pair(digit_t *restrict res_digits,
+		     digit_t *restrict digits1,
+		     digit_t *restrict digits2,
+		     const size_t count1,
+		     const size_t count2,
+		     const size_t n);
 
 /*
  * hard-wired helper for karatsuba
  *
  * decrements 'digits1' by 'digits2' and returns count
- * */
-size_t dec_digits(digit_t *restrict digits1,
-		  digit_t *restrict digits2,
-		  const size_t count1,
-		  const size_t count2)
+ *
+ * input conditions:
+ *	- digits1 >= digits2
+ */
+size_t decrement_digits(digit_t *restrict digits1,
+			digit_t *restrict digits2,
+			const size_t count1,
+			const size_t count2)
 {
 	bool carry;
 	digit_t large;
@@ -392,7 +434,46 @@ size_t dec_digits(digit_t *restrict digits1,
 	}
 
 	for (i = 1lu; i < count2; ++i) {
+
+		large = digits1[i];
+		small = digits2[i];
+
+		if (carry) {
+
+			if (small >= large) {
+				digits[i] = (9u + large) - small;
+
+			} else {
+				digits[i] = large - (small + 1lu);
+				carry = false;
+			}
+
+		} else {
+
+			if (small > large) {
+				digits[i] = (10u + large) - small;
+				carry = true;
+
+			} else {
+				digits[i] = large - small;
+			}
+
+		}
+
 	}
+
+	if (carry) {
+		while (digits[i] == 0u) {
+			digits[i] = 9u;
+			++i;
+		}
+
+		--digits[i];
+	}
+
+	for (i = count1 - 1lu; (i > 0lu) && (digits[i] == 0u); --i);
+
+	return i + 1u;
 }
 
 
@@ -503,11 +584,31 @@ inline struct BigDigits *init_zeroed_big_digits(const size_t count)
 	return big;
 }
 
-inline void free_big_digits(struct BigDigits *big)
+inline enum Sign compare_digits(digit_t *restrict digits1,
+				digit_t *restrict digits2,
+				const size_t count1,
+				const size_t count2)
 {
-	free(big->digits);
-	free(big);
+	if (count1 > count2)
+		return POS;
+
+	if (count2 > count1)
+		return NEG;
+
+	size_t i = count1 - 1lu;
+
+	while (1) {
+		if (digits1[i] > digits2[i])
+			return POS;
+
+		if (digits2[i] > digits1[i])
+			return NEG;
+
+		if (i == 0)
+			return ZRO;
+	}
 }
+
 
 inline void add_digit_to_big_digits(struct BigDigits *big,
 				    digit_t digit)

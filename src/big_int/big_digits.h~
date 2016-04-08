@@ -34,10 +34,13 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 static inline struct BigDigits *init_zeroed_big_digits(const size_t count);
 
-static inline void free_big_digits(struct BigDigits *big);
-
 static inline void add_digit_to_big_digits(struct BigDigits *big,
 					   digit_t digit);
+
+static inline enum Sign compare_digits(digit_t *restrict digits1,
+				       digit_t *restrict digits2,
+				       const size_t count1,
+				       const size_t count2);
 
 size_t do_multiply_big_digits(digit_t *restrict res_digits,
 			      digit_t *restrict digits1,
@@ -49,10 +52,29 @@ size_t add_split_digits(digit_t *restrict res_digits,
 			digit_t *restrict digits2,
 			const size_t count);
 
+size_t decrement_digits(digit_t *restrict digits1,
+			digit_t *restrict digits2,
+			const size_t count1,
+			const size_t count2);
+
+size_t add_poly_pair(digit_t *restrict res_digits,
+		     digit_t *restrict digits1,
+		     digit_t *restrict digits2,
+		     const size_t count1,
+		     const size_t count2,
+		     const size_t n);
+
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
 
 /* EXTERN INLINE FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+inline void free_big_digits(struct BigDigits *big)
+{
+	free(big->digits);
+	free(big);
+}
+
 /* EXTERN INLINE FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 #endif /* ifndef BIG_INT_BIG_DIGITS_H_ */
