@@ -672,6 +672,8 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 
 		}
 
+
+
 		return n + add_digits(&res_digits[n],
 				      digits1,
 				      &digits2[n],
@@ -859,18 +861,43 @@ size_t add_digits(digit_t *restrict res_digits,
 		}
 	}
 
+	fputs("\n\n** adding **\n", stdout);
+
+	for (int i = count1 - 1; i > -1; --i) {
+		printf("%u", digits1[i]);
+	}
+
+	fputs(" + ", stdout);
+
+	for (int i = count2 - 1; i > -1; --i) {
+		printf("%u", digits2[i]);
+	}
+
+	fputs(" = \n", stdout);
+
+	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
+	printf("count1: %zu\n", count1);
+	printf("count2: %zu\n", count2);
+	printf("i:	%zu\n", i);
+	printf("carry?: %s\n",  carry ? "true" : "false");
+	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
 	if (carry) {
 		while (digits1[i] == 9u) {
 			res_digits[i] = 0u;
 			++i;
+
+			if (i == count1) {
+				res_digits[count1] = 1lu;
+				return count1 + 1lu;
+			}
 		}
 
 		res_digits[i] = digits1[i] + 1u;
 		++i;
 	}
 
-	if (i == count1)
-		return count1 + 1lu;
 
 	memcpy(&res_digits[i],
 	       &digits1[i],

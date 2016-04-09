@@ -5,8 +5,10 @@
 int main(void)
 {
 	digit_t res_digits[10] = {0};
-	digit_t digits1[] = {9, 9, 9, 0};
-	digit_t digits2[] = {9, 9, 0, 0};
+	/* digit_t digits1[] = {9, 9, 9, 0}; */
+	/* digit_t digits2[] = {9, 9, 0, 0}; */
+	digit_t digits1[] = {9, 9};
+	digit_t digits2[] = {9, 9};
 
 	size_t count = do_multiply_digits(&res_digits[0lu],
 					  &digits1[0lu],

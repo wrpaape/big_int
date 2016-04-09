@@ -13,7 +13,7 @@ int main(void)
 	size_t count = do_multiply_digits(&res_digits[0lu],
 					  &digits1[0lu],
 					  &digits2[0lu],
-					  next_pow_two(4));
+					  next_pow_two(2));
 
 	char buff[count + 1lu];
 
