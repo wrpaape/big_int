@@ -19,11 +19,19 @@ int main(void)
 
 	buff[count] = '\0';
 
-	do {
-		--count;
-		buff[count] = res_digits[count] + '0';
+	size_t i = 0lu;
 
-	} while (count > 0lu);
+	size_t last = count - 1lu;
+
+	while (1) {
+		buff[i] = res_digits[last - i] + '0';
+
+		if (i == last)
+			break;
+
+		++i;
+	}
+
 
 	/* for (int i = count - 1; i > -1; --i) { */
 	/* /1* 	printf("digits1[%d]:    %u\n", i, digits1[i]); *1/ */
