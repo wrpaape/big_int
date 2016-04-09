@@ -440,7 +440,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
  * hard-wired helper for karatsuba
  *
  * sets 'res_digits' to 'lower + upper' and returns count
- * rounded up to next_power of two
+ * rounded up to next_power of two, zeroing digits until then
+ * if necessary
  *
  * input conditions:
  */
@@ -452,7 +453,7 @@ size_t add_split_digits(digit_t *restrict res_digits,
 {
 	bool carry;
 
-	res_digits[0lu] = digits1[0lu] + digits2[0lu];
+	res_digits[0lu] = upper[0lu] + lower[0lu];
 
 	if (res_digits[0lu] > 9u) {
 		res_digits[0lu] -= 10u;
@@ -462,7 +463,7 @@ size_t add_split_digits(digit_t *restrict res_digits,
 	}
 
 	for (size_t i = 1lu; i < half_count; ++i) {
-		res_digits[i] = digits1[i] + digits2[i];
+		res_digits[i] = upper[i] + lower[i];
 
 		if (carry) {
 
@@ -694,6 +695,7 @@ size_t add_digits(digit_t *restrict res_digits,
 		  const size_t count2)
 {
 	bool carry;
+	size_t i;
 
 	res_digits[0lu] = digits1[0lu] + digits2[0lu];
 
@@ -704,7 +706,7 @@ size_t add_digits(digit_t *restrict res_digits,
 		carry = false;
 	}
 
-	for (size_t i = 1lu; i < count2; ++i) {
+	for (i = 1lu; i < count2; ++i) {
 		res_digits[i] = digits1[i] + digits2[i];
 
 		if (carry) {
