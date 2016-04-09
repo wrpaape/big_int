@@ -327,6 +327,10 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 
 	digit_t *add_res1;
 	digit_t *add_res2;
+	digit_t *mlt_res1;
+	digit_t *mlt_res2;
+	digit_t *mlt_res3;
+	digit_t *sub_res1;
 
 	HANDLE_MALLOC(add_res1, count_size);
 	HANDLE_MALLOC(add_res2, count_size);
@@ -414,10 +418,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	fflush(stdout);
 #endif
 
-	digit_t *mlt_res1;
-	digit_t *mlt_res2;
-	digit_t *mlt_res3;
-	digit_t *sub_res1;
 
 	HANDLE_MALLOC(mlt_res1, mult_res1_size);
 	HANDLE_MALLOC(mlt_res2, count_size);
@@ -430,9 +430,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     add_res2,
 					     max_add_cnt);
 
-	/* free split sum digits */
-	/* free(add_res1); */
-	free(add_res2);
 
 	size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
 					     upper1,
@@ -462,9 +459,12 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					  mlt_res2,
 					  mlt_cnt1,
 					  mlt_cnt2);
+	/* free split sum digits */
+	/* free(add_res1); */
+	/* free(add_res2); */
 
 	/* free temp */
-	free(mlt_res1);
+	/* free(mlt_res1); */
 
 #if DEBUG_MULTIPLY
 	fputs("\n\n\nsub_res1: ", stdout);
@@ -477,6 +477,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			       sub_cnt1,
 			       mlt_cnt3)) {
 	case POS: {
+		puts("AYY ZIMBABWE");
 
 #if DEBUG_MULTIPLY
 		puts("\n******** z1 - z2 > z0 ************");
@@ -508,7 +509,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
 #endif
 		/* free temps */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 
 		digit_t *app_res;
@@ -532,8 +533,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		fflush(stdout);
 #endif
 		/* free temps */
-		free(sub_res2);
-		free(mlt_res3);
+		/* free(sub_res2); */
+		/* free(mlt_res3); */
 
 		size_t res_cnt = add_poly_pair(res_digits,
 					       mlt_res2,
@@ -543,13 +544,17 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       count);
 
 		/* free temps */
-		free(mlt_res2);
-		free(app_res);
+		/* free(mlt_res2); */
+		/* free(app_res); */
+		/* free(add_res1); */
 
 		return res_cnt;
 	}
 
 	case NEG: {
+
+		puts("AYY LEMMY");
+		fflush(stdout);
 #if DEBUG_MULTIPLY
 		puts("\n************* z1 - z2 < z0 ****************");
 		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
@@ -571,7 +576,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  mlt_cnt3,
 						  sub_cnt1);
 		/* free temps */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 
 		/* digit_t app_res[sub_cnt2 + count + 1lu]; */
@@ -586,8 +591,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt3,
 					       count);
 		/* free temps */
-		free(mlt_res2);
-		free(mlt_res3);
+		/* free(mlt_res2); */
+		/* free(mlt_res3); */
 
 
 		size_t res_cnt = subtract_poly_pair(res_digits,
@@ -597,13 +602,14 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						    sub_cnt2,
 						    half_count);
 		/* free tmps */
-		free(app_res);
-		free(sub_res2);
+		/* free(app_res); */
+		/* free(sub_res2); */
 
 		return res_cnt;
 	}
 
 	default: {
+		puts("AYY LMAOS");
 #if DEBUG_MULTIPLY
 		puts("\n************* z1 - z2 = z0 ****************");
 		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
@@ -616,7 +622,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		fflush(stdout);
 #endif
 		/* free tmps */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 		size_t res_cnt = add_poly_pair(res_digits,
 					       mlt_res2,
@@ -624,8 +630,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt2,
 					       mlt_cnt3,
 					       count);
-		free(mlt_res2);
-		free(mlt_res3);
+		/* free(mlt_res2); */
+		/* free(mlt_res3); */
 
 		return res_cnt;
 	}
