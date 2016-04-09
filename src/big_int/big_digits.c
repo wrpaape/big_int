@@ -429,14 +429,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     add_res1,
 					     add_res2,
 					     max_add_cnt);
-	/* free split sum digits */
-	free(add_res1);
-	free(add_res2);
 
 #if DEBUG_MULTIPLY
-	fputs("\n\nmlt_res1: ", stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-	fflush(stdout);
 #endif
 
 	size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
@@ -445,20 +439,31 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     half_count);
 
 #if DEBUG_MULTIPLY
-	fputs("\n\n\nmlt_res2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-	fflush(stdout);
 #endif
 
 	size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
 					     digits1,
 					     digits2,
 					     half_count);
-#if DEBUG_MULTIPLY
-	fputs("\n\n\nmlt_res3: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\nadd_res1: ", stdout); */
+/* 	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res1[i]); */
+/* 	fputs("\nadd_res2: ", stdout); */
+/* 	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res2[i]); */
+/* 	fputs("\nmlt_res1: ", stdout); */
+/* 	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]); */
+/* 	fputs("\nmlt_res2: ", stdout); */
+/* 	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]); */
+/* 	fputs("\nmlt_res3: ", stdout); */
+/* 	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
+/* 	fflush(stdout); */
+/* #endif */
+	/* free split sum digits */
+	/* free(add_res1); */
+	/* free(add_res2); */
+
+	puts("\n\nYOLO");
 	fflush(stdout);
-#endif
 
 	size_t sub_cnt1 = subtract_digits(sub_res1,
 					  mlt_res1,
@@ -467,13 +472,13 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					  mlt_cnt2);
 
 	/* free temp */
-	free(mlt_res1);
+	/* free(mlt_res1); */
 
-#if DEBUG_MULTIPLY
-	fputs("\n\n\nsub_res1: ", stdout);
-	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-	fflush(stdout);
-#endif
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\n\n\nsub_res1: ", stdout); */
+/* 	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]); */
+/* 	fflush(stdout); */
+/* #endif */
 
 	switch (compare_digits(sub_res1,
 			       mlt_res3,
@@ -482,7 +487,15 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	case POS: {
 
 #if DEBUG_MULTIPLY
-		puts("\n******** z2 - z1 > z0 ************");
+		puts("\n******** z1 - z2 > z0 ************");
+		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
+		fputs(" - ", stdout);
+		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
+		fputs(" = ", stdout);
+		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
+		fputs(" > ", stdout);
+		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+		fflush(stdout);
 #endif
 
 		digit_t *sub_res2;
@@ -495,15 +508,15 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  sub_cnt1,
 						  mlt_cnt3);
 
-#if DEBUG_MULTIPLY
-		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-		fputs(" - ", stdout);
-		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-		fputs(" = \n\n", stdout);
-		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
-#endif
+/* #if DEBUG_MULTIPLY */
+/* 		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]); */
+/* 		fputs(" - ", stdout); */
+/* 		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
+/* 		fputs(" = \n\n", stdout); */
+/* 		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]); */
+/* #endif */
 		/* free temps */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 
 		digit_t *app_res;
@@ -518,17 +531,17 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       half_count);
 
 #if DEBUG_MULTIPLY
-		fputs("\n\n** add_poly_pair **\n", stdout);
-		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
-		printf(" * 10^%zu + ", half_count);
-		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-		fputs(" = \n\n", stdout);
-		for (int i = app_cnt - 1; i > -1; --i) printf("%u", app_res[i]);
-		fflush(stdout);
+		/* fputs("\n\n** add_poly_pair **\n", stdout); */
+		/* for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]); */
+		/* printf(" * 10^%zu + ", half_count); */
+		/* for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
+		/* fputs(" = \n\n", stdout); */
+		/* for (int i = app_cnt - 1; i > -1; --i) printf("%u", app_res[i]); */
+		/* fflush(stdout); */
 #endif
 		/* free temps */
-		free(sub_res2);
-		free(mlt_res3);
+		/* free(sub_res2); */
+		/* free(mlt_res3); */
 
 		size_t res_cnt = add_poly_pair(res_digits,
 					       mlt_res2,
@@ -537,16 +550,26 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       app_cnt,
 					       count);
 
+		puts("LMAO"); fflush(stdout);
+
 		/* free temps */
-		free(mlt_res2);
-		free(app_res);
+		/* free(mlt_res2); */
+		/* free(app_res); */
 
 		return res_cnt;
 	}
 
 	case NEG: {
 /* #if DEBUG_MULTIPLY */
-		puts("\n************* z2 - z1 < z0 ****************");
+		puts("\n************* z1 - z2 < z0 ****************");
+		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
+		fputs(" - ", stdout);
+		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
+		fputs(" = ", stdout);
+		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
+		fputs(" < ", stdout);
+		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+		fflush(stdout);
 /* #endif */
 		digit_t *sub_res2;
 		HANDLE_MALLOC(sub_res2,
@@ -558,7 +581,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  mlt_cnt3,
 						  sub_cnt1);
 		/* free temps */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 
 		/* digit_t app_res[sub_cnt2 + count + 1lu]; */
@@ -573,8 +596,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt3,
 					       count);
 		/* free temps */
-		free(mlt_res2);
-		free(mlt_res3);
+		/* free(mlt_res2); */
+		/* free(mlt_res3); */
 
 
 		size_t res_cnt = subtract_poly_pair(res_digits,
@@ -584,17 +607,25 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						    sub_cnt2,
 						    half_count);
 		/* free tmps */
-		free(app_res);
-		free(sub_res2);
+		/* free(app_res); */
+		/* free(sub_res2); */
 
 		return res_cnt;
 	}
 
 	default:
 /* #if DEBUG_MULTIPLY */
-		puts("\n*************** z2 - z1 = z0 ***************");
+		puts("\n************* z1 - z2 = z0 ****************");
+		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
+		fputs(" - ", stdout);
+		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
+		fputs(" = ", stdout);
+		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
+		fputs(" = ", stdout);
+		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+		fflush(stdout);
 /* #endif */
-		free(sub_res1);
+		/* free(sub_res1); */
 
 		size_t res_cnt = add_poly_pair(res_digits,
 					       mlt_res2,
@@ -602,8 +633,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt2,
 					       mlt_cnt3,
 					       count);
-		free(mlt_res2);
-		free(mlt_res3);
+		/* free(mlt_res2); */
+		/* free(mlt_res3); */
 
 		return res_cnt;
 	}
@@ -671,19 +702,28 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		     const size_t count2,
 		     const size_t n)
 {
+	fputs("\nadd_poly_pair:\ndigits1: ", stdout);
+	for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]);
+	fputs("\ndigits2: ", stdout);
+	for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]);
+	printf("\nn:       %zu", n); fflush(stdout);
+
 	if ((count1 == 1lu) && (digits1[0lu] == 0u)) {
 
 		puts("LOL 0");
+		fflush(stdout);
 
 		memcpy(res_digits,
 		       digits2,
 		       sizeof(digit_t) * count2);
 
-		return count2;
 
+		return count2;
 	}
 
 	if (n < count2) {
+		puts("\n\nn < count2"); fflush(stdout);
+
 		memcpy(res_digits,
 		       digits2,
 		       sizeof(digit_t) * n);
@@ -702,6 +742,7 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 
 		}
 
+		puts("rem_cnt2 < count2"); fflush(stdout);
 
 
 		return n + add_digits(&res_digits[n],
@@ -892,27 +933,16 @@ size_t add_digits(digit_t *restrict res_digits,
 	}
 
 #if DEBUG_MULTIPLY
-	fputs("\n\n** adding **\n", stdout);
-
-	for (int i = count1 - 1; i > -1; --i) {
-		printf("%u", digits1[i]);
-	}
-
-	fputs(" + ", stdout);
-
-	for (int i = count2 - 1; i > -1; --i) {
-		printf("%u", digits2[i]);
-	}
-
-	fputs(" = \n", stdout);
-
-	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-
-	printf("count1: %zu\n", count1);
-	printf("count2: %zu\n", count2);
-	printf("i:	%zu\n", i);
-	printf("carry?: %s\n",  carry ? "true" : "false");
-	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+	/* fputs("\n\n** adding **\n", stdout); */
+	/* for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]); */
+	/* fputs(" + ", stdout); */
+	/* for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]); */
+	/* fputs(" = \n%%%%%%%%%%%%%%%%%%%%%%%%%%%\n", stdout); */
+	/* printf("count1: %zu\n", count1); */
+	/* printf("count2: %zu\n", count2); */
+	/* printf("i:	%zu\n", i); */
+	/* printf("carry?: %s\n",  carry ? "true" : "false"); */
+	/* puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%"); */
 #endif
 
 	if (carry) {
@@ -1035,7 +1065,7 @@ inline enum Sign compare_digits(digit_t *restrict digits1,
 		if (digits2[i] > digits1[i])
 			return NEG;
 
-		if (i == 1lu)
+		if (i == 0lu)
 			return ZRO;
 
 		--i;
