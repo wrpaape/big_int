@@ -12,7 +12,7 @@
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #define DIGITS_PER_WORD_BASE 20lu
-#define DEBUG_MULTIPLY 0
+#define DEBUG_MULTIPLY 1
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -325,9 +325,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	digit_t *upper1 = digits1 + half_count;
 	digit_t *upper2 = digits2 + half_count;
 
-	/* digit_t add_res1[count]; */
-	/* digit_t add_res2[count]; */
-
 	digit_t *add_res1;
 	digit_t *add_res2;
 
@@ -402,40 +399,20 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 #if DEBUG_MULTIPLY
-		printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", digits1[i]);
-		}
-		fputs("\nupper1: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", upper1[i]);
-		}
-
-		fputs("\nlower1 + upper1: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", add_res1[i]);
-		}
-		fputs("\nlower2: ", stdout);
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", digits2[i]);
-		}
-
-		fputs("\nupper2: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", upper2[i]);
-		}
-		fputs("\nlower2 + upper2: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", add_res2[i]);
-		}
-		fflush(stdout);
+	printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
+	for (int i = half_count - 1; i > -1; --i) printf("%u", digits1[i]);
+	fputs("\nupper1: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", upper1[i]);
+	fputs("\nlower1 + upper1: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res1[i]);
+	fputs("\nlower2: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) printf("%u", digits2[i]);
+	fputs("\nupper2: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", upper2[i]);
+	fputs("\nlower2 + upper2: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res2[i]);
+	fflush(stdout);
 #endif
-
-
-	/* digit_t mlt_res1[mult_res1_size]; */
-	/* digit_t mlt_res2[count]; */
-	/* digit_t mlt_res3[count]; */
-	/* digit_t sub_res1[count]; */
 
 	digit_t *mlt_res1;
 	digit_t *mlt_res2;
@@ -452,61 +429,62 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     add_res1,
 					     add_res2,
 					     max_add_cnt);
+	/* free split sum digits */
+	free(add_res1);
+	free(add_res2);
 
 #if DEBUG_MULTIPLY
 	fputs("\n\nmlt_res1: ", stdout);
-	fflush(stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) {
-		printf("%u", mlt_res1[i]);
-	}
+	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
 	fflush(stdout);
 #endif
 
-	size_t mlt_cnt2 = do_multiply_digits(&mlt_res2[0lu],
+	size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
 					     upper1,
 					     upper2,
 					     half_count);
 
 #if DEBUG_MULTIPLY
 	fputs("\n\n\nmlt_res2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) {
-		printf("%u", mlt_res2[i]);
-	}
+	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
 	fflush(stdout);
 #endif
 
-	size_t mlt_cnt3 = do_multiply_digits(&mlt_res3[0lu],
+	size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
 					     digits1,
 					     digits2,
 					     half_count);
 #if DEBUG_MULTIPLY
-
 	fputs("\n\n\nmlt_res3: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) {
-		printf("%u", mlt_res3[i]);
-	}
+	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
 	fflush(stdout);
 #endif
 
-	size_t sub_cnt1 = subtract_digits(&sub_res1[0lu],
-					  &mlt_res1[0lu],
-					  &mlt_res2[0lu],
+	size_t sub_cnt1 = subtract_digits(sub_res1,
+					  mlt_res1,
+					  mlt_res2,
 					  mlt_cnt1,
 					  mlt_cnt2);
+
+	/* free temp */
+	free(mlt_res1);
+
 #if DEBUG_MULTIPLY
 	fputs("\n\n\nsub_res1: ", stdout);
-	for (int i = sub_cnt1 - 1; i > -1; --i) {
-		printf("%u", sub_res1[i]);
-	}
+	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
 	fflush(stdout);
 #endif
 
 	switch (compare_digits(sub_res1,
 			       mlt_res3,
-			       mlt_cnt1,
+			       sub_cnt1,
 			       mlt_cnt3)) {
 	case POS: {
-		/* digit_t sub_res2[mlt_cnt1]; */
+
+#if DEBUG_MULTIPLY
+		puts("\n******** z2 - z1 > z0 ************");
+#endif
+
 		digit_t *sub_res2;
 		HANDLE_MALLOC(sub_res2,
 			      sizeof(digit_t) * mlt_cnt1);
@@ -518,32 +496,21 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  mlt_cnt3);
 
 #if DEBUG_MULTIPLY
-		puts("\n********\nz2 - z1 > z0\n************\n\n");
-		for (int i = sub_cnt1 - 1; i > -1; --i) {
-			printf("%u", sub_res1[i]);
-		}
-
+		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
 		fputs(" - ", stdout);
-
-		for (int i = mlt_cnt3 - 1; i > -1; --i) {
-			printf("%u", mlt_res3[i]);
-		}
-
+		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
 		fputs(" = \n\n", stdout);
-
-		for (int i = sub_cnt2 - 1; i > -1; --i) {
-			printf("%u", sub_res2[i]);
-		}
+		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
 #endif
+		/* free temps */
+		free(sub_res1);
 
-
-		/* digit_t app_res[sub_cnt2 + half_count + 1lu]; */
 
 		digit_t *app_res;
 		HANDLE_MALLOC(app_res,
 			      sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
 
-		size_t app_cnt = add_poly_pair(app_res
+		size_t app_cnt = add_poly_pair(app_res,
 					       sub_res2,
 					       mlt_res3,
 					       sub_cnt2,
@@ -552,41 +519,35 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 
 #if DEBUG_MULTIPLY
 		fputs("\n\n** add_poly_pair **\n", stdout);
-
-		for (int i = sub_cnt2 - 1; i > -1; --i) {
-			printf("%u", sub_res2[i]);
-		}
-
+		for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
 		printf(" * 10^%zu + ", half_count);
-
-		for (int i = mlt_cnt3 - 1; i > -1; --i) {
-			printf("%u", mlt_res3[i]);
-		}
-
+		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
 		fputs(" = \n\n", stdout);
-
-		for (int i = app_cnt - 1; i > -1; --i) {
-			printf("%u", app_res[i]);
-		}
-
+		for (int i = app_cnt - 1; i > -1; --i) printf("%u", app_res[i]);
 		fflush(stdout);
 #endif
+		/* free temps */
+		free(sub_res2);
+		free(mlt_res3);
 
-		return add_poly_pair(res_digits,
-				     mlt_res2,
-				     app_res,
-				     mlt_cnt2,
-				     app_cnt,
-				     count);
+		size_t res_cnt = add_poly_pair(res_digits,
+					       mlt_res2,
+					       app_res,
+					       mlt_cnt2,
+					       app_cnt,
+					       count);
+
+		/* free temps */
+		free(mlt_res2);
+		free(app_res);
+
+		return res_cnt;
 	}
 
 	case NEG: {
-#if DEBUG_MULTIPLY
-		puts("\n*************z2 - z1 < z0\n****************");
-#endif
-
-		/* digit_t sub_res2[mlt_cnt3]; */
-
+/* #if DEBUG_MULTIPLY */
+		puts("\n************* z2 - z1 < z0 ****************");
+/* #endif */
 		digit_t *sub_res2;
 		HANDLE_MALLOC(sub_res2,
 			      sizeof(digit_t) * mlt_cnt3);
@@ -596,6 +557,9 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  sub_res1,
 						  mlt_cnt3,
 						  sub_cnt1);
+		/* free temps */
+		free(sub_res1);
+
 
 		/* digit_t app_res[sub_cnt2 + count + 1lu]; */
 		digit_t *app_res;
@@ -608,27 +572,42 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt2,
 					       mlt_cnt3,
 					       count);
+		/* free temps */
+		free(mlt_res2);
+		free(mlt_res3);
 
 
-		return subtract_poly_pair(res_digits,
-					  app_res,
-					  sub_res2,
-					  app_cnt,
-					  sub_cnt2,
-					  half_count);
+		size_t res_cnt = subtract_poly_pair(res_digits,
+						    app_res,
+						    sub_res2,
+						    app_cnt,
+						    sub_cnt2,
+						    half_count);
+		/* free tmps */
+		free(app_res);
+		free(sub_res2);
+
+		return res_cnt;
 	}
 
 	default:
-#if DEBUG_MULTIPLY
-		puts("\nz2 - z1 = z0\n");
-#endif
-		return add_poly_pair(res_digits,
-				     mlt_res2,
-				     mlt_res3,
-				     mlt_cnt2,
-				     mlt_cnt3,
-				     count);
+/* #if DEBUG_MULTIPLY */
+		puts("\n*************** z2 - z1 = z0 ***************");
+/* #endif */
+		free(sub_res1);
+
+		size_t res_cnt = add_poly_pair(res_digits,
+					       mlt_res2,
+					       mlt_res3,
+					       mlt_cnt2,
+					       mlt_cnt3,
+					       count);
+		free(mlt_res2);
+		free(mlt_res3);
+
+		return res_cnt;
 	}
+
 }
 
 /*
