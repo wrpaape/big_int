@@ -418,8 +418,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		}
 		fflush(stdout);
 
-		usleep(500000);
-
 
 	digit_t mlt_res1[mult_res1_size];
 	digit_t mlt_res2[count];
@@ -470,7 +468,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		printf("%u", sub_res1[i]);
 	}
 	fflush(stdout);
-	usleep(500000);
+
+	puts("OOGITY BOOGITY");
 
 	switch (compare_digits(&sub_res1[0lu],
 			       &mlt_res3[0lu],
@@ -531,7 +530,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			printf("%u", app_res[i]);
 		}
 
-		usleep(1000000);
 		fflush(stdout);
 
 		return add_poly_pair(res_digits,
@@ -884,14 +882,18 @@ size_t add_digits(digit_t *restrict res_digits,
 	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
 	if (carry) {
-		while (digits1[i] == 9u) {
-			res_digits[i] = 0u;
-			++i;
-
+		while (1)  {
 			if (i == count1) {
 				res_digits[count1] = 1lu;
 				return count1 + 1lu;
 			}
+
+			if (digits1[i] < 9u)
+				break;
+
+			res_digits[i] = 0u;
+			++i;
+
 		}
 
 		res_digits[i] = digits1[i] + 1u;
@@ -984,6 +986,19 @@ inline enum Sign compare_digits(digit_t *restrict digits1,
 				const size_t count1,
 				const size_t count2)
 {
+	puts("\n\nCOMPARING ");
+
+	for (int i = count1 - 1; i > -1; --i) {
+		printf("%u", digits1[i]);
+	}
+
+	fputs(" to ", stdout);
+
+	for (int i = count2 - 1; i > -1; --i) {
+		printf("%u", digits2[i]);
+	}
+	fflush(stdout);
+
 	if (count1 > count2)
 		return POS;
 
@@ -999,8 +1014,10 @@ inline enum Sign compare_digits(digit_t *restrict digits1,
 		if (digits2[i] > digits1[i])
 			return NEG;
 
-		if (i == 0)
+		if (i == 1lu)
 			return ZRO;
+
+		--i;
 	}
 }
 
