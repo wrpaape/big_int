@@ -492,6 +492,7 @@ size_t add_split_digits(digit_t *restrict res_digits,
 	}
 
 	return half_count;
+
 }
 
 /*

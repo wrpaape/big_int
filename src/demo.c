@@ -14,19 +14,24 @@ int main(void)
 				       4,
 				       4);
 
-	/* char buff[11]; */
+	char buff[count + 1lu];
 
-	/* buff[count] = '\0'; */
+	buff[count] = '\0';
 
-	for (int i = count - 1; i > -1; --i) {
-	/* 	printf("digits1[%d]:    %u\n", i, digits1[i]); */
-		printf("res_digits[%d]: %u\n", i, res_digits[i]);
-	/* 	buff[i] = res_digits[i] + '0'; */
-	}
+	do {
+		--count;
+		buff[count] = res_digits[count] + '0';
+
+	} while (count > 0lu);
+
+	/* for (int i = count - 1; i > -1; --i) { */
+	/* /1* 	printf("digits1[%d]:    %u\n", i, digits1[i]); *1/ */
+	/* 	printf("res_digits[%d]: %u\n", i, res_digits[i]); */
+	/* } */
 
 
 
-	/* puts(buff); */
+	puts(buff);
 
 	/* struct BigInt *big1 = init_big_int(LONG_MAX); */
 	/* struct BigInt *big2 = init_big_int(LONG_MAX); */
