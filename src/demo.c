@@ -4,14 +4,14 @@
 
 int main(void)
 {
-	digit_t res_digits[10];
-	digit_t digits1[] = {9, 9};
-	digit_t digits2[] = {9, 9};
+	digit_t res_digits[10] = {0};
+	digit_t digits1[] = {9, 9, 9, 0};
+	digit_t digits2[] = {9, 9, 0, 0};
 
 	size_t count = do_multiply_digits(&res_digits[0lu],
 					  &digits1[0lu],
 					  &digits2[0lu],
-					  next_pow_two(2));
+					  next_pow_two(4));
 
 	char buff[count + 1lu];
 

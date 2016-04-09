@@ -332,6 +332,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					   half_count,
 					   count);
 
+	puts("YO");
+	fflush(stdout);
 	for (int i = add_cnt1 - 1; i > -1; --i) {
 		printf("res_digits[%d]: %u\n", i, add_res1[i]);
 	}

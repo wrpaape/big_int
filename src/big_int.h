@@ -3,10 +3,12 @@
 /* MODULES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int/globals.h"
+#include "big_int/utils.h"
 #include "big_int/add.h"
 #include "big_int/subtract.h"
 #include "big_int/multiply.h"
 #include "big_int/memory.h"
+#include "big_int/big_digits.h"
 #include "big_int/string.h"
 
 /* MODULES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
