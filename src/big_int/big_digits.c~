@@ -391,7 +391,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 		printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
-		for (int i = max_add_cnt - 1; i > -1; --i) {
+		for (int i = half_count - 1; i > -1; --i) {
 			printf("%u", digits1[i]);
 		}
 		fputs("\nupper1: ", stdout);
@@ -404,7 +404,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			printf("%u", add_res1[i]);
 		}
 		fputs("\nlower2: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
+		for (int i = half_count - 1; i > -1; --i) {
 			printf("%u", digits2[i]);
 		}
 
@@ -432,35 +432,77 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     &add_res2[0lu],
 					     max_add_cnt);
 
+	fputs("\n\n\nmlt_res1: ", stdout);
+	for (int i = mlt_cnt1 - 1; i > -1; --i) {
+		printf("%u", mlt_res1[i]);
+	}
+	fflush(stdout);
+
 	size_t mlt_cnt2 = do_multiply_digits(&mlt_res2[0lu],
 					     upper1,
 					     upper2,
 					     half_count);
+
+	fputs("\n\n\nmlt_res2: ", stdout);
+	for (int i = mlt_cnt2 - 1; i > -1; --i) {
+		printf("%u", mlt_res2[i]);
+	}
+	fflush(stdout);
 
 	size_t mlt_cnt3 = do_multiply_digits(&mlt_res3[0lu],
 					     digits1,
 					     digits2,
 					     half_count);
 
+	fputs("\n\n\nmlt_res3: ", stdout);
+	for (int i = mlt_cnt3 - 1; i > -1; --i) {
+		printf("%u", mlt_res3[i]);
+	}
+	fflush(stdout);
+
 	size_t sub_cnt1 = subtract_digits(&sub_res1[0lu],
 					  &mlt_res1[0lu],
 					  &mlt_res2[0lu],
 					  mlt_cnt1,
 					  mlt_cnt2);
+	fputs("\n\n\nsub_res1: ", stdout);
+	for (int i = sub_cnt1 - 1; i > -1; --i) {
+		printf("%u", sub_res1[i]);
+	}
+	fflush(stdout);
+	usleep(500000);
 
 	switch (compare_digits(&sub_res1[0lu],
 			       &mlt_res3[0lu],
 			       mlt_cnt1,
 			       mlt_cnt3)) {
 	case POS: {
+		puts("\n********\nz2 - z1 > z0\n************\n\n");
 
 		digit_t sub_res2[mlt_cnt1];
 
 		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
 						  &sub_res1[0lu],
 						  &mlt_res3[0lu],
-						  mlt_cnt1,
+						  sub_cnt1,
 						  mlt_cnt3);
+
+		for (int i = sub_cnt1 - 1; i > -1; --i) {
+			printf("%u", sub_res1[i]);
+		}
+
+		fputs(" - ", stdout);
+
+		for (int i = mlt_cnt3 - 1; i > -1; --i) {
+			printf("%u", mlt_res3[i]);
+		}
+
+		fputs(" = \n\n", stdout);
+
+		for (int i = sub_cnt2 - 1; i > -1; --i) {
+			printf("%u", sub_res2[i]);
+		}
+
 
 		digit_t app_res[sub_cnt2 + half_count + 1lu];
 
@@ -471,6 +513,27 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt3,
 					       half_count);
 
+		fputs("\n\n** add_poly_pair **\n", stdout);
+
+		for (int i = sub_cnt2 - 1; i > -1; --i) {
+			printf("%u", sub_res2[i]);
+		}
+
+		printf(" * 10^%zu + ", half_count);
+
+		for (int i = mlt_cnt3 - 1; i > -1; --i) {
+			printf("%u", mlt_res3[i]);
+		}
+
+		fputs(" = \n\n", stdout);
+
+		for (int i = app_cnt - 1; i > -1; --i) {
+			printf("%u", app_res[i]);
+		}
+
+		usleep(1000000);
+		fflush(stdout);
+
 		return add_poly_pair(res_digits,
 				     &mlt_res2[0lu],
 				     &app_res[0lu],
@@ -480,6 +543,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 	case NEG: {
+		puts("\nz2 - z1 < z0\n");
 
 		digit_t sub_res2[mlt_cnt3];
 
@@ -487,7 +551,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  &mlt_res3[0lu],
 						  &sub_res1[0lu],
 						  mlt_cnt3,
-						  mlt_cnt1);
+						  sub_cnt1);
 
 		digit_t app_res[sub_cnt2 + count + 1lu];
 
@@ -508,6 +572,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 	default:
+		puts("\nz2 - z1 = z0\n");
 		return add_poly_pair(res_digits,
 				     &mlt_res2[0lu],
 				     &mlt_res3[0lu],
