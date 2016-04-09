@@ -15,7 +15,7 @@ int main(void)
 					  &digits2[0lu],
 					  next_pow_two(4));
 
-	puts("done");
+	puts("\n\ndone");
 
 	char buff[count + 1lu];
 

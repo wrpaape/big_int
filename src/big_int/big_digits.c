@@ -12,6 +12,7 @@
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #define DIGITS_PER_WORD_BASE 20lu
+#define DEBUG_MULTIPLY 1
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -390,33 +391,35 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		mult_res1_size = count;
 	}
 
-		printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", digits1[i]);
-		}
-		fputs("\nupper1: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", upper1[i]);
-		}
+#if DEBUG_MULTIPLY
+		/* printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY"); */
+		/* for (int i = half_count - 1; i > -1; --i) { */
+		/* 	printf("%u", digits1[i]); */
+		/* } */
+		/* fputs("\nupper1: ", stdout); */
+		/* for (int i = max_add_cnt - 1; i > -1; --i) { */
+		/* 	printf("%u", upper1[i]); */
+		/* } */
 
-		fputs("\nlower1 + upper1: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", add_res1[i]);
-		}
-		fputs("\nlower2: ", stdout);
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", digits2[i]);
-		}
+		/* fputs("\nlower1 + upper1: ", stdout); */
+		/* for (int i = max_add_cnt - 1; i > -1; --i) { */
+		/* 	printf("%u", add_res1[i]); */
+		/* } */
+		/* fputs("\nlower2: ", stdout); */
+		/* for (int i = half_count - 1; i > -1; --i) { */
+		/* 	printf("%u", digits2[i]); */
+		/* } */
 
-		fputs("\nupper2: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", upper2[i]);
-		}
-		fputs("\nlower2 + upper2: ", stdout);
-		for (int i = max_add_cnt - 1; i > -1; --i) {
-			printf("%u", add_res2[i]);
-		}
-		fflush(stdout);
+		/* fputs("\nupper2: ", stdout); */
+		/* for (int i = max_add_cnt - 1; i > -1; --i) { */
+		/* 	printf("%u", upper2[i]); */
+		/* } */
+		/* fputs("\nlower2 + upper2: ", stdout); */
+		/* for (int i = max_add_cnt - 1; i > -1; --i) { */
+		/* 	printf("%u", add_res2[i]); */
+		/* } */
+		/* fflush(stdout); */
+#endif
 
 
 	digit_t mlt_res1[mult_res1_size];
@@ -430,54 +433,58 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     &add_res2[0lu],
 					     max_add_cnt);
 
-	fputs("\n\n\nmlt_res1: ", stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) {
-		printf("%u", mlt_res1[i]);
-	}
-	fflush(stdout);
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\n\n\nmlt_res1: ", stdout); */
+/* 	for (int i = mlt_cnt1 - 1; i > -1; --i) { */
+/* 		printf("%u", mlt_res1[i]); */
+/* 	} */
+/* 	fflush(stdout); */
+/* #endif */
 
 	size_t mlt_cnt2 = do_multiply_digits(&mlt_res2[0lu],
 					     upper1,
 					     upper2,
 					     half_count);
 
-	fputs("\n\n\nmlt_res2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) {
-		printf("%u", mlt_res2[i]);
-	}
-	fflush(stdout);
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\n\n\nmlt_res2: ", stdout); */
+/* 	for (int i = mlt_cnt2 - 1; i > -1; --i) { */
+/* 		printf("%u", mlt_res2[i]); */
+/* 	} */
+/* 	fflush(stdout); */
+/* #endif */
 
 	size_t mlt_cnt3 = do_multiply_digits(&mlt_res3[0lu],
 					     digits1,
 					     digits2,
 					     half_count);
+/* #if DEBUG_MULTIPLY */
 
-	fputs("\n\n\nmlt_res3: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) {
-		printf("%u", mlt_res3[i]);
-	}
-	fflush(stdout);
+/* 	fputs("\n\n\nmlt_res3: ", stdout); */
+/* 	for (int i = mlt_cnt3 - 1; i > -1; --i) { */
+/* 		printf("%u", mlt_res3[i]); */
+/* 	} */
+/* 	fflush(stdout); */
+/* #endif */
 
 	size_t sub_cnt1 = subtract_digits(&sub_res1[0lu],
 					  &mlt_res1[0lu],
 					  &mlt_res2[0lu],
 					  mlt_cnt1,
 					  mlt_cnt2);
-	fputs("\n\n\nsub_res1: ", stdout);
-	for (int i = sub_cnt1 - 1; i > -1; --i) {
-		printf("%u", sub_res1[i]);
-	}
-	fflush(stdout);
-
-	puts("OOGITY BOOGITY");
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\n\n\nsub_res1: ", stdout); */
+/* 	for (int i = sub_cnt1 - 1; i > -1; --i) { */
+/* 		printf("%u", sub_res1[i]); */
+/* 	} */
+/* 	fflush(stdout); */
+/* #endif */
 
 	switch (compare_digits(&sub_res1[0lu],
 			       &mlt_res3[0lu],
 			       mlt_cnt1,
 			       mlt_cnt3)) {
 	case POS: {
-		puts("\n********\nz2 - z1 > z0\n************\n\n");
-
 		digit_t sub_res2[mlt_cnt1];
 
 		size_t sub_cnt2 = subtract_digits(&sub_res2[0lu],
@@ -486,21 +493,24 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						  sub_cnt1,
 						  mlt_cnt3);
 
-		for (int i = sub_cnt1 - 1; i > -1; --i) {
-			printf("%u", sub_res1[i]);
-		}
+/* #if DEBUG_MULTIPLY */
+/* 		puts("\n********\nz2 - z1 > z0\n************\n\n"); */
+/* 		for (int i = sub_cnt1 - 1; i > -1; --i) { */
+/* 			printf("%u", sub_res1[i]); */
+/* 		} */
 
-		fputs(" - ", stdout);
+/* 		fputs(" - ", stdout); */
 
-		for (int i = mlt_cnt3 - 1; i > -1; --i) {
-			printf("%u", mlt_res3[i]);
-		}
+/* 		for (int i = mlt_cnt3 - 1; i > -1; --i) { */
+/* 			printf("%u", mlt_res3[i]); */
+/* 		} */
 
-		fputs(" = \n\n", stdout);
+/* 		fputs(" = \n\n", stdout); */
 
-		for (int i = sub_cnt2 - 1; i > -1; --i) {
-			printf("%u", sub_res2[i]);
-		}
+/* 		for (int i = sub_cnt2 - 1; i > -1; --i) { */
+/* 			printf("%u", sub_res2[i]); */
+/* 		} */
+/* #endif */
 
 
 		digit_t app_res[sub_cnt2 + half_count + 1lu];
@@ -512,25 +522,27 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					       mlt_cnt3,
 					       half_count);
 
-		fputs("\n\n** add_poly_pair **\n", stdout);
+/* #if DEBUG_MULTIPLY */
+/* 		fputs("\n\n** add_poly_pair **\n", stdout); */
 
-		for (int i = sub_cnt2 - 1; i > -1; --i) {
-			printf("%u", sub_res2[i]);
-		}
+/* 		for (int i = sub_cnt2 - 1; i > -1; --i) { */
+/* 			printf("%u", sub_res2[i]); */
+/* 		} */
 
-		printf(" * 10^%zu + ", half_count);
+/* 		printf(" * 10^%zu + ", half_count); */
 
-		for (int i = mlt_cnt3 - 1; i > -1; --i) {
-			printf("%u", mlt_res3[i]);
-		}
+/* 		for (int i = mlt_cnt3 - 1; i > -1; --i) { */
+/* 			printf("%u", mlt_res3[i]); */
+/* 		} */
 
-		fputs(" = \n\n", stdout);
+/* 		fputs(" = \n\n", stdout); */
 
-		for (int i = app_cnt - 1; i > -1; --i) {
-			printf("%u", app_res[i]);
-		}
+/* 		for (int i = app_cnt - 1; i > -1; --i) { */
+/* 			printf("%u", app_res[i]); */
+/* 		} */
 
-		fflush(stdout);
+/* 		fflush(stdout); */
+/* #endif */
 
 		return add_poly_pair(res_digits,
 				     &mlt_res2[0lu],
@@ -541,7 +553,9 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 	case NEG: {
-		puts("\nz2 - z1 < z0\n");
+/* #if DEBUG_MULTIPLY */
+/* 		puts("\n*************z2 - z1 < z0\n****************"); */
+/* #endif */
 
 		digit_t sub_res2[mlt_cnt3];
 
@@ -570,7 +584,9 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	}
 
 	default:
-		puts("\nz2 - z1 = z0\n");
+/* #if DEBUG_MULTIPLY */
+/* 		puts("\nz2 - z1 = z0\n"); */
+/* #endif */
 		return add_poly_pair(res_digits,
 				     &mlt_res2[0lu],
 				     &mlt_res3[0lu],
@@ -859,27 +875,29 @@ size_t add_digits(digit_t *restrict res_digits,
 		}
 	}
 
-	fputs("\n\n** adding **\n", stdout);
+/* #if DEBUG_MULTIPLY */
+/* 	fputs("\n\n** adding **\n", stdout); */
 
-	for (int i = count1 - 1; i > -1; --i) {
-		printf("%u", digits1[i]);
-	}
+/* 	for (int i = count1 - 1; i > -1; --i) { */
+/* 		printf("%u", digits1[i]); */
+/* 	} */
 
-	fputs(" + ", stdout);
+/* 	fputs(" + ", stdout); */
 
-	for (int i = count2 - 1; i > -1; --i) {
-		printf("%u", digits2[i]);
-	}
+/* 	for (int i = count2 - 1; i > -1; --i) { */
+/* 		printf("%u", digits2[i]); */
+/* 	} */
 
-	fputs(" = \n", stdout);
+/* 	fputs(" = \n", stdout); */
 
-	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+/* 	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%"); */
 
-	printf("count1: %zu\n", count1);
-	printf("count2: %zu\n", count2);
-	printf("i:	%zu\n", i);
-	printf("carry?: %s\n",  carry ? "true" : "false");
-	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+/* 	printf("count1: %zu\n", count1); */
+/* 	printf("count2: %zu\n", count2); */
+/* 	printf("i:	%zu\n", i); */
+/* 	printf("carry?: %s\n",  carry ? "true" : "false"); */
+/* 	puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%"); */
+/* #endif */
 
 	if (carry) {
 		while (1)  {
@@ -986,19 +1004,6 @@ inline enum Sign compare_digits(digit_t *restrict digits1,
 				const size_t count1,
 				const size_t count2)
 {
-	puts("\n\nCOMPARING ");
-
-	for (int i = count1 - 1; i > -1; --i) {
-		printf("%u", digits1[i]);
-	}
-
-	fputs(" to ", stdout);
-
-	for (int i = count2 - 1; i > -1; --i) {
-		printf("%u", digits2[i]);
-	}
-	fflush(stdout);
-
 	if (count1 > count2)
 		return POS;
 
