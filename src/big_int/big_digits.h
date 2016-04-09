@@ -1,5 +1,13 @@
 #ifndef BIG_INT_BIG_DIGITS_H_
 #define BIG_INT_BIG_DIGITS_H_
+
+/* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+#include <stdbool.h>
+
+/* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
+
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 struct BigDigits *words_to_big_digits(const size_t word_count,
@@ -47,11 +55,10 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			  digit_t *restrict digits2,
 			  const size_t count);
 
-size_t add_split_digits(digit_t *restrict res_digits,
-			digit_t *restrict lower,
-			digit_t *restrict upper,
-			const size_t half_count,
-			const size_t count);
+bool add_split_digits(digit_t *restrict res_digits,
+		      digit_t *restrict lower,
+		      digit_t *restrict upper,
+		      const size_t count);
 
 size_t add_digits(digit_t *restrict res_digits,
 		  digit_t *restrict digits1,

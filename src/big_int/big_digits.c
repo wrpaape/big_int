@@ -3,7 +3,6 @@
 #include "big_int/globals.h"
 #include "big_int/utils.h"
 #include "big_int/big_digits.h"
-#include <stdbool.h>
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -318,7 +317,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		return 2lu;
 	}
 
-	const size_t half_count  = count / 2lu;
+	const size_t half_count = count / 2lu;
 
 	digit_t *upper1 = digits1 + half_count;
 	digit_t *upper2 = digits2 + half_count;
@@ -326,21 +325,103 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	digit_t add_res1[count];
 	digit_t add_res2[count];
 
-	size_t add_cnt1 = add_split_digits(&add_res1[0lu],
-					   digits1,
-					   upper1,
-					   half_count,
-					   count);
 
-	size_t add_cnt2 = add_split_digits(&add_res2[0lu],
-					   digits2,
-					   upper2,
-					   half_count,
-					   count);
+	bool carry1 = add_split_digits(&add_res1[0lu],
+				       digits1,
+				       upper1,
+				       half_count);
 
-	size_t max_add_cnt = (add_cnt1 > add_cnt2) ? add_cnt1 : add_cnt2;
+	bool carry2 = add_split_digits(&add_res2[0lu],
+				       digits2,
+				       upper2,
+				       half_count);
 
-	digit_t mlt_res1[max_add_cnt * 2lu];
+	size_t max_add_cnt;
+	size_t mult_res1_size;
+
+	if (carry1) {
+
+		const size_t half_plus_one   = half_count + 1lu;
+		const size_t rem_digits_size = sizeof(digit_t)
+					     * (half_count - 1lu);
+
+		add_res1[half_count] = 1u;
+		memset(&add_res1[half_plus_one],
+		       0,
+		       rem_digits_size);
+
+		if (carry2) {
+
+			add_res2[half_count] = 1u;
+
+			memset(&add_res2[half_plus_one],
+			       0,
+			       rem_digits_size);
+
+		} else {
+			memset(&add_res2[half_count],
+			       0,
+			       rem_digits_size + sizeof(digit_t));
+		}
+
+		max_add_cnt    = count;
+		mult_res1_size = count * 2lu;
+
+	} else if (carry2) {
+
+		const size_t half_plus_one   = half_count + 1lu;
+		const size_t rem_digits_size = sizeof(digit_t)
+					     * (half_count - 1lu);
+
+		add_res2[half_count] = 1u;
+		memset(&add_res2[half_plus_one],
+		       0,
+		       rem_digits_size);
+
+		memset(&add_res1[half_count],
+		       0,
+		       rem_digits_size + sizeof(digit_t));
+
+		max_add_cnt    = count;
+		mult_res1_size = count * 2lu;
+
+	} else {
+		max_add_cnt    = half_count;
+		mult_res1_size = count;
+	}
+
+		printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", digits1[i]);
+		}
+		fputs("\nupper1: ", stdout);
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", upper1[i]);
+		}
+
+		fputs("\nlower1 + upper1: ", stdout);
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", add_res1[i]);
+		}
+		fputs("\nlower2: ", stdout);
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", digits2[i]);
+		}
+
+		fputs("\nupper2: ", stdout);
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", upper2[i]);
+		}
+		fputs("\nlower2 + upper2: ", stdout);
+		for (int i = max_add_cnt - 1; i > -1; --i) {
+			printf("%u", add_res2[i]);
+		}
+		fflush(stdout);
+
+		usleep(500000);
+
+
+	digit_t mlt_res1[mult_res1_size];
 	digit_t mlt_res2[count];
 	digit_t mlt_res3[count];
 	digit_t sub_res1[count];
@@ -439,17 +520,14 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 /*
  * hard-wired helper for karatsuba
  *
- * sets 'res_digits' to 'lower + upper' and returns count
- * rounded up to next_power of two, zeroing digits until then
- * if necessary
+ * sets 'res_digits' to 'lower + upper' and returns carry
  *
  * input conditions:
  */
-size_t add_split_digits(digit_t *restrict res_digits,
-			digit_t *restrict lower,
-			digit_t *restrict upper,
-			const size_t half_count,
-			const size_t count)
+bool add_split_digits(digit_t *restrict res_digits,
+		      digit_t *restrict lower,
+		      digit_t *restrict upper,
+		      const size_t count)
 {
 	bool carry;
 
@@ -462,7 +540,7 @@ size_t add_split_digits(digit_t *restrict res_digits,
 		carry = false;
 	}
 
-	for (size_t i = 1lu; i < half_count; ++i) {
+	for (size_t i = 1lu; i < count; ++i) {
 		res_digits[i] = upper[i] + lower[i];
 
 		if (carry) {
@@ -482,50 +560,7 @@ size_t add_split_digits(digit_t *restrict res_digits,
 		}
 	}
 
-	if (carry) {
-		res_digits[half_count] = 1u;
-
-
-		memset(&res_digits[half_count + 1lu],
-		       0,
-		       sizeof(digit_t) * (half_count - 1u));
-
-		fputs("\n\n\nCARRY\nlower: ", stdout);
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", lower[i]);
-		}
-		fputs("\nupper: ", stdout);
-		for (int i = half_count - 1; i > -1; --i) {
-			printf("%u", upper[i]);
-		}
-		fputs("\nres_digits: ", stdout);
-		for (int i = count - 1; i > -1; --i) {
-			printf("%u", res_digits[i]);
-		}
-		fflush(stdout);
-
-		usleep(500000);
-
-		return count;
-	}
-
-	fputs("\n\n\nNO CARRY\nlower: ", stdout);
-	for (int i = half_count - 1; i > -1; --i) {
-		printf("%u", lower[i]);
-	}
-	fputs("\nupper: ", stdout);
-	for (int i = half_count - 1; i > -1; --i) {
-		printf("%u", upper[i]);
-	}
-	fputs("\nres_digits: ", stdout);
-	for (int i = half_count - 1; i > -1; --i) {
-		printf("%u", res_digits[i]);
-	}
-	fflush(stdout);
-
-	usleep(500000);
-
-	return half_count;
+	return carry;
 }
 
 /*
