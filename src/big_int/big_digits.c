@@ -311,11 +311,11 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		if (buffer < 10u) {
 			res_digits[0lu] = buffer;
 			return 1lu;
-		} else {
-			res_digits[0lu] = buffer % 10u;
-			res_digits[1lu] = buffer / 10u;
-			return 2lu;
 		}
+
+		res_digits[0lu] = buffer % 10u;
+		res_digits[1lu] = buffer / 10u;
+		return 2lu;
 	}
 
 	const size_t half_count  = count / 2lu;
@@ -331,11 +331,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					   upper1,
 					   half_count,
 					   count);
-
-	for (int i = add_cnt1 - 1; i > -1; --i) {
-		printf("res_digits[%d]: %u\n", i, add_res1[i]);
-	}
-	fflush(stdout);
 
 	size_t add_cnt2 = add_split_digits(&add_res2[0lu],
 					   digits2,
@@ -490,12 +485,45 @@ size_t add_split_digits(digit_t *restrict res_digits,
 	if (carry) {
 		res_digits[half_count] = 1u;
 
+
 		memset(&res_digits[half_count + 1lu],
 		       0,
 		       sizeof(digit_t) * (half_count - 1u));
 
+		fputs("\n\n\nCARRY\nlower: ", stdout);
+		for (int i = half_count - 1; i > -1; --i) {
+			printf("%u", lower[i]);
+		}
+		fputs("\nupper: ", stdout);
+		for (int i = half_count - 1; i > -1; --i) {
+			printf("%u", upper[i]);
+		}
+		fputs("\nres_digits: ", stdout);
+		for (int i = count - 1; i > -1; --i) {
+			printf("%u", res_digits[i]);
+		}
+		fflush(stdout);
+
+		usleep(500000);
+
 		return count;
 	}
+
+	fputs("\n\n\nNO CARRY\nlower: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) {
+		printf("%u", lower[i]);
+	}
+	fputs("\nupper: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) {
+		printf("%u", upper[i]);
+	}
+	fputs("\nres_digits: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) {
+		printf("%u", res_digits[i]);
+	}
+	fflush(stdout);
+
+	usleep(500000);
 
 	return half_count;
 }
