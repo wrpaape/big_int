@@ -434,10 +434,11 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     max_add_cnt);
 
 /* #if DEBUG_MULTIPLY */
-/* 	fputs("\n\n\nmlt_res1: ", stdout); */
-/* 	for (int i = mlt_cnt1 - 1; i > -1; --i) { */
-/* 		printf("%u", mlt_res1[i]); */
-/* 	} */
+	fputs("\n\nmlt_res1: ", stdout);
+	fflush(stdout);
+	for (int i = mlt_cnt1 - 1; i > -1; --i) {
+		printf("%u", mlt_res1[i]);
+	}
 /* 	fflush(stdout); */
 /* #endif */
 
