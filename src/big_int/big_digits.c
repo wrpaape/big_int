@@ -551,21 +551,27 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		return res_cnt;
 	}
 
-	case NEG: {
+	case ZRO: {
+		puts("AYY LMAOS");
+		/* free tmps */
+		/* free(sub_res1); */
+
+		size_t res_cnt = add_poly_pair(res_digits,
+					       mlt_res2,
+					       mlt_res3,
+					       mlt_cnt2,
+					       mlt_cnt3,
+					       count);
+		/* free(mlt_res2); */
+		/* free(mlt_res3); */
+
+		return res_cnt;
+	}
+
+	default: {
 
 		puts("AYY LEMMY");
 		fflush(stdout);
-#if DEBUG_MULTIPLY
-		puts("\n************* z1 - z2 < z0 ****************");
-		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-		fputs(" - ", stdout);
-		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-		fputs(" = ", stdout);
-		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-		fputs(" < ", stdout);
-		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-		fflush(stdout);
-#endif
 		digit_t *sub_res2;
 		HANDLE_MALLOC(sub_res2,
 			      sizeof(digit_t) * mlt_cnt3);
@@ -604,34 +610,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		/* free tmps */
 		/* free(app_res); */
 		/* free(sub_res2); */
-
-		return res_cnt;
-	}
-
-	default: {
-		puts("AYY LMAOS");
-#if DEBUG_MULTIPLY
-		puts("\n************* z1 - z2 = z0 ****************");
-		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-		fputs(" - ", stdout);
-		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-		fputs(" = ", stdout);
-		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-		fputs(" = ", stdout);
-		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-		fflush(stdout);
-#endif
-		/* free tmps */
-		/* free(sub_res1); */
-
-		size_t res_cnt = add_poly_pair(res_digits,
-					       mlt_res2,
-					       mlt_res3,
-					       mlt_cnt2,
-					       mlt_cnt3,
-					       count);
-		/* free(mlt_res2); */
-		/* free(mlt_res3); */
 
 		return res_cnt;
 	}
@@ -705,7 +683,6 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		       digits2,
 		       sizeof(digit_t) * count2);
 
-
 		return count2;
 	}
 
@@ -713,8 +690,6 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		memcpy(res_digits,
 		       digits2,
 		       sizeof(digit_t) * n);
-
-		/* shift by 'n' */
 
 		const size_t rem_cnt2 = count2 - n;
 
@@ -915,19 +890,6 @@ size_t add_digits(digit_t *restrict res_digits,
 		}
 	}
 
-#if DEBUG_MULTIPLY
-	/* fputs("\n\n** adding **\n", stdout); */
-	/* for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]); */
-	/* fputs(" + ", stdout); */
-	/* for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]); */
-	/* fputs(" = \n%%%%%%%%%%%%%%%%%%%%%%%%%%%\n", stdout); */
-	/* printf("count1: %zu\n", count1); */
-	/* printf("count2: %zu\n", count2); */
-	/* printf("i:	%zu\n", i); */
-	/* printf("carry?: %s\n",  carry ? "true" : "false"); */
-	/* puts("%%%%%%%%%%%%%%%%%%%%%%%%%%%"); */
-#endif
-
 	if (carry) {
 		while (1)  {
 			if (i == count1) {
@@ -996,7 +958,7 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 	size_t i = 0lu;
 
 	do {
-		buffer += multiply_word_by_digit(word, big_digits[i]);
+		buffer += ((buff_t) word * ((buff_t) big_digits[i]));
 		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
 		buffer /= BUFF_TEN;
 		++i;
@@ -1054,23 +1016,4 @@ inline enum Sign compare_digits(digit_t *restrict digits1,
 		--i;
 	}
 }
-
-
-inline void add_digit_to_big_digits(struct BigDigits *big,
-				    digit_t digit)
-{
-	/* digit_t *digits = big->digits; */
-	/* size_t count	= big->count; */
-
-	/* word_t sum_buffer = add_digits(lower_digit(word), */
-	/* 			       digits[0lu]) */
-	/* digit_t carry; */
-	/* size_t i = 0lu; */
-
-
-	/* while (1) { */
-	/* } */
-
-}
-
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

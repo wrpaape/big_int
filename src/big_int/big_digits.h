@@ -42,9 +42,6 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 
 static inline struct BigDigits *init_zeroed_big_digits(const size_t count);
 
-static inline void add_digit_to_big_digits(struct BigDigits *big,
-					   digit_t digit);
-
 static inline enum Sign compare_digits(digit_t *restrict digits1,
 				       digit_t *restrict digits2,
 				       const size_t count1,

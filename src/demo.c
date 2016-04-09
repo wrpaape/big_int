@@ -4,18 +4,22 @@
 
 int main(void)
 {
-	digit_t res_digits[512] = {0};
+	digit_t res_digits[1024] = {0};
 	/* digit_t digits1[] = {9, 9, 9, 0}; */
 	/* digit_t digits2[] = {9, 9, 0, 0}; */
-	digit_t digits1[] = {9u, 8u, 0u, 1u, 1u, 0u, 6u, 4u,
-			     7u, 8u, 9u, 1u, 0u, 0u, 2u, 0u};
-	digit_t digits2[] = {9u, 9u, 7u, 9u, 3u, 1u, 2u, 0u,
-			     7u, 8u, 9u, 1u, 0u, 0u, 1u, 0u};
+	digit_t digits1[] = {9u, 8u, 7u, 1u, 1u, 0u, 6u, 4u,
+			     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u,
+			     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u,
+			     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u};
+	digit_t digits2[] = {2u, 9u, 0u, 9u, 3u, 1u, 2u, 0u,
+			     7u, 3u, 9u, 1u, 0u, 0u, 1u, 0u,
+			     7u, 3u, 9u, 1u, 0u, 0u, 1u, 0u,
+			     7u, 3u, 9u, 1u, 0u, 0u, 1u, 0u};
 
 	size_t count = do_multiply_digits(&res_digits[0lu],
 					  &digits1[0lu],
 					  &digits2[0lu],
-					  16);
+					  32);
 
 	puts("\n\ndone");
 
