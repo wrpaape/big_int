@@ -82,8 +82,8 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	digit_t *buff_digits;
 
 	digit_t word_base_digits[] = {
-		1u, 8u, 4u, 4u, 6u, 7u, 4u, 4u, 0u, 7u,
-		3u, 7u, 0u, 9u, 5u, 5u, 1u, 6u, 1u, 6u
+		6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
+		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
 	};
 
 	base->count	= DIGITS_PER_WORD_BASE;

@@ -18,9 +18,9 @@ int main(void)
 
 
 	/* word_t words[] = {123321212311llu}; */
-	word_t words[] = {0llu, 1llu};
+	word_t words[] = {0llu, 0llu, 1llu};
 
-	struct BigDigits *big = words_to_big_digits(2, &words[0lu]);
+	struct BigDigits *big = words_to_big_digits(3, &words[0lu]);
 
 	size_t count  = big->count;
 	digit_t *digits = big->digits;
