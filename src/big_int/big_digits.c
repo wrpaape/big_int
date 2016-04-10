@@ -39,11 +39,9 @@ extern inline void free_big_digits(struct BigDigits *big);
  * word_t array 'words'.						*
  ************************************************************************/
 struct BigDigits *words_to_big_digits(const size_t word_count,
-				      word_t *words);
+				      word_t *words)
 {
 	size_t i;
-	word_t word;
-	digit_t *digits;
 
 	size_t alloc_count = MAX_DIGITS_PER_WORD;
 	size_t alloc_acc   = MAX_DIGITS_PER_WORD * 2;
@@ -58,13 +56,13 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	struct BigDigits *result = init_zeroed_big_digits(buff_alloc);
 
-	digit_t *big_digits = result->digits;
+	digit_t *res_digits = result->digits;
 
-	word = words[0lu];
+	size_t word = words[0lu];
+
 	i = 0lu;
-
 	do {
-		big_digits[i] = word % 10lu;
+		res_digits[i] = word % 10lu;
 		word /= 10lu;
 		++i;
 	} while (word > 0u);
@@ -101,11 +99,9 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	i = 1lu;
 
 	while (1) {
-		word = words[i];
-
 		multiply_big_digits_by_word(buff1,
 					    base_acc,
-					    word);
+					    words[i]);
 
 		add_big_digits(buff2,
 			       buff1,
@@ -137,50 +133,16 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 }
 
 /* big1->count >= big2->count */
-void add_big_digits(struct BigDigits *restrict result,
-		    struct BigDigits *restrict big1,
-		    struct BigDigits *restrict big2)
+inline void add_big_digits(struct BigDigits *restrict result,
+			   struct BigDigits *restrict big1,
+			   struct BigDigits *restrict big2)
 {
-	const size_t lrg_count = big1->count;
-	const size_t sml_count = big2->count;
-
-	digit_t *lrg_digits = big1->digits;
-	digit_t *sml_digits = big2->digits;
-	digit_t *res_digits = result->digits;
-
-
-	digit_t sum_buffer = 0u;
-	size_t i = 0lu;
-
-	do {
-		sum_buffer += (sml_digits[i] + lrg_digits[i]);
-
-		res_digits[i] = (sum_buffer % 10u);
-
-		sum_buffer /= 10u;
-
-		++i;
-
-	} while (i < sml_count);
-
-	while (i < lrg_count) {
-
-		sum_buffer += lrg_digits[i];
-
-		res_digits[i] = (sum_buffer % 10u);
-
-		sum_buffer /= 10u;
-
-		++i;
-	}
-
-	if (sum_buffer == 0u) {
-		result->count = lrg_count;
-
-	} else {
-		res_digits[i] = sum_buffer;
-		result->count = lrg_count + 1lu;
-	}
+	/* call add_digits */
+	result->count = add_digits(result->digits,
+				   big1->digits,
+				   big2->digits,
+				   big1->count,
+				   big2->count);
 }
 
 /* big1 >= big2 */

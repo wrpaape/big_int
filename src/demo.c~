@@ -4,7 +4,7 @@
 
 int main(void)
 {
-	digit_t res_digits[1024] = {0u};
+	/* digit_t res_digits[1024] = {0u}; */
 	/* digit_t digits1[] = {9u, 9u, 9u, 9u}; */
 	/* digit_t digits2[] = {9u, 9u, 0u, 0u}; */
 	/* digit_t digits1[] = {9u, 8u, 7u, 1u, 1u, 0u, 6u, 4u, */
@@ -17,12 +17,13 @@ int main(void)
 	/* 		     7u, 3u, 9u, 1u, 0u, 0u, 1u, 0u}; */
 
 
-	word_t words = {123321212311llu};
+	/* word_t words[] = {123321212311llu}; */
+	word_t words[] = {0llu, 1llu};
 
-	struct BigDigits *big = words_to_big_digits(1, &words[0lu]);
+	struct BigDigits *big = words_to_big_digits(2, &words[0lu]);
 
-	count  = big->count;
-	digits = big->digits;
+	size_t count  = big->count;
+	digit_t *digits = big->digits;
 
 	char buff[count + 1lu];
 

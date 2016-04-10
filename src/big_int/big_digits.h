@@ -13,12 +13,9 @@
 struct BigDigits *words_to_big_digits(const size_t word_count,
 				      word_t *words);
 
-size_t words_to_digits(const size_t word_count,
-		       word_t *words);
-
-void add_big_digits(struct BigDigits *restrict result,
-		    struct BigDigits *restrict big1,
-		    struct BigDigits *restrict big2);
+static inline void add_big_digits(struct BigDigits *restrict result,
+				  struct BigDigits *restrict big1,
+				  struct BigDigits *restrict big2);
 
 void subtract_big_digits(struct BigDigits *restrict result,
 			 struct BigDigits *restrict big1,
