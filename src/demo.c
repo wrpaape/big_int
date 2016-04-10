@@ -55,7 +55,7 @@ int main(void)
 
 	HANDLE_MALLOC(res_digits, sizeof(digit_t) * 64lu);
 
-	size_t count = do_multiply_digits(res_digits, &digits1[0lu], &digits2[0lu], 64lu);
+	size_t count = do_multiply_digits(res_digits, &digits1[0lu], &digits2[0lu], 32lu);
 
 	char buff[count + 1lu];
 

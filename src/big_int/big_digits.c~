@@ -447,8 +447,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	/* for (int i = res_cnt - 1; i > -1; --i) printf("%u", res_digits[i]); */
 	/* fflush(stdout); */
 
-	/* free(add_res1); free(add_res2); free(mlt_res1); free(mlt_res2); */
-	/* free(mlt_res3); free(sub_res1); free(sub_res2); free(app_res); */
+	free(add_res1); free(add_res2); free(mlt_res1); free(mlt_res2);
+	free(mlt_res3); free(sub_res1); free(sub_res2); free(app_res);
 
 
 	puts("freed"); fflush(stdout);
