@@ -386,34 +386,33 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 
 	HANDLE_MALLOC(mlt_res1, mlt_res1_size);
 	const size_t mlt_cnt1 = do_multiply_digits(mlt_res1,
-					     add_res1,
-					     add_res2,
-					     max_add_cnt);
+						   add_res1,
+						   add_res2,
+						   max_add_cnt);
+
+	free(add_res2);
 
 	HANDLE_MALLOC(mlt_res2, count_size);
 	const size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
-					     upper1,
-					     upper2,
-					     half_count);
+						   upper1,
+						   upper2,
+						   half_count);
 
 	HANDLE_MALLOC(mlt_res3, count_size);
 	const size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
-					     digits1,
-					     digits2,
-					     half_count);
+						   digits1,
+						   digits2,
+						   half_count);
+	free(add_res1);
 
 	HANDLE_MALLOC(sub_res1, count_size);
 	const size_t sub_cnt1 = subtract_digits(sub_res1,
-					  mlt_res1,
-					  mlt_res2,
-					  mlt_cnt1,
-					  mlt_cnt2);
-	/* free split sum digits */
-	/* free(add_res1); */
-	/* free(add_res2); */
+						mlt_res1,
+						mlt_res2,
+						mlt_cnt1,
+						mlt_cnt2);
 
-	/* free temp */
-	/* free(mlt_res1); */
+	free(mlt_res1);
 
 	HANDLE_MALLOC(sub_res2, sizeof(digit_t) * mlt_cnt1);
 	const size_t sub_cnt2 = subtract_digits(sub_res2,
@@ -422,8 +421,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						sub_cnt1,
 						mlt_cnt3);
 
-	/* free temps */
-	/* free(sub_res1); */
+	free(sub_res1);
 
 	HANDLE_MALLOC(app_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
 	const size_t app_cnt = add_poly_pair(app_res,
@@ -433,9 +431,9 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     mlt_cnt3,
 					     half_count);
 
-	/* free temps */
-	/* free(sub_res2); */
-	/* free(mlt_res3); */
+	free(mlt_res3);
+	free(sub_res2);
+
 	const size_t res_cnt = add_poly_pair(res_digits,
 					     mlt_res2,
 					     app_res,
@@ -443,10 +441,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     app_cnt,
 					     count);
 
-	/* free temps */
-	/* free(mlt_res2); */
-	/* free(app_res); */
-	/* free(add_res1); */
+	free(mlt_res2);
+	free(app_res);
 
 	return res_cnt;
 }
