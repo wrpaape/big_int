@@ -4,9 +4,9 @@
 
 int main(void)
 {
-	word_t words[] = {0llu, 0llu, 0llu, 1llu};
+	word_t words[] = {WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX};
 
-	struct BigDigits *big = words_to_big_digits(4lu, &words[0lu]);
+	struct BigDigits *big = words_to_big_digits(5lu, &words[0lu]);
 
 	const size_t count = big->count;
 	digit_t *digits = big->digits;

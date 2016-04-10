@@ -285,17 +285,13 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	/* const size_t count_size = sizeof(digit_t) * count + 1lu; */
 	const size_t buff_alloc = count * 2;
 	const size_t half_count = count / 2lu;
-
 	digit_t *upper1 = digits1 + half_count;
 	digit_t *upper2 = digits2 + half_count;
 
 
 	size_t max_add_cnt;
-	/* size_t mlt_res1_size; */
-
 
 	digit_t *add_res1;
-
 
 	HANDLE_MALLOC(add_res1, sizeof(digit_t) * buff_alloc * 8lu);
 
@@ -317,13 +313,11 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	/* HANDLE_MALLOC(sub_res2, sizeof(digit_t) * sub_cnt1); */
 	/* HANDLE_MALLOC(ply_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu)); */
 
-	/* HANDLE_MALLOC(add_res1, count_size); */
 	const bool carry1 = add_split_digits(add_res1,
 					     digits1,
 					     upper1,
 					     half_count);
 
-	/* HANDLE_MALLOC(add_res2, count_size); */
 	const bool carry2 = add_split_digits(add_res2,
 					     digits2,
 					     upper2,
@@ -346,7 +340,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		}
 
 		max_add_cnt   = count;
-		/* mlt_res1_size = count_size * 2lu; */
 
 
 	} else if (carry2) {
@@ -360,47 +353,39 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		       rem_digits_size + sizeof(digit_t));
 
 		max_add_cnt   = count;
-		/* mlt_res1_size = count_size * 2lu; */
 
 	} else {
 		max_add_cnt   = half_count;
-		/* mlt_res1_size = count_size; */
 	}
 
 
-	/* HANDLE_MALLOC(mlt_res1, mlt_res1_size); */
 	const size_t mlt_cnt1 = do_multiply_digits(mlt_res1,
 						   add_res1,
 						   add_res2,
 						   max_add_cnt);
 
-	/* HANDLE_MALLOC(mlt_res2, count_size); */
 	const size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
 						   upper1,
 						   upper2,
 						   half_count);
 
-	/* HANDLE_MALLOC(mlt_res3, count_size); */
 	const size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
 						   digits1,
 						   digits2,
 						   half_count);
 
-	/* HANDLE_MALLOC(sub_res1, count_size); */
 	const size_t sub_cnt1 = subtract_digits(sub_res1,
 						mlt_res1,
 						mlt_res2,
 						mlt_cnt1,
 						mlt_cnt2);
 
-	/* HANDLE_MALLOC(sub_res2, sizeof(digit_t) * sub_cnt1); */
 	const size_t sub_cnt2 = subtract_digits(sub_res2,
 						sub_res1,
 						mlt_res3,
 						sub_cnt1,
 						mlt_cnt3);
 
-	/* HANDLE_MALLOC(ply_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu)); */
 	const size_t ply_cnt = add_poly_pair(ply_res,
 					     sub_res2,
 					     mlt_res3,
