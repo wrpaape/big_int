@@ -39,7 +39,7 @@ extern inline void free_big_digits(struct BigDigits *big);
  * word_t array 'words'.						*
  ************************************************************************/
 struct BigDigits *words_to_big_digits(const size_t word_count,
-				      word_t *words)
+				      word_t *words);
 {
 	size_t i;
 	word_t word;
@@ -56,21 +56,23 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	const size_t buff_alloc = next_pow_two(alloc_count);
 
-	struct BigDigits *big = init_zeroed_big_digits(buff_alloc);
+	struct BigDigits *result = init_zeroed_big_digits(buff_alloc);
 
-	digits = big->digits;
+	digit_t *big_digits = result->digits;
+
 	word = words[0lu];
 	i = 0lu;
 
 	do {
-		digits[i] = word % 10lu;
+		big_digits[i] = word % 10lu;
 		word /= 10lu;
 		++i;
+	} while (word > 0u);
 
-	} while (word > 0lu);
+	result->count = i;
 
 	if (word_count == 1lu)
-		return big;
+		return result;
 
 	struct BigDigits *base	   = init_zeroed_big_digits(buff_alloc);
 	struct BigDigits *base_acc = init_zeroed_big_digits(buff_alloc);
@@ -87,12 +89,10 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	};
 
 	base->count	= DIGITS_PER_WORD_BASE;
-
+	base_acc->count = DIGITS_PER_WORD_BASE;
 	memcpy(base->digits,
 	       word_base_digits,
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
-
-	base_acc->count = DIGITS_PER_WORD_BASE;
 
 	memcpy(base_acc->digits,
 	       word_base_digits,
@@ -109,7 +109,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 		add_big_digits(buff2,
 			       buff1,
-			       big);
+			       result);
 
 		++i;
 
@@ -117,7 +117,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 			free_big_digits(base);
 			free_big_digits(base_acc);
 			free_big_digits(buff1);
-			free_big_digits(big);
+			free_big_digits(result);
 
 			return buff2;
 		}
@@ -131,8 +131,8 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 		buff1 = base_acc;
 
 		tmp = buff2;
-		buff2 = big;
-		big = buff2;
+		buff2 = result;
+		result = buff2;
 	}
 }
 
