@@ -62,8 +62,8 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 
 	i = 0lu;
 	do {
-		res_digits[i] = word % 10lu;
-		word /= 10lu;
+		res_digits[i] = ((digit_t) word) % 10u;
+		word /= 10llu;
 		++i;
 	} while (word > 0u);
 
@@ -122,15 +122,13 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 				    base_acc,
 				    base);
 
-		puts("DID IT");
-
 		tmp = base_acc;
 		base_acc = buff1;
-		buff1 = base_acc;
+		buff1 = tmp;
 
 		tmp = buff2;
 		buff2 = result;
-		result = buff2;
+		result = tmp;
 	}
 }
 
@@ -246,6 +244,11 @@ inline void multiply_big_digits(struct BigDigits *restrict result,
 				struct BigDigits *restrict big2)
 {
 	/* temporarily force counts to the same power of 2 */
+	/* fputs("\n*************************************\nbig1: ", stdout); */
+	/* for (int i = big1->count - 1; i > -1; --i) printf("%u", big1->digits[i]); */
+	/* fputs("\nbig2: ", stdout); */
+	/* for (int i = big2->count - 1; i > -1; --i) printf("%u", big2->digits[i]); */
+	/* fflush(stdout); */
 
 	/* do recursive Karatsuba multiplication */
 	result->count = do_multiply_digits(result->digits,
@@ -365,7 +368,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						   digits2,
 						   half_count);
 
-
 	HANDLE_MALLOC(sub_res1, count_size);
 	const size_t sub_cnt1 = subtract_digits(sub_res1,
 						mlt_res1,
@@ -382,6 +384,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						mlt_cnt3);
 
 
+
 	HANDLE_MALLOC(app_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
 	const size_t app_cnt = add_poly_pair(app_res,
 					     sub_res2,
@@ -391,12 +394,47 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     half_count);
 
 
+
 	const size_t res_cnt = add_poly_pair(res_digits,
 					     mlt_res2,
 					     app_res,
 					     mlt_cnt2,
 					     app_cnt,
 					     count);
+
+	fputs("\n*************************************\nlower1: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) printf("%u", digits1[i]);
+	fputs("\nupper1: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) printf("%u", upper1[i]);
+	fputs("\nlower2: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) printf("%u", digits2[i]);
+	fputs("\nupper2: ", stdout);
+	for (int i = half_count - 1; i > -1; --i) printf("%u", upper2[i]);
+	fputs("\nadd_res1: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res1[i]);
+	fputs("\nadd_res2: ", stdout);
+	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res2[i]);
+	fputs("\nz0: ", stdout);
+	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+	fputs("\nz1: ", stdout);
+	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
+	fputs("\nz2: ", stdout);
+	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
+	fflush(stdout);
+	fputs("\nsub_res1: ", stdout);
+	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
+	fflush(stdout);
+	fputs("\nsub_res2: ", stdout);
+	for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
+	fputs("\napp_res: ", stdout);
+	for (int i = app_cnt - 1; i > -1; --i) printf("%u", app_res[i]);
+	fputs("\ndigits1: ", stdout);
+	for (int i = count - 1; i > -1; --i) printf("%u", digits1[i]);
+	fputs("\ndigits2: ", stdout);
+	for (int i = count - 1; i > -1; --i) printf("%u", digits2[i]);
+	fputs("\nres_digits: ", stdout);
+	for (int i = res_cnt - 1; i > -1; --i) printf("%u", res_digits[i]);
+	fflush(stdout);
 
 	free(add_res1); free(add_res2); free(mlt_res1); free(mlt_res2);
 	free(mlt_res3); free(sub_res1); free(sub_res2); free(app_res);
@@ -744,14 +782,16 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 				 struct BigDigits *restrict big,
 				 word_t word)
 {
+	const buff_t buff_word = (buff_t) word;
 	digit_t *res_digits = result->digits;
 	digit_t *big_digits = big->digits;
-	buff_t buffer = BUFF_ZERO;
+
 	size_t count = big->count;
 	size_t i = 0lu;
+	buff_t buffer = BUFF_ZERO;
 
 	do {
-		buffer += ((buff_t) word * ((buff_t) big_digits[i]));
+		buffer += (buff_word * ((buff_t) big_digits[i]));
 		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
 		buffer /= BUFF_TEN;
 		++i;
@@ -759,7 +799,6 @@ void multiply_big_digits_by_word(struct BigDigits *restrict result,
 	} while (i < count);
 
 	while (buffer > BUFF_ZERO) {
-
 		res_digits[i] = (digit_t) (buffer % BUFF_TEN);
 		buffer /= BUFF_TEN;
 		++i;
