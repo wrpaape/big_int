@@ -380,7 +380,16 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						mlt_res2,
 						mlt_cnt1,
 						mlt_cnt2);
-	puts("sub_res1"); fflush(stdout);
+	fputs("\nz0: ", stdout);
+	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
+	fputs("\nz1: ", stdout);
+	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
+	fputs("\nz2: ", stdout);
+	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
+	fflush(stdout);
+	fputs("\nsub_res1: ", stdout);
+	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
+	fflush(stdout);
 
 
 	HANDLE_MALLOC(sub_res2, sizeof(digit_t) * sub_cnt1);
@@ -616,6 +625,12 @@ size_t subtract_digits(digit_t *restrict res_digits,
 		       const size_t count1,
 		       const size_t count2)
 {
+	fputs("\n*************************************\ndigits1: ", stdout);
+	for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]);
+	fputs("\ndigits2: ", stdout);
+	for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]);
+	puts("\n**************************************");
+
 	bool carry;
 	digit_t large;
 	digit_t small;
