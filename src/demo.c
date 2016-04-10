@@ -4,9 +4,9 @@
 
 int main(void)
 {
-	digit_t res_digits[1024] = {0};
-	digit_t digits1[] = {9, 9, 9, 0};
-	digit_t digits2[] = {9, 9, 0, 0};
+	digit_t res_digits[1024] = {0u};
+	digit_t digits1[] = {9u, 9u, 9u, 0u};
+	digit_t digits2[] = {9u, 9u, 0u, 0u};
 	/* digit_t digits1[] = {9u, 8u, 7u, 1u, 1u, 0u, 6u, 4u, */
 	/* 		     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u, */
 	/* 		     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u, */
@@ -21,8 +21,6 @@ int main(void)
 					  &digits2[0lu],
 					  4);
 
-	puts("\n\ndone");
-
 	char buff[count + 1lu];
 
 	buff[count] = '\0';
@@ -33,20 +31,12 @@ int main(void)
 
 	while (1) {
 		buff[i] = res_digits[last - i] + '0';
+		printf("%u\n", res_digits[last - i]);
 
 		if (i == last)
 			break;
-
 		++i;
 	}
-
-
-	/* for (int i = count - 1; i > -1; --i) { */
-	/* /1* 	printf("digits1[%d]:    %u\n", i, digits1[i]); *1/ */
-	/* 	printf("res_digits[%d]: %u\n", i, res_digits[i]); */
-	/* } */
-
-
 
 	puts(buff);
 
