@@ -271,9 +271,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			  const size_t count)
 {
 	if (count == 1lu) {
-
-		puts("trivial"); fflush(stdout);
-
 		res_digits[0lu] = digits1[0lu] * digits2[0lu];
 
 		if (res_digits[0lu] < 10u)
@@ -284,7 +281,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 		return 2lu;
 	}
 
-	const size_t count_size = sizeof(digit_t) * count;
+	const size_t count_size = sizeof(digit_t) * count * 2lu;
 	const size_t half_count = count / 2lu;
 
 	digit_t *upper1 = digits1 + half_count;
@@ -377,6 +374,9 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						mlt_res2,
 						mlt_cnt1,
 						mlt_cnt2);
+	/* fputs("\nsub_res1: ", stdout); */
+	/* for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]); */
+	/* fflush(stdout); */
 
 
 	HANDLE_MALLOC(sub_res2, sizeof(digit_t) * sub_cnt1);
@@ -386,22 +386,19 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						sub_cnt1,
 						mlt_cnt3);
 
-	fputs("\ndigits1: ", stdout);
-	for (int i = count - 1; i > -1; --i) printf("%u", digits1[i]);
-	fputs("\ndigits2: ", stdout);
-	for (int i = count - 1; i > -1; --i) printf("%u", digits2[i]);
-	fputs("\nz0: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-	fputs("\nz1: ", stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-	fputs("\nz2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-	fflush(stdout);
-	fputs("\nsub_res1: ", stdout);
-	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-	fputs("\nsub_res2: ", stdout);
-	for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
-	fflush(stdout);
+	/* fputs("\ndigits1: ", stdout); */
+	/* for (int i = count - 1; i > -1; --i) printf("%u", digits1[i]); */
+	/* fputs("\ndigits2: ", stdout); */
+	/* for (int i = count - 1; i > -1; --i) printf("%u", digits2[i]); */
+	/* fputs("\nz0: ", stdout); */
+	/* for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
+	/* fputs("\nz1: ", stdout); */
+	/* for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]); */
+	/* fputs("\nz2: ", stdout); */
+	/* for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]); */
+	/* fflush(stdout); */
+	/* fputs("\nsub_res2: ", stdout); */
+	/* for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]); */
 
 
 
@@ -455,8 +452,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	/* for (int i = res_cnt - 1; i > -1; --i) printf("%u", res_digits[i]); */
 	/* fflush(stdout); */
 
-	/* free(add_res1); free(add_res2); free(mlt_res1); free(mlt_res2); */
-	/* free(mlt_res3); free(sub_res1); free(sub_res2); free(app_res); */
+	free(add_res1); free(add_res2); free(mlt_res1); free(mlt_res2);
+	free(mlt_res3); free(sub_res1); free(sub_res2); free(app_res);
 
 
 	puts("\n RESULT");
@@ -698,17 +695,18 @@ size_t subtract_digits(digit_t *restrict res_digits,
 	       &digits1[i],
 	       sizeof(digit_t) * (count1 - i));
 
-	if (count1 == 5lu && count2 == 3lu && digits1[0] == 6u &&
-	    digits1[1] == 9u && digits1[2] == 9u && digits1[3] == 2u &&
-	    digits1[4] == 1u && digits2[0] == 4u && digits2[1] == 2u && digits2[2] == 3u) {
-		fputs("\n\nATTENTION digits1: ", stdout);
-		for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]);
-		fputs("\ndigits2: ", stdout);
-		for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]);
-		fputs("\nres_digits: ", stdout);
-		for (int i = count1 - 1; i > -1; --i) printf("%u", res_digits[i]);
-		fflush(stdout);
-	}
+/* 	if (count1 == 5lu && count2 == 3lu && digits1[0] == 6u && */
+/* 	    digits1[1] == 9u && digits1[2] == 9u && digits1[3] == 2u && */
+/* 	    digits1[4] == 1u && digits2[0] == 4u && digits2[1] == 2u && digits2[2] == 3u) { */
+/* 		fputs("\n\nATTENTION\ndigits1: ", stdout); */
+/* 		for (int i = count1 - 1; i > -1; --i) printf("%u", digits1[i]); */
+/* 		fputs("\ndigits2: ", stdout); */
+/* 		for (int i = count2 - 1; i > -1; --i) printf("%u", digits2[i]); */
+/* 		fputs("\nres_digits: ", stdout); */
+/* 		for (int i = count1 - 1; i > -1; --i) printf("%u", res_digits[i]); */
+/* 		fflush(stdout); */
+/* 		usleep(1000000); */
+/* 	} */
 
 	return count1;
 }
