@@ -12,7 +12,6 @@
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #define DIGITS_PER_WORD_BASE 20lu
-#define DEBUG_MULTIPLY 0
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -78,6 +77,7 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	struct BigDigits *buff1	   = init_zeroed_big_digits(buff_alloc);
 	struct BigDigits *buff2	   = init_zeroed_big_digits(buff_alloc);
 	struct BigDigits *tmp;
+
 	digit_t *acc_digits;
 	digit_t *buff_digits;
 
@@ -97,8 +97,6 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 	memcpy(base_acc->digits,
 	       word_base_digits,
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
-
-
 
 	i = 1lu;
 
@@ -306,20 +304,18 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			  const size_t count)
 {
 	if (count == 1lu) {
-		digit_t buffer = digits1[0lu] * digits2[0lu];
+		res_digits[0lu] = digits1[0lu] * digits2[0lu];
 
-		if (buffer < 10u) {
-			res_digits[0lu] = buffer;
+		if (res_digits[0lu] < 10u)
 			return 1lu;
-		}
 
-		res_digits[0lu] = buffer % 10u;
-		res_digits[1lu] = buffer / 10u;
+		res_digits[1lu] = res_digits[0lu] / 10u;
+		res_digits[0lu] %= 10u;
+
 		return 2lu;
 	}
 
 	const size_t count_size = sizeof(digit_t) * count;
-
 	const size_t half_count = count / 2lu;
 
 	digit_t *upper1 = digits1 + half_count;
@@ -331,130 +327,83 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	digit_t *mlt_res2;
 	digit_t *mlt_res3;
 	digit_t *sub_res1;
-
-	HANDLE_MALLOC(add_res1, count_size);
-	HANDLE_MALLOC(add_res2, count_size);
-
-
-
-
-	bool carry1 = add_split_digits(add_res1,
-				       digits1,
-				       upper1,
-				       half_count);
-
-	bool carry2 = add_split_digits(add_res2,
-				       digits2,
-				       upper2,
-				       half_count);
+	digit_t *sub_res2;
+	digit_t *app_res;
 
 	size_t max_add_cnt;
-	size_t mult_res1_size;
+	size_t mlt_res1_size;
 
+	HANDLE_MALLOC(add_res1, count_size);
+	const bool carry1 = add_split_digits(add_res1,
+					     digits1,
+					     upper1,
+					     half_count);
+
+	HANDLE_MALLOC(add_res2, count_size);
+	const bool carry2 = add_split_digits(add_res2,
+					     digits2,
+					     upper2,
+					     half_count);
 	if (carry1) {
-
 		const size_t half_plus_one   = half_count + 1lu;
 		const size_t rem_digits_size = sizeof(digit_t)
 					     * (half_count - 1lu);
 
 		add_res1[half_count] = 1u;
-		memset(&add_res1[half_plus_one],
-		       0,
-		       rem_digits_size);
+		memset(&add_res1[half_plus_one], 0, rem_digits_size);
 
 		if (carry2) {
-
 			add_res2[half_count] = 1u;
-
-			memset(&add_res2[half_plus_one],
-			       0,
-			       rem_digits_size);
+			memset(&add_res2[half_plus_one], 0, rem_digits_size);
 
 		} else {
-			memset(&add_res2[half_count],
-			       0,
+			memset(&add_res2[half_count], 0,
 			       rem_digits_size + sizeof(digit_t));
 		}
 
-		max_add_cnt    = count;
-		mult_res1_size = count_size * 2lu;
+		max_add_cnt   = count;
+		mlt_res1_size = count_size * 2lu;
+
 
 	} else if (carry2) {
-
 		const size_t half_plus_one   = half_count + 1lu;
 		const size_t rem_digits_size = sizeof(digit_t)
 					     * (half_count - 1lu);
-
 		add_res2[half_count] = 1u;
-		memset(&add_res2[half_plus_one],
-		       0,
-		       rem_digits_size);
+		memset(&add_res2[half_plus_one], 0, rem_digits_size);
 
-		memset(&add_res1[half_count],
-		       0,
+		memset(&add_res1[half_count], 0,
 		       rem_digits_size + sizeof(digit_t));
 
-		max_add_cnt    = count;
-		mult_res1_size = count_size * 2lu;
+		max_add_cnt   = count;
+		mlt_res1_size = count_size * 2lu;
 
 	} else {
-		max_add_cnt    = half_count;
-		mult_res1_size = count_size;
+		max_add_cnt   = half_count;
+		mlt_res1_size = count_size;
 	}
 
-#if DEBUG_MULTIPLY
-	printf("\n\n\n%s\nlower1: ", (carry1 || carry2) ? "CARRY" : "NO CARRY");
-	for (int i = half_count - 1; i > -1; --i) printf("%u", digits1[i]);
-	fputs("\nupper1: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", upper1[i]);
-	fputs("\nlower1 + upper1: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res1[i]);
-	fputs("\nlower2: ", stdout);
-	for (int i = half_count - 1; i > -1; --i) printf("%u", digits2[i]);
-	fputs("\nupper2: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", upper2[i]);
-	fputs("\nlower2 + upper2: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res2[i]);
-	fflush(stdout);
-#endif
 
-
-	HANDLE_MALLOC(mlt_res1, mult_res1_size);
-	HANDLE_MALLOC(mlt_res2, count_size);
-	HANDLE_MALLOC(mlt_res3, count_size);
-	HANDLE_MALLOC(sub_res1, count_size);
-
-
-	size_t mlt_cnt1 = do_multiply_digits(mlt_res1,
+	HANDLE_MALLOC(mlt_res1, mlt_res1_size);
+	const size_t mlt_cnt1 = do_multiply_digits(mlt_res1,
 					     add_res1,
 					     add_res2,
 					     max_add_cnt);
 
-
-	size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
+	HANDLE_MALLOC(mlt_res2, count_size);
+	const size_t mlt_cnt2 = do_multiply_digits(mlt_res2,
 					     upper1,
 					     upper2,
 					     half_count);
 
-	size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
+	HANDLE_MALLOC(mlt_res3, count_size);
+	const size_t mlt_cnt3 = do_multiply_digits(mlt_res3,
 					     digits1,
 					     digits2,
 					     half_count);
-#if DEBUG_MULTIPLY
-	fputs("\nadd_res1: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res1[i]);
-	fputs("\nadd_res2: ", stdout);
-	for (int i = max_add_cnt - 1; i > -1; --i) printf("%u", add_res2[i]);
-	fputs("\nmlt_res1: ", stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-	fputs("\nmlt_res2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-	fputs("\nmlt_res3: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-	fflush(stdout);
-#endif
 
-	size_t sub_cnt1 = subtract_digits(sub_res1,
+	HANDLE_MALLOC(sub_res1, count_size);
+	const size_t sub_cnt1 = subtract_digits(sub_res1,
 					  mlt_res1,
 					  mlt_res2,
 					  mlt_cnt1,
@@ -466,86 +415,33 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 	/* free temp */
 	/* free(mlt_res1); */
 
-#if DEBUG_MULTIPLY
-	fputs("\n\n\nsub_res1: ", stdout);
-	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-	fflush(stdout);
-#endif
+	HANDLE_MALLOC(sub_res2, sizeof(digit_t) * mlt_cnt1);
+	const size_t sub_cnt2 = subtract_digits(sub_res2,
+						sub_res1,
+						mlt_res3,
+						sub_cnt1,
+						mlt_cnt3);
 
-	if (digits_equal_p(sub_res1,
-			       mlt_res3,
-			       sub_cnt1,
-			       mlt_cnt3)) {
-		puts("AYY LMAOS");
-		puts("\n******** z1 - z2 == z0 ************");
-		for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-		fputs(" - ", stdout);
-		for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-		fputs(" = ", stdout);
-		for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-		fputs(" == ", stdout);
-		for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-		fflush(stdout);
-
-		/* free tmps */
-		/* free(sub_res1); */
-
-		size_t res_cnt = add_poly_pair(res_digits,
-					       mlt_res2,
-					       mlt_res3,
-					       mlt_cnt2,
-					       mlt_cnt3,
-					       count);
-		/* free(mlt_res2); */
-		/* free(mlt_res3); */
-
-		return res_cnt;
-	}
-
-	puts("AYY ZIMBABWE");
-
-	digit_t *sub_res2;
-	HANDLE_MALLOC(sub_res2,
-		      sizeof(digit_t) * mlt_cnt1);
-
-	size_t sub_cnt2 = subtract_digits(sub_res2,
-					  sub_res1,
-					  mlt_res3,
-					  sub_cnt1,
-					  mlt_cnt3);
-
-#if DEBUG_MULTIPLY
-	for (int i = sub_cnt1 - 1; i > -1; --i) printf("%u", sub_res1[i]);
-	fputs(" - ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-	fputs(" = \n\n", stdout);
-	for (int i = sub_cnt2 - 1; i > -1; --i) printf("%u", sub_res2[i]);
-#endif
 	/* free temps */
 	/* free(sub_res1); */
 
-
-	digit_t *app_res;
-	HANDLE_MALLOC(app_res,
-		      sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
-
-	size_t app_cnt = add_poly_pair(app_res,
-				       sub_res2,
-				       mlt_res3,
-				       sub_cnt2,
-				       mlt_cnt3,
-				       half_count);
+	HANDLE_MALLOC(app_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
+	const size_t app_cnt = add_poly_pair(app_res,
+					     sub_res2,
+					     mlt_res3,
+					     sub_cnt2,
+					     mlt_cnt3,
+					     half_count);
 
 	/* free temps */
 	/* free(sub_res2); */
 	/* free(mlt_res3); */
-
-	size_t res_cnt = add_poly_pair(res_digits,
-				       mlt_res2,
-				       app_res,
-				       mlt_cnt2,
-				       app_cnt,
-				       count);
+	const size_t res_cnt = add_poly_pair(res_digits,
+					     mlt_res2,
+					     app_res,
+					     mlt_cnt2,
+					     app_cnt,
+					     count);
 
 	/* free temps */
 	/* free(mlt_res2); */
