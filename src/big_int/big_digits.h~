@@ -21,10 +21,9 @@ static inline void multiply_big_digits(struct BigDigits *restrict result,
 				       struct BigDigits *restrict big1,
 				       struct BigDigits *restrict big2);
 
-size_t multiply_digits_by_word(digit_t *restrict res_digits,
-			       digit_t *restrict digits,
-			       const size_t count,
-			       word_t word)
+void multiply_big_digits_by_word(struct BigDigits *restrict result,
+				 struct BigDigits *restrict big,
+				 word_t word);
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

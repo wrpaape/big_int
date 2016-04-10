@@ -91,8 +91,8 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
 	};
 
-	size_t base_cnt = DIGITS_PER_WORD_BASE;
-	size_t base_acc_cnt = DIGITS_PER_WORD_BASE;
+	size_t base_count = DIGITS_PER_WORD_BASE;
+	size_t base_acc_count = DIGITS_PER_WORD_BASE;
 
 	memcpy(base_acc->digits,
 	       word_base_digits,
