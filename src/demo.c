@@ -5,7 +5,7 @@
 int main(void)
 {
 	digit_t res_digits[1024] = {0u};
-	digit_t digits1[] = {9u, 9u, 9u, 0u};
+	digit_t digits1[] = {9u, 9u, 9u, 9u};
 	digit_t digits2[] = {9u, 9u, 0u, 0u};
 	/* digit_t digits1[] = {9u, 8u, 7u, 1u, 1u, 0u, 6u, 4u, */
 	/* 		     7u, 8u, 9u, 0u, 0u, 0u, 2u, 0u, */

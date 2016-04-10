@@ -401,19 +401,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						   digits2,
 						   half_count);
 
-	/* fputs("\nz0: ", stdout); */
-	/* for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
-	/* fputs("\nz1: ", stdout); */
-	/* for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]); */
-	/* fputs("\nz2: ", stdout); */
-	/* for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]); */
-	/* fputs(" = ", stdout); */
-	/* for (int i = half_count - 1; i > -1; --i) printf("%u", upper1[i]); */
-	/* fputs(" * ", stdout); */
-	/* for (int i = half_count - 1; i > -1; --i) printf("%u", upper2[i]); */
-
-	free(add_res1);
-	free(add_res2);
 
 	HANDLE_MALLOC(sub_res1, count_size);
 	const size_t sub_cnt1 = subtract_digits(sub_res1,
@@ -422,7 +409,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						mlt_cnt1,
 						mlt_cnt2);
 
-	free(mlt_res1);
 
 	HANDLE_MALLOC(sub_res2, sizeof(digit_t) * mlt_cnt1);
 	const size_t sub_cnt2 = subtract_digits(sub_res2,
@@ -431,7 +417,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						sub_cnt1,
 						mlt_cnt3);
 
-	free(sub_res1);
 
 	HANDLE_MALLOC(app_res, sizeof(digit_t) * (sub_cnt2 + half_count + 1lu));
 	const size_t app_cnt = add_poly_pair(app_res,
@@ -441,8 +426,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     mlt_cnt3,
 					     half_count);
 
-	free(mlt_res3);
-	free(sub_res2);
 
 	const size_t res_cnt = add_poly_pair(res_digits,
 					     mlt_res2,
@@ -450,8 +433,13 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     mlt_cnt2,
 					     app_cnt,
 					     count);
-
+	free(add_res1);
+	free(add_res2);
+	free(mlt_res1);
 	free(mlt_res2);
+	free(mlt_res3);
+	free(sub_res1);
+	free(sub_res2);
 	free(app_res);
 
 	return res_cnt;
