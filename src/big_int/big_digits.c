@@ -122,6 +122,8 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 				    base_acc,
 				    base);
 
+		puts("DID IT");
+
 		tmp = base_acc;
 		base_acc = buff1;
 		buff1 = base_acc;
