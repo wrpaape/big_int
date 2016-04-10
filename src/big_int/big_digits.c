@@ -401,16 +401,16 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 						   digits2,
 						   half_count);
 
-	fputs("\nz0: ", stdout);
-	for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]);
-	fputs("\nz1: ", stdout);
-	for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]);
-	fputs("\nz2: ", stdout);
-	for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]);
-	fputs(" = ", stdout);
-	for (int i = half_count - 1; i > -1; --i) printf("%u", upper1[i]);
-	fputs(" * ", stdout);
-	for (int i = half_count - 1; i > -1; --i) printf("%u", upper2[i]);
+	/* fputs("\nz0: ", stdout); */
+	/* for (int i = mlt_cnt3 - 1; i > -1; --i) printf("%u", mlt_res3[i]); */
+	/* fputs("\nz1: ", stdout); */
+	/* for (int i = mlt_cnt1 - 1; i > -1; --i) printf("%u", mlt_res1[i]); */
+	/* fputs("\nz2: ", stdout); */
+	/* for (int i = mlt_cnt2 - 1; i > -1; --i) printf("%u", mlt_res2[i]); */
+	/* fputs(" = ", stdout); */
+	/* for (int i = half_count - 1; i > -1; --i) printf("%u", upper1[i]); */
+	/* fputs(" * ", stdout); */
+	/* for (int i = half_count - 1; i > -1; --i) printf("%u", upper2[i]); */
 
 	free(add_res1);
 	free(add_res2);
