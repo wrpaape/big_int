@@ -4,7 +4,7 @@
 
 int main(void)
 {
-	word_t words[] = {WORD_MAX, WORD_MAX, WORD_MAX};
+	word_t words[] = {WORD_MAX, 0lu, WORD_MAX};
 
 	digit_t *digits;
 
@@ -26,6 +26,7 @@ int main(void)
 		++i;
 	}
 
+	printf("WORD_MAX: %llu\n", WORD_MAX);
 	puts(buff);
 
 	/* struct BigInt *big1 = init_big_int(LONG_MAX); */

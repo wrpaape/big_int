@@ -4,11 +4,11 @@
 
 int main(void)
 {
-	word_t words[] = {WORD_MAX, WORD_MAX, WORD_MAX};
+	word_t words[] = {WORD_MAX, 0lu, WORD_MAX};
 
 	digit_t *digits;
 
-	const size_t count = words_to_digits(&digits, &words[0lu], 3lu);
+	const size_t count = words_to_digits(&digits, &words[0lu], 33u);
 
 	char buff[count + 1lu];
 
@@ -26,6 +26,7 @@ int main(void)
 		++i;
 	}
 
+	printf("WORD_MAX: %llu\n", WORD_MAX);
 	puts(buff);
 
 	/* struct BigInt *big1 = init_big_int(LONG_MAX); */
