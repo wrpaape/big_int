@@ -69,30 +69,4 @@ char *big_int_to_string(struct BigInt *big)
 
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-inline size_t num_dec_digits(word_t word)
-{
-	if (word < 10llu)			return  1lu;
-	if (word < 100llu)			return  2lu;
-	if (word < 1000llu)			return  3lu;
-	if (word < 10000llu)			return  4lu;
-	if (word < 100000llu)			return  5lu;
-	if (word < 1000000llu)			return  6lu;
-	if (word < 10000000llu)			return  7lu;
-	if (word < 100000000llu)		return  8lu;
-	if (word < 1000000000llu)		return  9lu;
-	if (word < 10000000000llu)		return 10lu;
-	if (word < 100000000000llu)		return 11lu;
-	if (word < 1000000000000llu)		return 12lu;
-	if (word < 10000000000000llu)		return 13lu;
-	if (word < 100000000000000llu)		return 14lu;
-	if (word < 1000000000000000llu)		return 15lu;
-	if (word < 10000000000000000llu)	return 16lu;
-	if (word < 100000000000000000llu)	return 17lu;
-	if (word < 1000000000000000000llu)	return 18lu;
-	if (word < 10000000000000000000llu)	return 19lu;
-
-	return MAX_DEC_DIGITS_PER_WORD; /* 20 for 64 bit word */
-}
-
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
