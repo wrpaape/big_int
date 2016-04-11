@@ -31,87 +31,38 @@
  ************************************************************************/
 char *big_int_to_string(struct BigInt *big)
 {
-
-	/* const size_t MAX_LENGTH = sizeof(char) */
-	/* 			* big->word_count */
-	/* 			* MAX_DEC_DIGITS_PER_WORD */
-	/* 			+ 2lu; */
-
 	digit_t *digits;
+	char *string;
+	size_t i;
+
 	const size_t count = words_to_digits(&digits,
 					     big->words,
 					     big->word_count);
 
-	char *string;
-	char *root;
-	word_t *words;
-	word_t word;
-	size_t i;
-	size_t j;
 
 	HANDLE_MALLOC(string, count + 2lu);
 
-	root = string;
-
-	if (big->sign == NEG) {
-		*root = '-';
-		++root;
-	}
-
-	i = big->word_count - 1lu;
-
-	words = big->words;
-	word  = words[i];
-
-	const size_t sig_word_digits = num_dec_digits(word);
-
-	printf("sig: %zu\n", sig_word_digits);
-
-	root += sig_word_digits;
-
-	j = 1lu;
+	i = 1lu;
 
 	while (1) {
-		root[-j] = ((char) (word % 10llu)) + '0';
 
-		if (j == sig_word_digits)
+		string[i] = digits[count - i] + '0';
+
+		if (i == count)
 			break;
-
-		word /= 10llu;
-
-		++j;
+		++i;
 	}
 
+	free(digits);
 
+	string[count + 1lu] = '\0';
 
-	while (i > 0lu) {
-		word  = words[i];
-
-		j = MAX_DEC_DIGITS_PER_WORD - 1lu;
-
-		while (1) {
-
-			root[j] = ((char) (word % 10llu)) + '0';
-
-			if (word < 10llu)
-				break;
-
-			word /= 10llu;
-
-			--j;
-		}
-
-		memset(root, '0', j);
-
-		root += MAX_DEC_DIGITS_PER_WORD;
-
-		--i;
+	if (big->sign == NEG) {
+		string[0lu] = '-';
+		return string;
 	}
 
-
-	*root = '\0';
-
-	return digits;
+	return &string[1lu];
 }
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
