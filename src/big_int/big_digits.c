@@ -61,7 +61,7 @@ size_t words_to_digits(digit_t **digits,
 	size_t word = words[0lu];
 	i = 0lu;
 	do {
-		res_digits[i] = ((digit_t) word) % 10u;
+		res_digits[i] = (digit_t) (word % 10llu);
 		word /= 10llu;
 		++i;
 	} while (word > 0u);
@@ -97,23 +97,25 @@ size_t words_to_digits(digit_t **digits,
 	acc_cnt	 = DIGITS_PER_WORD_BASE;
 
 	memcpy(base,
-	       WORD_BASE_DIGITS,
+	       &WORD_BASE_DIGITS[0lu],
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
 
 	memcpy(base_acc,
-	       WORD_BASE_DIGITS,
+	       &WORD_BASE_DIGITS[0lu],
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
 
 	i = 1lu;
 
 	while (1) {
 		printf("words[%zu]: %llu\n", i, words[i]);
+		printf("base_acc = 2^64 * %zu = ", i);
+		for (int y = acc_cnt - 1; y > -1; --y) printf("%u", base_acc[y]);
 
 		buff_cnt = multiply_digits_by_word(mlt_buff,
 						   base_acc,
 						   acc_cnt,
 						   words[i]);
-		printf("buff_cnt: %zu\n", buff_cnt);
+		printf("\nbuff_cnt: %zu\n", buff_cnt);
 
 		res_cnt = increment_digits(res_digits,
 					   mlt_buff,
@@ -584,8 +586,10 @@ size_t increment_digits(digit_t *restrict digits1,
 			const size_t count1,
 			const size_t count2)
 {
-	printf("count1: %zu\n", count1);
-	printf("count2: %zu\n", count2);
+	puts("\nincrementing");
+	for (int y = count1 - 1; y > -1; --y) printf("%u", digits1[y]);
+	fputs(" + ", stdout);
+	for (int x = count2 - 1; x > -1; --x) printf("%u", digits2[x]);
 
 	if (count2 == 1lu)
 		return count1; /* digits2 must be zero, do nothing */
@@ -644,6 +648,10 @@ size_t increment_digits(digit_t *restrict digits1,
 	       &digits2[i],
 	       sizeof(digit_t) * (count2 - i));
 
+	fputs(" = ", stdout);
+	for (int y = count2 - 1; y > -1; --y) printf("%u", digits1[y]);
+	puts("\n******");
+
 	return count2;
 }
 
@@ -675,6 +683,13 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 		buffer /= BUFF_TEN;
 		++i;
 	}
+
+	puts("\nmultiplying");
+	for (int y = count - 1; y > -1; --y) printf("%u", digits[y]);
+	printf(" * %llu = ", word);
+	for (int x = i - 1; x > -1; --x) printf("%u", res_digits[x]);
+	puts("\n******");
+
 
 	return i;
 }
