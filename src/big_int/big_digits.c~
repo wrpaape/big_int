@@ -72,30 +72,51 @@ struct BigDigits *words_to_big_digits(const size_t word_count,
 		++i;
 	} while (word > 0u);
 
+
 	result->count = i;
 
-	if (word_count == 1lu)
-		goto RESIZE_AND_RETURN;
+	if (word_count == 1lu) {
+		HANDLE_REALLOC(res_digits, i);
+		return result;
+	}
 
-	struct BigDigits *base	   = init_zeroed_big_digits(buff_alloc);
-	struct BigDigits *base_acc = init_zeroed_big_digits(buff_alloc);
-	struct BigDigits *buff1	   = init_zeroed_big_digits(buff_alloc);
-	struct BigDigits *buff2	   = init_zeroed_big_digits(buff_alloc);
-	struct BigDigits *tmp;
+	/* struct BigDigits *base	   = init_zeroed_big_digits(buff_alloc); */
+	/* struct BigDigits *base_acc = init_zeroed_big_digits(buff_alloc); */
+	/* struct BigDigits *buff1	   = init_zeroed_big_digits(buff_alloc); */
+	/* struct BigDigits *buff2	   = init_zeroed_big_digits(buff_alloc); */
 
-	digit_t *acc_digits;
-	digit_t *buff_digits;
+	size_t base_cnt;
+	size_t base_acc_cnt;
+	size_t buff_cnt1;
+	size_t buff_cnt2;
 
-	digit_t word_base_digits[] = {
+	digit_t *base;
+	digit_t *base_acc;
+	digit_t *buff1;
+	digit_t *buff2;
+
+	HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4lu);
+
+
+	digit_t *base_acc = &add_res1[buff_alloc];
+	digit_t *mlt_res1 = &add_res2[buff_alloc];
+	digit_t *mlt_res2 = &mlt_res1[buff_alloc];
+	digit_t *mlt_res3 = &mlt_res2[buff_alloc];
+	digit_t *sub_res1 = &mlt_res3[buff_alloc];
+	digit_t *sub_res2 = &sub_res1[buff_alloc];
+	digit_t *ply_res  = &sub_res2[buff_alloc];
+
+
+	digit_t WORD_BASE_DIGITS[] = {
 		6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
 		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
 	};
 
-	size_t base_count = DIGITS_PER_WORD_BASE;
-	size_t base_acc_count = DIGITS_PER_WORD_BASE;
+	size_t base_cnt = DIGITS_PER_WORD_BASE;
+	size_t base_acc_cnt = DIGITS_PER_WORD_BASE;
 
-	memcpy(base_acc->digits,
-	       word_base_digits,
+	memcpy(base,
+	       WORD_BASE_DIGITS,
 	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
 
 	i = 1lu;

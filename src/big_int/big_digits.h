@@ -10,8 +10,8 @@
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-struct BigDigits *words_to_big_digits(const size_t word_count,
-				      word_t *words);
+size_t words_to_digits(const size_t word_count,
+		       word_t *words);
 
 static inline void add_big_digits(struct BigDigits *restrict result,
 				  struct BigDigits *restrict big1,
