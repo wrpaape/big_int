@@ -52,14 +52,11 @@ size_t words_to_digits(digit_t **digits,
 	}
 
 
-	/* const size_t buff_alloc = next_pow_two(alloc_count); */
-	const size_t buff_size  = sizeof(digit_t) * next_pow_two(alloc_count);
-
-	/* struct BigDigits *result = init_zeroed_big_digits(buff_alloc); */
+	const size_t buff_alloc  = next_pow_two(alloc_count);
 
 	digit_t *res_digits;
 
-	HANDLE_MALLOC(res_digits, buff_size);
+	HANDLE_MALLOC(res_digits, sizeof(digit_t) * buff_alloc);
 
 	size_t word = words[0lu];
 	i = 0lu;
@@ -71,7 +68,7 @@ size_t words_to_digits(digit_t **digits,
 
 
 	if (word_count == 1lu) {
-		HANDLE_REALLOC(res_digits, i);
+		HANDLE_REALLOC(res_digits, sizeof(digit_t) * i);
 		*digits = res_digits;
 		return i;
 	}
@@ -81,24 +78,23 @@ size_t words_to_digits(digit_t **digits,
 		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
 	};
 
+	size_t res_cnt = i;
 	size_t base_cnt;
 	size_t acc_cnt;
-	size_t buff_cnt
-	size_t res_cnt;
+	size_t buff_cnt;
 
 	digit_t *base;
 	digit_t *base_acc;
 	digit_t *mlt_buff;
 	digit_t *tmp;
 
-	HANDLE_CALLOC(base, sizeof(digit_t) * buff_alloc * 3lu);
+	HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc * 3lu);
 
 	base_acc = &base[buff_alloc];
 	mlt_buff = &base_acc[buff_alloc];
 
-
-	size_t base_cnt	= DIGITS_PER_WORD_BASE;
-	size_t acc_cnt	= DIGITS_PER_WORD_BASE;
+	base_cnt = DIGITS_PER_WORD_BASE;
+	acc_cnt	 = DIGITS_PER_WORD_BASE;
 
 	memcpy(base,
 	       WORD_BASE_DIGITS,
@@ -124,7 +120,7 @@ size_t words_to_digits(digit_t **digits,
 
 		if (i == word_count) {
 			free(base);
-			HANDLE_REALLOC(res_digits, res_cnt);
+			HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 			*digits = res_digits;
 			return res_cnt;
 		}

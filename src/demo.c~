@@ -4,11 +4,11 @@
 
 int main(void)
 {
-	word_t words[] = {WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX};
+	word_t words[] = {WORD_MAX, WORD_MAX, WORD_MAX};
 
 	digit_t *digits;
 
-	const size_t count = words_to_digits(&digits, &words[0lu], 5lu);
+	const size_t count = words_to_digits(&digits, &words[0lu], 3lu);
 
 	char buff[count + 1lu];
 
