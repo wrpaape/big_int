@@ -26,7 +26,6 @@ int main(void)
 		++i;
 	}
 
-	printf("WORD_MAX: %llu\n", WORD_MAX);
 	puts(buff);
 
 	/* struct BigInt *big1 = init_big_int(LONG_MAX); */

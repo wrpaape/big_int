@@ -2,7 +2,7 @@
 
 #include "big_int/globals.h"
 #include "big_int/utils.h"
-#include "big_int/big_digits.h"
+#include "big_int/digits.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -11,7 +11,12 @@
 
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+/* word base 2⁶⁴ = 18446744073709551616 */
 #define DIGITS_PER_WORD_BASE 20lu
+static const digit_t WORD_BASE_DIGITS[] = {
+	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
+	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
+};
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -23,9 +28,6 @@
 
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-extern inline void free_big_digits(struct BigDigits *big);
-
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -35,20 +37,21 @@ extern inline void free_big_digits(struct BigDigits *big);
 /************************************************************************
  *			words_to_digits(1)				*
  *									*
- * Returns an unsigned base 10 representation of the integer value of	*
- * word_t array 'words'.						*
+ * Deferences **digits to an unsigned base 10 representation		*
+ * (digit_t array) of the integer value of word_t array 'words' and	*
+ * returns count.							*
  ************************************************************************/
 size_t words_to_digits(digit_t **digits,
 		       word_t *words,
 		       const size_t word_count)
 {
 	size_t i;
-	size_t alloc_count = MAX_DIGITS_PER_WORD;
-	size_t alloc_acc   = MAX_DIGITS_PER_WORD * 2;
+	size_t alloc_count = DIGITS_PER_WORD_BASE;
+	size_t alloc_acc   = DIGITS_PER_WORD_BASE * 2;
 
 	for (i = 1lu; i < word_count; ++i) {
 		alloc_count += (alloc_acc + 1lu);
-		alloc_acc   += MAX_DIGITS_PER_WORD;
+		alloc_acc   += DIGITS_PER_WORD_BASE;
 	}
 
 
@@ -72,11 +75,6 @@ size_t words_to_digits(digit_t **digits,
 		*digits = res_digits;
 		return i;
 	}
-
-	digit_t WORD_BASE_DIGITS[] = {
-		6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
-		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
-	};
 
 	size_t res_cnt = i;
 	size_t base_cnt;
@@ -107,28 +105,20 @@ size_t words_to_digits(digit_t **digits,
 	i = 1lu;
 
 	while (1) {
-		printf("words[%zu]: %llu\n", i, words[i]);
-		printf("base_acc = 2^64 * %zu = ", i);
-		for (int y = acc_cnt - 1; y > -1; --y) printf("%u", base_acc[y]);
-
 		buff_cnt = multiply_digits_by_word(mlt_buff,
 						   base_acc,
 						   acc_cnt,
 						   words[i]);
-		printf("\nbuff_cnt: %zu\n", buff_cnt);
 
-		res_cnt = increment_digits(res_digits,
-					   mlt_buff,
-					   res_cnt,
-					   buff_cnt);
+		if (buff_cnt > 1lu)
+			res_cnt = increment_digits(res_digits,
+						   mlt_buff,
+						   res_cnt,
+						   buff_cnt);
 		++i;
 
-		if (i == word_count) {
-			free(base);
-			HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
-			*digits = res_digits;
-			return res_cnt;
-		}
+		if (i == word_count)
+			break;
 
 		acc_cnt = do_multiply_digits(mlt_buff,
 					     base_acc,
@@ -138,45 +128,14 @@ size_t words_to_digits(digit_t **digits,
 		base_acc = mlt_buff;
 		mlt_buff = tmp;
 	}
-}
 
-/* big1->count >= big2->count */
-inline void add_big_digits(struct BigDigits *restrict result,
-			   struct BigDigits *restrict big1,
-			   struct BigDigits *restrict big2)
-{
-	/* call add_digits */
-	result->count = add_digits(result->digits,
-				   big1->digits,
-				   big2->digits,
-				   big1->count,
-				   big2->count);
-}
+	free(base);
 
-/*
- * head function for recursive 'do_multiply_digits'
- *
- * input conditions:
- *	1. big1->count >= big2->count
- *	2. each have plenty memory allocation
- *	3. digits at indices >= count are zeroed
- */
-inline void multiply_big_digits(struct BigDigits *restrict result,
-				struct BigDigits *restrict big1,
-				struct BigDigits *restrict big2)
-{
-	/* temporarily force counts to the same power of 2 */
-	/* fputs("\n*************************************\nbig1: ", stdout); */
-	/* for (int i = big1->count - 1; i > -1; --i) printf("%u", big1->digits[i]); */
-	/* fputs("\nbig2: ", stdout); */
-	/* for (int i = big2->count - 1; i > -1; --i) printf("%u", big2->digits[i]); */
-	/* fflush(stdout); */
+	HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 
-	/* do recursive Karatsuba multiplication */
-	result->count = do_multiply_digits(result->digits,
-					   big1->digits,
-					   big2->digits,
-					   next_pow_two(big1->count));
+	*digits = res_digits;
+
+	return res_cnt;
 }
 
 /*
@@ -185,7 +144,9 @@ inline void multiply_big_digits(struct BigDigits *restrict result,
  * sets 'res_digits' to product and returns count;
  *
  * input conditions:
- *	1. big1->count == big2->count == 2ⁿ
+ *	1. count1 == count2 == 2ⁿ
+ *	2. digits have plenty memory allocation
+ *	3. digits at indices >= count are zeroed
  */
 size_t do_multiply_digits(digit_t *restrict res_digits,
 			  digit_t *restrict digits1,
@@ -579,21 +540,13 @@ size_t add_digits(digit_t *restrict res_digits,
  * sets increments 'digits1' by 'digits2' and returns count
  *
  * input conditions:
- * count2 >= count1 OR digits2 == 0
+ * count2 >= count1
  */
 size_t increment_digits(digit_t *restrict digits1,
 			digit_t *restrict digits2,
 			const size_t count1,
 			const size_t count2)
 {
-	puts("\nincrementing");
-	for (int y = count1 - 1; y > -1; --y) printf("%u", digits1[y]);
-	fputs(" + ", stdout);
-	for (int x = count2 - 1; x > -1; --x) printf("%u", digits2[x]);
-
-	if (count2 == 1lu)
-		return count1; /* digits2 must be zero, do nothing */
-
 	bool carry;
 	size_t i;
 
@@ -648,10 +601,6 @@ size_t increment_digits(digit_t *restrict digits1,
 	       &digits2[i],
 	       sizeof(digit_t) * (count2 - i));
 
-	fputs(" = ", stdout);
-	for (int y = count2 - 1; y > -1; --y) printf("%u", digits1[y]);
-	puts("\n******");
-
 	return count2;
 }
 
@@ -684,13 +633,6 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 		++i;
 	}
 
-	puts("\nmultiplying");
-	for (int y = count - 1; y > -1; --y) printf("%u", digits[y]);
-	printf(" * %llu = ", word);
-	for (int x = i - 1; x > -1; --x) printf("%u", res_digits[x]);
-	puts("\n******");
-
-
 	return i;
 }
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -699,13 +641,4 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-inline struct BigDigits *init_zeroed_big_digits(const size_t count)
-{
-	struct BigDigits *big;
-
-	HANDLE_MALLOC(big, sizeof(struct BigDigits));
-	HANDLE_CALLOC(big->digits, sizeof(digit_t), count);
-
-	return big;
-}
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
