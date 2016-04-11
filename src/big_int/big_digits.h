@@ -10,8 +10,9 @@
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-size_t words_to_digits(const size_t word_count,
-		       word_t *words);
+size_t words_to_digits(digit_t **digits,
+		       word_t *words,
+		       const size_t word_count);
 
 static inline void add_big_digits(struct BigDigits *restrict result,
 				  struct BigDigits *restrict big1,
@@ -24,7 +25,7 @@ static inline void multiply_big_digits(struct BigDigits *restrict result,
 size_t multiply_digits_by_word(digit_t *restrict res_digits,
 			       digit_t *restrict digits,
 			       const size_t count,
-			       word_t word)
+			       word_t word);
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -33,6 +34,11 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 /* HELPER FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 static inline struct BigDigits *init_zeroed_big_digits(const size_t count);
+
+size_t increment_digits(digit_t *restrict digits1,
+			digit_t *restrict digits2,
+			const size_t count1,
+			const size_t count2);
 
 size_t do_multiply_digits(digit_t *restrict res_digits,
 			  digit_t *restrict digits1,
