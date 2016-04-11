@@ -4,7 +4,7 @@
 
 int main(void)
 {
-	struct BigInt *lmax = init_big_int(LONG_MAX);
+	struct BigInt *lmax = init_big_int(LONG_MIN);
 	struct BigInt *res1 = init_big_int(0);
 	struct BigInt *res2 = init_big_int(0);
 
