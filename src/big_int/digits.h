@@ -12,11 +12,11 @@
 
 size_t words_to_digits(digit_t **digits,
 		       word_t *words,
-		       const size_t word_count);
+		       const size_t count);
 
 size_t digits_to_words(word_t **words,
 		       digit_t *digits,
-		       const size_t digit_count);
+		       const size_t count);
 
 /* TOP-LEVEL FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

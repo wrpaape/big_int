@@ -43,34 +43,24 @@ static const digit_t WORD_BASE_DIGITS[] = {
  ************************************************************************/
 size_t words_to_digits(digit_t **digits,
 		       word_t *words,
-		       const size_t word_count)
+		       const size_t count)
 {
+
 	size_t i;
-	size_t alloc_cnt = DIGITS_PER_WORD_BASE;
-	size_t alloc_acc = DIGITS_PER_WORD_BASE * 2;
 
 	/* sum expression:
 	 *
-	 * DPWB + 1 + 2DPWB + 1 ... (word_count - 1)DPWB + 1 + word_countDPWB
+	 * DPWB + 1 + 2DPWB + 1 ... (count - 1)DPWB + 1 + word_countDPWB
 	 *
-	 * = (word_count / 2) * (word_count + 1) * DPWB + word_count - 1
+	 * = count * (((count + 1) * DPWB) / 2 + 1) - 1
 	 */
-	/* for (i = 1ul; i < word_count; ++i) { */
-	/* 	alloc_cnt += (alloc_acc + 1ul); */
-	/* 	alloc_acc += DIGITS_PER_WORD_BASE; */
-	/* } */
-	const size_t max_alloc = word_count * DIGITS_PER_WORD_BASE;
+	const size_t alloc_count = count
+				 * ((((count + 1ul) * DIGITS_PER_WORD_BASE) / 2ul) + 1ul)
+				 - 1ul;;
 
-	size_t alloc_cnt;
-	if (word_count & 1ul) {
 
-		alloc_cnt = max_alloc * (word_count - 1ul) / 2ul
 
-	} else {
-		alloc_cnt = (max_alloc / 2ul) * word_count + word_count - 1;
-	}
-
-	const size_t buff_alloc = next_pow_two(alloc_cnt);
+	const size_t buff_alloc = next_pow_two(alloc_count);
 
 	digit_t *res_digits;
 
@@ -85,7 +75,7 @@ size_t words_to_digits(digit_t **digits,
 	} while (word > 0u);
 
 
-	if (word_count == 1ul) {
+	if (count == 1ul) {
 		HANDLE_REALLOC(res_digits, sizeof(digit_t) * i);
 		*digits = res_digits;
 		return i;
@@ -135,7 +125,7 @@ size_t words_to_digits(digit_t **digits,
 NEXT_WORD:
 		++i;
 
-		if (i == word_count)
+		if (i == count)
 			break;
 
 		acc_cnt = do_multiply_digits(mlt_buff,
@@ -166,17 +156,17 @@ NEXT_WORD:
  ************************************************************************/
 size_t digits_to_words(word_t **words,
 		       digit_t *digits,
-		       const size_t digit_count)
+		       const size_t count)
 {
 	size_t i;
 	word_t buffer   = digits[0ul];
 	word_t buff_acc = 10ull;
 
-	if (digit_count < DIGITS_PER_WORD_BASE) {
+	if (count < DIGITS_PER_WORD_BASE) {
 
 		HANDLE_MALLOC(*words, sizeof(word_t));
 
-		for (i = 1ul; i < digit_count; ++i) {
+		for (i = 1ul; i < count; ++i) {
 			buffer   += (((word_t) digits[i]) * buff_acc);
 			buff_acc *= 10ull;
 		}
@@ -187,18 +177,18 @@ size_t digits_to_words(word_t **words,
 
 	word_t *res_words;
 
-	const size_t half_count = digit_count / 2ul;
+	const size_t half_count = count / 2ul;
 
-	const size_t res_alloc  = (digit_count / DIGITS_PER_WORD_BASE) + 1ul;
+	const size_t res_alloc  = (count / DIGITS_PER_WORD_BASE) + 1ul;
 
-	const size_t buff_alloc = next_pow_two(digit_count);
+	const size_t buff_alloc = next_pow_two(count);
 
 
 	/* generate string of digit_t arrays representing word "bits" > 1
 	 *
 	 * {(word base)¹, (word base)², ..., (word base)ⁿ}
 	 *
-	 * where 'half_count <= count((word base)ⁿ) < digit_count'
+	 * where 'half_count <= count((word base)ⁿ) < count'
 	 */
 
 	/* size_t *bit_counts; */
