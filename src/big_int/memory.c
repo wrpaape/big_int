@@ -1,7 +1,6 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include "big_int/globals.h"
-#include "big_int/utils.h"
 #include "big_int/memory.h"
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -20,6 +19,8 @@
 /* EXTERN INLINE FUNCTION PROTOTYPES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 extern inline void free_big_int(struct BigInt *big_int);
+extern inline void expand_big_int(struct BigInt *big,
+				  const size_t required);
 
 /* EXTERN INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -68,28 +69,6 @@ struct BigInt *init_big_int(const long long int init_val)
 
 
 	return big;
-}
-
-
-
-/************************************************************************
- *			expand_big_int_words(1)				*
- *									*
- * Allocates additional space for 'words' array of 'big'.		*
- ************************************************************************/
-void expand_big_int(struct BigInt *big, const size_t required)
-{
-	const size_t expanded = next_pow_two(required);
-	big->words = realloc(big->words, sizeof(word_t) * expanded);
-
-	if (big->words == NULL) {
-
-		EXIT_ON_FAILURE("failed to reallocate number of words"
-				"from %lu to %lu",
-				big->alloc_count, expanded);
-	}
-
-	big->alloc_count = expanded;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
