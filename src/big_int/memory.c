@@ -80,8 +80,9 @@ struct BigInt *init_big_int(const long long int init_val)
 void expand_big_int(struct BigInt *big, const size_t required)
 {
 	const size_t expanded = next_pow_two(required);
+	big->words = realloc(big->words, sizeof(word_t) * expanded);
 
-	if (realloc(big->words, sizeof(word_t) * expanded) == NULL) {
+	if (big->words == NULL) {
 
 		EXIT_ON_FAILURE("failed to reallocate number of words"
 				"from %lu to %lu",

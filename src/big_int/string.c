@@ -39,9 +39,6 @@ char *big_int_to_string(struct BigInt *big)
 					     big->words,
 					     big->word_count);
 
-	printf("count: %zu\n", count);
-
-
 	HANDLE_MALLOC(string, count + 2lu);
 
 	i = 1lu;
