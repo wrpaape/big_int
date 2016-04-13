@@ -12,7 +12,7 @@
 /* CONSTANTS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 /* word base 2⁶⁴ = 18446744073709551616 */
-#define DIGITS_PER_WORD_BASE 20ul
+#define DPWB 20ul
 
 static const digit_t WORD_BASE_DIGITS[] = {
 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
@@ -53,10 +53,15 @@ size_t words_to_digits(digit_t **digits,
 	 * DPWB + 1 + 2DPWB + 1 ... (count - 1)DPWB + 1 + word_countDPWB
 	 *
 	 * = count * (((count + 1) * DPWB) / 2 + 1) - 1
+	 *
+	 * or
+	 *
+	 * = (count * (count + 1) * DPWB) / 2 + count - 1
+	 *
+	 * to ensure no truncation on division by 2
 	 */
-	const size_t alloc_count = count
-				 * ((((count + 1ul) * DIGITS_PER_WORD_BASE) / 2ul) + 1ul)
-				 - 1ul;;
+	const size_t alloc_count = ((count + 1ul) * count * DPWB) / 2ul
+				 + count - 1ul;
 
 
 
@@ -81,6 +86,8 @@ size_t words_to_digits(digit_t **digits,
 		return i;
 	}
 
+	const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t);
+
 	size_t res_cnt = i;
 	size_t acc_cnt;
 	size_t buff_cnt;
@@ -91,20 +98,18 @@ size_t words_to_digits(digit_t **digits,
 	digit_t *mlt_buff;
 	digit_t *tmp;
 
-	HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc * 3ul);
+	HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 3ul);
 
 	base_acc = &base[buff_alloc];
 	mlt_buff = &base_acc[buff_alloc];
 
-	acc_cnt	= DIGITS_PER_WORD_BASE;
+	acc_cnt	= DPWB;
 
-	memcpy(base,
-	       &WORD_BASE_DIGITS[0ul],
-	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+	set_zero_padded_word_base(base,
+				  size_zeros);
 
-	memcpy(base_acc,
-	       &WORD_BASE_DIGITS[0ul],
-	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+	set_zero_padded_word_base(base_acc,
+				  size_zeros);
 
 	i = 1ul;
 
@@ -162,7 +167,7 @@ size_t digits_to_words(word_t **words,
 	word_t buffer   = digits[0ul];
 	word_t buff_acc = 10ull;
 
-	if (count < DIGITS_PER_WORD_BASE) {
+	if (count < DPWB) {
 
 		HANDLE_MALLOC(*words, sizeof(word_t));
 
@@ -175,14 +180,11 @@ size_t digits_to_words(word_t **words,
 		return 1ul;
 	}
 
-	word_t *res_words;
-
 	const size_t half_count = count / 2ul;
-
-	const size_t res_alloc  = (count / DIGITS_PER_WORD_BASE) + 1ul;
 
 	const size_t buff_alloc = next_pow_two(count);
 
+	const size_t res_alloc  = (count / DPWB) + 1ul;
 
 	/* generate string of digit_t arrays representing word "bits" > 1
 	 *
@@ -191,25 +193,46 @@ size_t digits_to_words(word_t **words,
 	 * where 'half_count <= count((word base)ⁿ) < count'
 	 */
 
-	/* size_t *bit_counts; */
-	/* digit_t **bit_digits; */
+	size_t *bit_counts;
+	digit_t *base;
+	digit_t *base_acc;
+	digit_t **bit_digits;
 
-	/* digit_t *base; */
+	word_t *res_words;
 
-	/* HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc * 3ul); */
+	/* HANDLE_MALLOC(res_words,  sizeof(word_t)    * res_alloc); */
+	/* HANDLE_MALLOC(bit_counts, sizeof(size_t)    * res_alloc); */
+	/* HANDLE_MALLOC(bit_digits, sizeof(digit_t *) * res_alloc); */
+
+
+	/* HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc * 2ul); */
+
+
+	/* base_acc = &base[buff_alloc]; */
+	/* mlt_buff = &base_acc[buff_alloc]; */
+
+	/* acc_cnt	= DPWB; */
+
+	/* memcpy(base, */
+	/*        &WORD_BASE_DIGITS[0ul], */
+	/*        sizeof(digit_t) * DPWB); */
+
+	/* memcpy(base_acc, */
+	/*        &WORD_BASE_DIGITS[0ul], */
+	/*        sizeof(digit_t) * DPWB); */
 
 	/* digit_t **bit_digits = &base[buff_alloc]; */
 	/* mlt_buff = &base_acc[buff_alloc]; */
 
-	/* acc_cnt	 = DIGITS_PER_WORD_BASE; */
+	/* acc_cnt	 = DPWB; */
 
 	/* memcpy(base, */
 	/*        &WORD_BASE_DIGITS[0ul], */
-	/*        sizeof(digit_t) * DIGITS_PER_WORD_BASE); */
+	/*        sizeof(digit_t) * DPWB); */
 
 	/* memcpy(base, */
 	/*        &WORD_BASE_DIGITS[0ul], */
-	/*        sizeof(digit_t) * DIGITS_PER_WORD_BASE); */
+	/*        sizeof(digit_t) * DPWB); */
 
 	/* while (1) { */
 
@@ -723,5 +746,17 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 	}
 
 	return i;
+}
+
+inline void set_zero_padded_word_base(digit_t *base,
+				      const size_t pad_size)
+{
+	memcpy(base,
+	       &WORD_BASE_DIGITS[0ul],
+	       sizeof(digit_t) * DPWB);
+
+	memset(&base[DPWB],
+	       0,
+	       pad_size);
 }
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

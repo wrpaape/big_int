@@ -63,6 +63,9 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		     const size_t count2,
 		     const size_t n);
 
+static inline void set_zero_padded_word_base(digit_t *base,
+					     const size_t pad_size);
+
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
