@@ -13,6 +13,7 @@
 
 /* word base 2⁶⁴ = 18446744073709551616 */
 #define DIGITS_PER_WORD_BASE 20ul
+
 static const digit_t WORD_BASE_DIGITS[] = {
 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
 	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
@@ -48,13 +49,20 @@ size_t words_to_digits(digit_t **digits,
 	size_t alloc_cnt = DIGITS_PER_WORD_BASE;
 	size_t alloc_acc = DIGITS_PER_WORD_BASE * 2;
 
+
+	printf("\nwords: %llu", words[word_count - 1ul]);
+
+	for (int i = word_count - 2ul; i > -1; --i) printf(", %llu", words[i]);
+
+	puts("\n");
+
 	for (i = 1ul; i < word_count; ++i) {
 		alloc_cnt += (alloc_acc + 1ul);
 		alloc_acc += DIGITS_PER_WORD_BASE;
 	}
 
 
-	const size_t buff_alloc  = next_pow_two(alloc_cnt);
+	const size_t buff_alloc = next_pow_two(alloc_cnt);
 
 	digit_t *res_digits;
 
@@ -78,6 +86,7 @@ size_t words_to_digits(digit_t **digits,
 	size_t res_cnt = i;
 	size_t acc_cnt;
 	size_t buff_cnt;
+	size_t npt_cnt;
 
 	digit_t *base;
 	digit_t *base_acc;
@@ -89,7 +98,7 @@ size_t words_to_digits(digit_t **digits,
 	base_acc = &base[buff_alloc];
 	mlt_buff = &base_acc[buff_alloc];
 
-	acc_cnt	 = DIGITS_PER_WORD_BASE;
+	acc_cnt	= DIGITS_PER_WORD_BASE;
 
 	memcpy(base,
 	       &WORD_BASE_DIGITS[0ul],
@@ -123,6 +132,7 @@ size_t words_to_digits(digit_t **digits,
 					     base_acc,
 					     base,
 					     next_pow_two(acc_cnt));
+
 		tmp = base_acc;
 		base_acc = mlt_buff;
 		mlt_buff = tmp;
@@ -174,30 +184,38 @@ size_t digits_to_words(word_t **words,
 	const size_t buff_alloc = next_pow_two(digit_count);
 
 
-	/* generate string of digit_arrays representing word "bits" > 1
+	/* generate string of digit_t arrays representing word "bits" > 1
 	 *
 	 * {(word base)¹, (word base)², ..., (word base)ⁿ}
+	 *
+	 * where 'half_count <= count((word base)ⁿ) < digit_count'
 	 */
 
-	struct WordBit {
-		size_t count;
-		digit_t *digits;
-	};
+	/* size_t *bit_counts; */
+	/* digit_t **bit_digits; */
 
-	digit_t *base;
-	digit_t **word_bits;
+	/* digit_t *base; */
 
-	HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc);
+	/* HANDLE_CALLOC(base, sizeof(digit_t), buff_alloc * 3ul); */
 
-	base_acc = &base[buff_alloc];
-	mlt_buff = &base_acc[buff_alloc];
+	/* digit_t **bit_digits = &base[buff_alloc]; */
+	/* mlt_buff = &base_acc[buff_alloc]; */
 
-	acc_cnt	 = DIGITS_PER_WORD_BASE;
+	/* acc_cnt	 = DIGITS_PER_WORD_BASE; */
 
-	memcpy(base,
-	       &WORD_BASE_DIGITS[0ul],
-	       sizeof(digit_t) * DIGITS_PER_WORD_BASE);
+	/* memcpy(base, */
+	/*        &WORD_BASE_DIGITS[0ul], */
+	/*        sizeof(digit_t) * DIGITS_PER_WORD_BASE); */
 
+	/* memcpy(base, */
+	/*        &WORD_BASE_DIGITS[0ul], */
+	/*        sizeof(digit_t) * DIGITS_PER_WORD_BASE); */
+
+	/* while (1) { */
+
+	/* } */
+
+	return 42ul;
 
 }
 
@@ -685,6 +703,7 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 {
 	const buff_t buff_word = (buff_t) word;
 	buff_t buffer = buff_word * ((buff_t) digits[0ul]);
+
 	res_digits[0ul] = (digit_t) (buffer % BUFF_TEN);
 	buffer /= BUFF_TEN;
 

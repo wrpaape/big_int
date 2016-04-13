@@ -41,6 +41,7 @@ struct BigInt {
 
 #define WORD_BITS (sizeof(word_t) * CHAR_BIT)
 #define WORD_MAX UINT64_MAX
+#define WORD_BASE (((buff_t) 1ull) << WORD_BITS)
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
