@@ -39,7 +39,7 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	const size_t lrg_wc = big1->word_count;
 	const size_t sml_wc = big2->word_count;
-	const size_t req_wc = lrg_wc + 1lu;
+	const size_t req_wc = lrg_wc + 1ul;
 
 	if (result->alloc_count < req_wc)
 		expand_big_int(result, req_wc);
@@ -50,15 +50,14 @@ void add_big_ints_same_sign(struct BigInt *result,
 	word_t *sml_words = big2->words;
 	word_t *res_words = result->words;
 
-	buff_t sum_buffer = add_words(lrg_words[0],
-				      sml_words[0]);
+	buff_t sum_buffer = add_words(lrg_words[0ul],
+				      sml_words[0ul]);
+
+	res_words[0ul] = lower_word(sum_buffer);
 
 	word_t carry = upper_word(sum_buffer);
-	res_words[0] = lower_word(sum_buffer);
 
-	printf("res_words[0]: %llu\n", res_words[0]);
-
-	size_t i = 1lu;
+	size_t i = 1ul;
 
 	/* add 'sml_words' to 'lrg_words', accumulating word overflow 'carry' */
 	while (i < sml_wc) {
@@ -70,7 +69,6 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 		res_words[i] = lower_word(sum_buffer);
 
-		printf("res_words[%zu]: %llu\n", i, res_words[i]);
 		carry = upper_word(sum_buffer);
 		++i;
 	}
@@ -78,13 +76,6 @@ void add_big_ints_same_sign(struct BigInt *result,
 
 	/* propogate 'carry' to unmatched upper words of 'lrg_words' */
 	while (i < lrg_wc) {
-
-		if (carry == 0llu) {
-			memcpy(&res_words[i], &lrg_words[i], lrg_wc - i);
-			result->word_count = lrg_wc;
-			return;
-		}
-
 
 		sum_buffer = add_words(lrg_words[i],
 				       carry);
@@ -94,10 +85,15 @@ void add_big_ints_same_sign(struct BigInt *result,
 		++i;
 	}
 
-	if (carry == 0llu) {
+	if (carry == 0ull) {
+		memcpy(&res_words[i],
+		       &lrg_words[i],
+		       lrg_wc - i);
+
 		result->word_count = lrg_wc;
 		return;
 	}
+
 
 	result->words[lrg_wc] = carry;
 	result->word_count    = req_wc;
