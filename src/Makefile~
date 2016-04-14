@@ -6,6 +6,7 @@ DEPSDIR = $(SRCSDIR)
 OBJSDIR = $(MAINDIR)/../obj
 DESTDIR = $(MAINDIR)/../bin
 
+
 GLOBDEPS = $(DEPSDIR)/globals.h
 
 globals_OBJ  = $(OBJSDIR)/globals.o

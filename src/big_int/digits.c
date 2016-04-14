@@ -109,7 +109,6 @@ size_t words_to_digits(digit_t **restrict digits,
 	if (count == 2ul)
 		goto FREE_TMPS_REALLOC_RETURN;
 
-
 	digit_t *base	  = &mlt_buff[buff_alloc];
 	digit_t *base_acc = &base[buff_alloc];
 	digit_t *tmp;
@@ -185,85 +184,77 @@ size_t digits_to_words(word_t **restrict words,
 		       const digit_t *restrict digits,
 		       const size_t count)
 {
-	/* size_t i; */
+	size_t i;
 
-	/* if (count < DPWB) { */
+	if (count < DPWB) {
 
-	/* 	HANDLE_MALLOC(*words, sizeof(word_t)); */
+		HANDLE_MALLOC(*words, sizeof(word_t));
 
-	/* 	word_t buffer   = (word_t) digits[0ul]; */
-	/* 	word_t buff_acc = 10ull; */
+		word_t word     = (word_t) digits[0ul];
+		word_t word_acc = 10ull;
 
-	/* 	for (i = 1ul; i < count; ++i) { */
-	/* 		buffer   += (((word_t) digits[i]) * buff_acc); */
-	/* 		buff_acc *= 10ull; */
-	/* 	} */
+		for (i = 1ul; i < count; ++i) {
+			word     += (((word_t) digits[i]) * word_acc);
+			word_acc *= 10ull;
+		}
 
-	/* 	*words[0ul] = buffer; */
-	/* 	return 1ul; */
-	/* } */
+		*words[0ul] = word;
+		return 1ul;
+	}
 
-	/* const size_t half_count = count / 2ul; */
+	const size_t half_count = count / 2ul;
 
-	/* if (half_count < DPWB) */
+	/* generate string of digit_t arrays representing
+	 * word "bits" > (word base)¹
+	 *
+	 * {(word base)², (word base)³, ..., (word base)ⁿ}
+	 *
+	 * where 'half_count <= count((word base)ⁿ) < count'
+	 */
 
-	/* /1* generate string of digit_t arrays representing */
-	/*  * word "bits" > (word base)¹ */
-	/*  * */
-	/*  * {(word base)², (word base)³, ..., (word base)ⁿ} */
-	/*  * */
-	/*  * where 'half_count <= count((word base)ⁿ) < count' */
-	/*  *1/ */
+	const size_t buff_alloc = next_pow_two(half_count);
 
-	/* const size_t buff_alloc = next_pow_two(half_count); */
 
-	/* const size_t res_alloc  = (count / DPWB) + 1ul; */
+	if (half_count < DPWB) {
+	}
 
-	/* const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t); */
+	const size_t res_alloc  = (count / DPWB) + 1ul;
 
-	/* size_t *bit_counts; */
-	/* digit_t *base; */
-	/* digit_t *base_acc; */
-	/* digit_t *mlt_buff; */
-	/* digit_t *bit_digits; */
-	/* digit_t *tmp; */
+	const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t);
 
-	/* word_t *res_words; */
+	size_t *bit_counts;
+	digit_t *base;
+	digit_t *base_acc;
+	digit_t *mlt_buff;
+	digit_t *bit_digits;
+	digit_t *tmp;
 
-	/* size_t acc_cnt = DPWB; */
+	word_t *res_words;
 
-	/* HANDLE_MALLOC(res_words,  sizeof(word_t) * res_alloc); */
-	/* HANDLE_MALLOC(bit_counts, sizeof(size_t) * res_alloc); */
+	size_t acc_cnt = DPWB;
 
-	/* HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4ul); */
+	HANDLE_MALLOC(res_words,  sizeof(word_t) * res_alloc);
+	HANDLE_MALLOC(bit_counts, sizeof(size_t) * res_alloc);
 
-	/* base_acc   = &base[buff_alloc]; */
-	/* mlt_buff   = &base_acc[buff_alloc]; */
-	/* bit_digits = &mlt_buff[buff_alloc]; */
+	HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4ul);
 
-	/* bit_digits[0ul] = WORD_BASE_DIGITS; */
-	/* bit_digits[1ul] = WORD_BASE_DIGITS; */
+	base_acc   = &base[buff_alloc];
+	mlt_buff   = &base_acc[buff_alloc];
+	bit_digits = &mlt_buff[buff_alloc];
 
-	/* set_zero_padded_word_base(base, */
-	/* 			  size_zeros); */
+	bit_digits[0ul] = WORD_BASE_DIGITS;
+	bit_digits[1ul] = WORD_BASE_DIGITS;
 
-	/* set_zero_padded_word_base(base_acc, */
-	/* 			  size_zeros); */
+	set_zero_padded_word_base(base,
+				  size_zeros);
 
-	/* acc_cnt = do_multiply_digits(mlt_buff, */
-	/* 			     base_acc, */
-	/* 			     base, */
-	/* 			     NEXT_POW_TWO_DPWB); */
+	set_zero_padded_word_base(base_acc,
+				  size_zeros);
 
-	/* memset(&mlt_buff[acc_cnt], */
-	/*        0, */
-	/*        sizeof(digit_t) * (buff_alloc - acc_cnt)); */
-
-	/* i = 0ul; */
-
-	/* do { */
-
-	/* } while (acc_cnt < half_count); */
+	acc_cnt = do_multiply_digits(mlt_buff,
+				     base_acc,
+				     base,
+				     NEXT_POW_TWO_DPWB);
 
 
 

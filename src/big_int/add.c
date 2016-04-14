@@ -9,9 +9,9 @@
 
 /* EXTERNAL INLINE FUNCTION PROTOTYPES  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-extern inline void add_big_ints(struct BigInt *result,
-				struct BigInt *big1,
-				struct BigInt *big2);
+extern inline void add_big_ints(struct BigInt *restrict result,
+				const struct BigInt *restrict big1,
+				const struct BigInt *restrict big2);
 
 /* EXTERNAL INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -30,9 +30,9 @@ extern inline void add_big_ints(struct BigInt *result,
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-void add_big_ints_same_sign(struct BigInt *result,
-			    struct BigInt *big1,
-			    struct BigInt *big2)
+void add_big_ints_same_sign(struct BigInt *restrict result,
+			    const struct BigInt *restrict big1,
+			    const struct BigInt *restrict big2)
 {
 	if (big2->word_count > big1->word_count)
 		VAR_SWAP(big1, big2);

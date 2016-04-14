@@ -60,7 +60,7 @@ BINFILE = $(DESTDIR)/demo
 
 
 CC	= gcc
-CFLAGS	= -g -I$(MAINDIR) -std=c99 -Wall -D__USE_FIXED_PROTOTYPES__
+CFLAGS	= -g -I$(MAINDIR) -std=c99 -fstrict-aliasing -Wall -D__USE_FIXED_PROTOTYPES__
 
 all: $(BINFILE)
 

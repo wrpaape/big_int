@@ -9,9 +9,9 @@
 
 /* EXTERNAL INLINE FUNCTION PROTOTYPES  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-extern inline void subtract_big_ints(struct BigInt *result,
-				     struct BigInt *big1,
-				     struct BigInt *big2);
+extern inline void subtract_big_ints(struct BigInt *restrict result,
+				     const struct BigInt *restrict big1,
+				     const struct BigInt *restrict big2);
 
 /* EXTERNAL INLINE FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -28,9 +28,9 @@ extern inline void subtract_big_ints(struct BigInt *result,
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-void subtract_big_ints_same_sign(struct BigInt *result,
-				 struct BigInt *big1,
-				 struct BigInt *big2)
+void subtract_big_ints_same_sign(struct BigInt *restrict result,
+				 const struct BigInt *restrict big1,
+				 const struct BigInt *restrict big2)
 {
 }
 
