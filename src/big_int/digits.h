@@ -63,14 +63,27 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		     const size_t count2,
 		     const size_t n);
 
+
+size_t word_div_rem(digit_t *restrict remainder,
+		    word_t *restrict divisor,
+		    const digit_t *restrict dividend,
+		    const digit_t *restrict quotient,
+		    const size_t dvd_count,
+		    const size_t quo_count);
+
+
 static inline void set_zero_padded_word_base(digit_t *restrict base,
 					     const size_t pad_size);
 
 static inline size_t word_to_digits(digit_t *restrict digits,
 				    word_t word);
 
-static inline size_t digits_to_word(const digit_t *restrict digits,
+static inline word_t digits_to_word(const digit_t *restrict digits,
 				    const size_t count);
+
+static inline word_t estimate_divisor(const size_t delta_mag,
+				      const digit_t dvd_lead,
+				      const digit_t quo_lead);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

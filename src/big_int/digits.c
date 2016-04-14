@@ -24,7 +24,14 @@
 static const digit_t WORD_BASE_DIGITS[] = {
 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
 	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
-	/* [DPWB ... NEXT_POW_TWO_DPWB] = 0u */
+};
+
+static const word_t TEN_POW_MAP[DPWB - 1ul] = {
+	1ull, 10ull, 100ull, 1000ull, 10000ull, 100000ull, 1000000ull,
+	10000000ull, 100000000ull, 1000000000ull, 10000000000ull,
+	100000000000ull, 1000000000000ull, 10000000000000ull,
+	100000000000000ull, 1000000000000000ull, 10000000000000000ull,
+	100000000000000000ull, 1000000000000000000ull, 10000000000000000000ull
 };
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -172,7 +179,6 @@ FREE_TMPS_REALLOC_RETURN:
 
 	return res_cnt;
 }
-
 /************************************************************************
  *			digits_to_words(1)				*
  *									*
@@ -188,7 +194,7 @@ size_t digits_to_words(word_t **restrict words,
 
 	if (count < DPWB) {
 		HANDLE_MALLOC(*words, sizeof(word_t));
-		*words[0ul] = digits_to_word(digits,
+		(*words)[0ul] = digits_to_word(digits,
 					     count);
 		return 1ul;
 	}
@@ -199,16 +205,16 @@ size_t digits_to_words(word_t **restrict words,
 
 		digit_t *rem_digits;
 		HANDLE_MALLOC(rem_digits, sizeof(digit_t) * DPWB * 2ul);
-		HANDLE_MALLOC(*words, sizeof(word_t) * 2ul);
+		HANDLE_MALLOC(*words,	  sizeof(word_t) * 2ul);
 
 		const size_t rem_cnt = word_div_rem(rem_digits,
 						    &(*words)[1ul],
-						    &WORD_BASE_DIGITS[0ul],
 						    digits,
-						    DPWB,
-						    count);
+						    &WORD_BASE_DIGITS[0ul],
+						    count,
+						    DPWB);
 
-		*words[0ul] = digits_to_word(rem_digits,
+		(*words)[0ul] = digits_to_word(rem_digits,
 					     rem_cnt);
 
 		free(rem_digits);
@@ -279,6 +285,32 @@ size_t digits_to_words(word_t **restrict words,
 
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+/*
+ * given digit_t arrays 'dividend' and 'quotient', calculates 'divisor' and
+ * 'remainder' s.t.
+ *
+ * quotient * divisor + remainder = dividend
+ *
+ * sets 'remainder' and 'divisor' and returns count(remainder);
+ *
+ * input conditions:
+ *	1. quotient <= dividend <= quotient * WORD_MAX
+ *	2. remainder has plenty memory allocation
+ */
+size_t word_div_rem(digit_t *restrict remainder,
+		    word_t *restrict divisor,
+		    const digit_t *restrict dividend,
+		    const digit_t *restrict quotient,
+		    const size_t dvd_count,
+		    const size_t quo_count)
+{
+	/* word_t div_est = estimate_divisor(dvd_count - quo_count, */
+	/* 				  dividend[dvd_count - 1ul], */
+	/* 				  quotient[quo_count - 1ul]); */
+
+}
+
 /*
  * Karatsuba multiplication:
  *
@@ -820,5 +852,18 @@ inline word_t digits_to_word(const digit_t *restrict digits,
 	}
 
 	return word;
+}
+
+inline word_t estimate_divisor(const size_t delta_mag,
+			       const digit_t dvd_lead,
+			       const digit_t quo_lead)
+{
+	if (quo_lead > dvd_lead) {
+		return ((word_t) ((dvd_lead * 10u / quo_lead))
+		     * TEN_POW_MAP[delta_mag - 1ul];
+	} else {
+		return ((word_t) (dvd_lead / quo_lead))
+		     * TEN_POW_MAP[delta_mag];
+	}
 }
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
