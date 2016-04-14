@@ -204,7 +204,7 @@ size_t digits_to_words(word_t **restrict words,
 	if (half_count < DPWB) {
 
 		digit_t *rem_digits;
-		HANDLE_MALLOC(rem_digits, sizeof(digit_t) * DPWB * 2ul);
+		HANDLE_MALLOC(rem_digits, sizeof(digit_t) * DPWB);
 		HANDLE_MALLOC(*words,	  sizeof(word_t) * 2ul);
 
 		const size_t rem_cnt = word_div_rem(rem_digits,
@@ -287,27 +287,63 @@ size_t digits_to_words(word_t **restrict words,
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 /*
- * given digit_t arrays 'dividend' and 'quotient', calculates 'divisor' and
- * 'remainder' s.t.
+ * long division:
  *
- * quotient * divisor + remainder = dividend
+ * given digit_t arrays 'dvd' (dividend) and 'quo' (quotient), calculates 'div'
+ * (divisor) and 'rem' (remainder) s.t.
  *
- * sets 'remainder' and 'divisor' and returns count(remainder);
+ * quo * div + rem = dvd
+ *
+ * sets 'rem' and 'div' and returns count(rem);
  *
  * input conditions:
- *	1. quotient <= dividend <= quotient * WORD_MAX
- *	2. remainder has plenty memory allocation
+ *	1. quo <= dvd <= quo * WORD_MAX
+ *	2. sizeof(rem) >= sizeof(dvd)
  */
-size_t word_div_rem(digit_t *restrict remainder,
-		    word_t *restrict divisor,
-		    const digit_t *restrict dividend,
-		    const digit_t *restrict quotient,
+size_t word_div_rem(digit_t *restrict rem,
+		    word_t *restrict div,
+		    const digit_t *restrict dvd,
+		    const digit_t *restrict quo,
 		    const size_t dvd_count,
 		    const size_t quo_count)
 {
-	word_t div_est = estimate_divisor(dvd_count - quo_count,
-					  dividend[dvd_count - 1ul],
-					  quotient[quo_count - 1ul]);
+	/* word_t div_est = estimate_divisor(dvd_count - quo_count, */
+	/* 				  div[dvd_count - 1ul], */
+	/* 				  quo[quo_count - 1ul]); */
+
+
+	memcpy(rem,
+	       dvd,
+	       sizeof(digit_t) * dvd_count);
+
+	const digit_t quo_lead = quo[quo_count - 1ul];
+
+	const size_t quo_ceil_mag = quo_count + 1ul;
+
+	size_t i = quo_count - dvd_count;
+
+	word_t word_acc = 0ull;
+
+	word_t word_mag;
+
+	digit_t rem_lead;
+	size_t rem_cnt;
+	size_t j;
+
+
+	while (1) {
+
+		rem_lead = rem[i];
+
+		if (quo_lead > rem_lead) {
+			rem_cnt = quo_ceil_mag;
+
+
+			--i;
+
+		}
+
+	}
 
 }
 
@@ -779,10 +815,10 @@ size_t increment_digits(digit_t *restrict digits1,
 
 /*
  * sets 'res_digits' to the product of 'digits' and 'word' and returns count
+ *
  * input conditions:
  *	1. word > 0
  */
-
 size_t multiply_digits_by_word(digit_t *restrict res_digits,
 			       const digit_t *restrict digits,
 			       const size_t count,
@@ -810,6 +846,36 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 	}
 
 	return i;
+}
+
+/*
+ * sets 'res_digits' to the product of 'digits' and 'digit' and returns count
+ *
+ * input conditions:
+ *	1. digit > 0
+ *	2. sizeof(res_digits) > sizeof(digits)
+ */
+size_t multiply_digits_by_digit(digit_t *restrict res_digits,
+			       const digit_t *restrict digits,
+			       const size_t count,
+			       digit_t digit)
+{
+
+	digit_t buffer = digits[0ul] * digit;
+
+	res_digits[0ul] = buffer % 10u;
+	res_digits[1ul] = buffer / 10u;
+
+	size_t i = 1ul;
+
+	while (i < count) {
+		buffer = digits[i] * digit;
+		res_digits[i] += buffer % 10u;
+		++i;
+		res_digits[i]  = buffer / 10u;
+	}
+
+	return (buffer > 9u) ? (i + 1lu) : i;
 }
 
 

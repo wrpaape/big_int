@@ -29,6 +29,11 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 			       const size_t count,
 			       word_t word);
 
+size_t multiply_digits_by_digit(digit_t *restrict res_digits,
+			       const digit_t *restrict digits,
+			       const size_t count,
+			       digit_t digit);
+
 size_t increment_digits(digit_t *restrict digits1,
 			const digit_t *restrict digits2,
 			const size_t count1,
