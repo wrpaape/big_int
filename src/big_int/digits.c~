@@ -290,44 +290,49 @@ size_t digits_to_words(word_t **restrict words,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-struct DCell *digits_mult_map(const digit_t *restrict base,
+#define PUT_MULT(i)							\
+do {									\
+	mult_map[i].digits = &mult_map[i - 1ul].digits[buff_cnt];	\
+	mult_map[i].count  = add_digits(mult_map[i].digits,		\
+					mult_map[i - 1ul].digits,	\
+					digits,				\
+					mult_map[i - 1ul].count,	\
+					count);				\
+
+} while (0)
+struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count)
 {
-
-
 	const size_t buff_cnt  = count + 1ul;
 	const size_t buff_size = sizeof(digit_t) * buff_cnt;
 
 	struct DCell *mult_map;
 
-	HANDLE_MALLOC(mult_map, sizeof(struct DCell) * 10ul);
-
+	HANDLE_MALLOC(mult_map,  sizeof(struct DCell) * 10ul);
 	HANDLE_MALLOC(mult_map[0ul].digits, buff_size * 10ul);
 
-
 	mult_map[0ul].digits[0ul] = 0u;
-	mult_map[0ul].count	  = 1u;
+	mult_map[0ul].count	  = 1ul;
 
-	prev = next + buff_cnt;
-
-	memcpy(digits,
-	       base,
+	mult_map[1ul].digits = &mult_map[0ul].digits[buff_cnt];
+	mult_map[1ul].count  = count;
+	memcpy(mult_map[1ul].digits,
+	       digits,
 	       buff_size - sizeof(digit_t));
 
-	mult_map[1ul].digits = digits;
-	mult_map[1ul].count  = count;
+	mult_map[2ul].digits = &mult_map[1ul].digits[buff_cnt];
+	mult_map[2ul].count  = add_digits(mult_map[2ul].digits,
+					  digits,
+					  digits,
+					  count,
+					  count);
 
-
-	digits += buff_cnt;
-
-
-
-	mult_map[2ul].count = multiply_digits_by_digit(mult_map[i].digits,
-						     )
-
+	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul);
+	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul);
 
 	return mult_map;
 }
+#undef PUT_MULT
 
 /*
  * long division:
@@ -353,11 +358,6 @@ size_t word_div_rem(digit_t *restrict rem,
 	/* word_t div_est = estimate_divisor(dvd_count - quo_count, */
 	/* 				  div[dvd_count - 1ul], */
 	/* 				  quo[quo_count - 1ul]); */
-
-
-
-
-	while ()
 
 	memcpy(rem,
 	       dvd,
