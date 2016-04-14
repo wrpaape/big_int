@@ -69,8 +69,23 @@ static inline void set_zero_padded_word_base(digit_t *restrict base,
 static inline size_t word_to_digits(digit_t *restrict digits,
 				    word_t word);
 
-static inline size_t digits_to_word(const digit_t *restrict digits,
+static inline size_t digits_to_word(digit_t *restrict digits,
 				    const size_t count);
+
+inline size_t digits_to_word(digit_t *restrict digits,
+			     const size_t count)
+{
+	word_t word     = (word_t) digits[0ul];
+	word_t word_acc = 10ull;
+
+	for (size_t i = 1ul; i < count; ++i) {
+		word     += (((word_t) digits[i]) * word_acc);
+		word_acc *= 10ull;
+	}
+
+	return word;
+
+}
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
