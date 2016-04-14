@@ -34,6 +34,10 @@ static const word_t TEN_POW_MAP[DPWB - 1ul] = {
 	100000000000000000ull, 1000000000000000000ull, 10000000000000000000ull
 };
 
+static const digit_t MAX_CARRY_MAP[] = {
+	0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 8u
+};
+
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 
@@ -286,6 +290,45 @@ size_t digits_to_words(word_t **restrict words,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+struct DCell *digits_mult_map(const digit_t *restrict base,
+			      const size_t count)
+{
+
+
+	const size_t buff_cnt  = count + 1ul;
+	const size_t buff_size = sizeof(digit_t) * buff_cnt;
+
+	struct DCell *mult_map;
+
+	HANDLE_MALLOC(mult_map, sizeof(struct DCell) * 10ul);
+
+	HANDLE_MALLOC(mult_map[0ul].digits, buff_size * 10ul);
+
+
+	mult_map[0ul].digits[0ul] = 0u;
+	mult_map[0ul].count	  = 1u;
+
+	prev = next + buff_cnt;
+
+	memcpy(digits,
+	       base,
+	       buff_size - sizeof(digit_t));
+
+	mult_map[1ul].digits = digits;
+	mult_map[1ul].count  = count;
+
+
+	digits += buff_cnt;
+
+
+
+	mult_map[2ul].count = multiply_digits_by_digit(mult_map[i].digits,
+						     )
+
+
+	return mult_map;
+}
+
 /*
  * long division:
  *
@@ -312,13 +355,17 @@ size_t word_div_rem(digit_t *restrict rem,
 	/* 				  quo[quo_count - 1ul]); */
 
 
+
+
+	while ()
+
 	memcpy(rem,
 	       dvd,
 	       sizeof(digit_t) * dvd_count);
 
 	const digit_t quo_lead = quo[quo_count - 1ul];
 
-	const size_t quo_ceil_mag = quo_count + 1ul;
+	const size_t quo_ceil_cnt = quo_count + 1ul;
 
 	size_t i = quo_count - dvd_count;
 
@@ -326,6 +373,7 @@ size_t word_div_rem(digit_t *restrict rem,
 
 	word_t word_mag;
 
+	digit_t quo_digit;
 	digit_t rem_lead;
 	size_t rem_cnt;
 	size_t j;
@@ -336,9 +384,8 @@ size_t word_div_rem(digit_t *restrict rem,
 		rem_lead = rem[i];
 
 		if (quo_lead > rem_lead) {
-			rem_cnt = quo_ceil_mag;
-
-
+			rem_cnt   = quot_ceil_cnt;
+			quo_digit = rem_lead * 10u / quo_lead;
 			--i;
 
 		}
@@ -918,6 +965,12 @@ inline word_t digits_to_word(const digit_t *restrict digits,
 	}
 
 	return word;
+}
+
+inline void free_digits_mult_map(struct DCell *mult_map)
+{
+	free(mult_map[0ul].digits);
+	free(mult_map);
 }
 
 inline word_t estimate_divisor(const size_t delta_mag,

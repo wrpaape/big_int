@@ -33,7 +33,7 @@ struct BigInt {
 	word_t *words;
 };
 
-struct DCell {
+struct DigitCell {
 	digit_t *digits;
 	size_t count;
 };
