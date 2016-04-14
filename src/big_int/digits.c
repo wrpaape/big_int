@@ -23,8 +23,8 @@
 
 static const digit_t WORD_BASE_DIGITS[] = {
 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
-	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u,
-	[DPWB ... NEXT_POW_TWO_DPWB] = 0u
+	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
+	/* [DPWB ... NEXT_POW_TWO_DPWB] = 0u */
 };
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -50,8 +50,8 @@ static const digit_t WORD_BASE_DIGITS[] = {
  * returns count.							*
  ************************************************************************/
 
-size_t words_to_digits(digit_t **digits,
-		       word_t *words,
+size_t words_to_digits(digit_t **restrict digits,
+		       const word_t *restrict words,
 		       const size_t count)
 {
 	if (count == 1ul) {
@@ -84,19 +84,38 @@ size_t words_to_digits(digit_t **digits,
 
 	const size_t buff_size = sizeof(digit_t) * buff_alloc;
 
-	const size_t base_pad  =  buff_size - (sizeof(digit_t) * DPWB);
-
-	const size_t buff_pad  =  buff_size - (sizeof(digit_t) * DPWB_SQ);
 
 	digit_t *res_digits;
-	digit_t *base;
-	digit_t *tmp;
 
 	HANDLE_MALLOC(res_digits, buff_size);
-	HANDLE_MALLOC(base,	  buff_size * 3ul);
 
+	size_t res_cnt = word_to_digits(res_digits,
+					words[0ul]);
+
+	digit_t *mlt_buff;
+
+	HANDLE_MALLOC(mlt_buff,	  buff_size * 3ul);
+
+	size_t buff_cnt = multiply_digits_by_word(mlt_buff,
+						  &WORD_BASE_DIGITS[0ul],
+						  DPWB,
+						  words[1ul]);
+
+	res_cnt = increment_digits(res_digits,
+				   mlt_buff,
+				   res_cnt,
+				   buff_cnt);
+
+	if (count == 2ul)
+		goto FREE_TMPS_REALLOC_RETURN;
+
+
+	digit_t *base	  = &mlt_buff[buff_alloc];
 	digit_t *base_acc = &base[buff_alloc];
-	digit_t *mlt_buff = &base_acc[buff_alloc];
+	digit_t *tmp;
+
+	const size_t base_pad = buff_size - (sizeof(digit_t) * DPWB);
+	const size_t buff_pad = buff_size - (sizeof(digit_t) * DPWB_SQ);
 
 	set_zero_padded_word_base(base,
 				  base_pad);
@@ -107,15 +126,19 @@ size_t words_to_digits(digit_t **digits,
 	       0,
 	       buff_pad);
 
-	size_t res_cnt = word_to_digits(res_digits,
-					words[0ul]);
-	size_t acc_cnt = DPWB;
-	size_t buff_cnt;
+	size_t acc_cnt = do_multiply_digits(mlt_buff,
+					    base_acc,
+					    base,
+					    NEXT_POW_TWO_DPWB);
 
-	size_t i = 2ul;
-	word_t word = words[1ul];
+	size_t i = 3ul;
+	word_t word = words[2ul];
 
 	while (1) {
+		tmp = base_acc;
+		base_acc = mlt_buff;
+		mlt_buff = tmp;
+
 		if (word == 0ull)
 			goto NEXT_WORD;
 
@@ -138,12 +161,11 @@ NEXT_WORD:
 					     base_acc,
 					     base,
 					     next_pow_two(acc_cnt));
-		tmp = base_acc;
-		base_acc = mlt_buff;
-		mlt_buff = tmp;
 	}
 
-	free(base);
+FREE_TMPS_REALLOC_RETURN:
+
+	free(mlt_buff);
 
 	HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 
@@ -159,8 +181,8 @@ NEXT_WORD:
  * (word_t array) of the integer value of digit_t array 'digits' and	*
  * returns count.							*
  ************************************************************************/
-size_t digits_to_words(word_t **words,
-		       digit_t *digits,
+size_t digits_to_words(word_t **restrict words,
+		       const digit_t *restrict digits,
 		       const size_t count)
 {
 	/* size_t i; */
@@ -265,8 +287,8 @@ size_t digits_to_words(word_t **words,
  *	3. digits at indices >= count are zeroed
  */
 size_t do_multiply_digits(digit_t *restrict res_digits,
-			  digit_t *restrict digits1,
-			  digit_t *restrict digits2,
+			  const digit_t *restrict digits1,
+			  const digit_t *restrict digits2,
 			  const size_t count)
 {
 	if (count == 1ul) {
@@ -392,8 +414,8 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
  * input conditions:
  */
 bool add_split_digits(digit_t *restrict res_digits,
-		      digit_t *restrict lower,
-		      digit_t *restrict upper,
+		      const digit_t *restrict lower,
+		      const digit_t *restrict upper,
 		      const size_t count)
 {
 	bool carry;
@@ -439,8 +461,8 @@ bool add_split_digits(digit_t *restrict res_digits,
  *	1. digits1 * 10ⁿ >= digits2
  */
 size_t add_poly_pair(digit_t *restrict res_digits,
-		     digit_t *restrict digits1,
-		     digit_t *restrict digits2,
+		     const digit_t *restrict digits1,
+		     const digit_t *restrict digits2,
 		     const size_t count1,
 		     const size_t count2,
 		     const size_t n)
@@ -499,8 +521,8 @@ size_t add_poly_pair(digit_t *restrict res_digits,
  *	1. digits1 >= digits2
  */
 size_t subtract_digits(digit_t *restrict res_digits,
-		       digit_t *restrict digits1,
-		       digit_t *restrict digits2,
+		       const digit_t *restrict digits1,
+		       const digit_t *restrict digits2,
 		       const size_t count1,
 		       const size_t count2)
 {
@@ -588,8 +610,8 @@ size_t subtract_digits(digit_t *restrict res_digits,
  *	1. count1 >= count2
  * */
 size_t add_digits(digit_t *restrict res_digits,
-		  digit_t *restrict digits1,
-		  digit_t *restrict digits2,
+		  const digit_t *restrict digits1,
+		  const digit_t *restrict digits2,
 		  const size_t count1,
 		  const size_t count2)
 {
@@ -659,7 +681,7 @@ size_t add_digits(digit_t *restrict res_digits,
  * count2 >= count1
  */
 size_t increment_digits(digit_t *restrict digits1,
-			digit_t *restrict digits2,
+			const digit_t *restrict digits2,
 			const size_t count1,
 			const size_t count2)
 {
@@ -727,7 +749,7 @@ size_t increment_digits(digit_t *restrict digits1,
  */
 
 size_t multiply_digits_by_word(digit_t *restrict res_digits,
-			       digit_t *restrict digits,
+			       const digit_t *restrict digits,
 			       const size_t count,
 			       word_t word)
 {
@@ -756,7 +778,7 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 }
 
 
-inline void set_zero_padded_word_base(digit_t *base,
+inline void set_zero_padded_word_base(digit_t *restrict base,
 				      const size_t pad_size)
 {
 	memcpy(base,
@@ -769,7 +791,7 @@ inline void set_zero_padded_word_base(digit_t *base,
 }
 
 
-inline size_t word_to_digits(digit_t *digits,
+inline size_t word_to_digits(digit_t *restrict digits,
 			     word_t word)
 {
 	size_t i = 0ul;
