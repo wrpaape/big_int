@@ -300,6 +300,37 @@ do {									\
 					count);				\
 	mult_map[i].digits[mult_map[i].count] = 0u;			\
 } while (0)
+
+
+/*
+ * Hard-wired helper for 'word_div_rem'.
+ *
+ * Builds a structure housing the first 9 multiples of a multi-digit
+ * integer, 'digits', designed for convienient lookup according to:
+ *
+ *	1. count
+ *	2. lead digit
+ *	3. second digit
+ *
+ * For instance, input parameters
+ *
+ *	digits = {9, 9, 1}, count =  3
+ *
+ * representing the integer '199' would yield 9 'MultNodes' according to the
+ * products:
+ *			mult	digits		count
+ *	199	→	1	{9, 9, 1}	3
+ *	398  	→	2	{8, 9, 3}	3
+ *	597  	→	3	{7, 9, 5}	3
+ *	796  	→	4	{6, 9, 7}	3
+ *	995  	→	5	{5, 9, 9}	3
+ *	1194 	→	6	{4, 9, 1, 1}	4
+ *	1394 	→	7	{4, 9, 3, 1}	4
+ *	1592 	→	8	{2, 9, 5, 1}	4
+ *	1791 	→	9	{1, 9, 7, 1}	4
+ *
+ *
+ */
 struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count)
 {
@@ -407,7 +438,7 @@ size_t word_div_rem(digit_t *restrict rem,
 			mult_cnt = mult_map[div_digit].count;
 		}
 
-		decrement_remainder(rem,
+		bool decrement_remainder(rem,
 				    mult_map[div_digit].digits,
 				    rem_cnt);
 

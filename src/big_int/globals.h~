@@ -39,7 +39,7 @@ struct DCell {
 };
 
 struct MultNode {
-	digit_t mult;
+	digit_t multiple;
 	digit_t *digits;
 	size_t count;
 	struct DMTrieNode *prev;

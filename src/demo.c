@@ -11,16 +11,6 @@ int main(void)
 	struct DCell *mult_map = digits_mult_map(&test_quo[0ul],
 						 4ul);
 
-	digit_t div = 2u;
-
-	size_t rem_cnt = dec_rem_by_mult(test_rem,
-					 &div,
-					 mult_map,
-					 4ul);
-
-
-	printf("div: %u\nrem: ", div);
-	for (int j = rem_cnt - 1; j > -1; --j) printf("%u", test_rem[j]);
 
 	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */
 	/* digit_t *digits; */
