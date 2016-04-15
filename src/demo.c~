@@ -1,28 +1,27 @@
 #include <stdio.h>
 #include <limits.h>
 #include "big_int.h"
-#include "big_int/big_digits.h"
+#include "big_int/digits.h"
 
 int main(void)
 {
+	digit_t test_rem[] = {1u, 1u, 1u, 2u};
+	digit_t test_quo[] = {1u, 1u, 1u, 1u};
 
-	digit_t test_digits[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
-	struct DCell *mult_map = digits_mult_map(&test_digits[0ul],
-						 10ul);
+	struct DCell *mult_map = digits_mult_map(&test_quo[0ul],
+						 4ul);
 
-	size_t count;
-	digit_t *digits;
+	digit_t div = 2u;
 
-	for (size_t i = 0ul; i < 10ul; i++) {
+	size_t rem_cnt = dec_rem_by_mult(test_rem,
+					 &div,
+					 mult_map,
+					 4ul);
 
-		count  = mult_map[i].count;
-		digits = mult_map[i].digits;
 
-		printf("\nmult_map[%zu].count  = %zu\n"
-		       "mult_map[%zu].digits = ", i, count, i);
+	printf("div: %u\nrem: ", div);
+	for (int j = rem_cnt - 1; j > -1; --j) printf("%u", test_rem[j]);
 
-		for (int j = count - 1; j > -1; --j) printf("%u", digits[j]);
-	}
 	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */
 	/* digit_t *digits; */
 	/* words_to_digits(&digits, &words[0ull], 4ul); */
