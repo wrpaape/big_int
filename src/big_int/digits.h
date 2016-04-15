@@ -39,11 +39,6 @@ size_t increment_digits(digit_t *restrict digits1,
 			const size_t count1,
 			const size_t count2);
 
-size_t decrement_digits(digit_t *restrict digits1,
-			const digit_t *restrict digits2,
-			const size_t count1,
-			const size_t count2);
-
 size_t do_multiply_digits(digit_t *restrict res_digits,
 			  const digit_t *restrict digits1,
 			  const digit_t *restrict digits2,
@@ -85,10 +80,9 @@ struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count);
 
 
-size_t dec_rem_by_mult(digit_t *restrict rem,
-		       digit_t *div,
-		       struct DCell *mult_map,
-		       size_t rem_cnt);
+bool decrement_remainder(digit_t *restrict rem,
+			 const digit_t *restrict mult,
+			 const size_t count);
 
 
 static inline void set_zero_padded_word_base(digit_t *restrict base,

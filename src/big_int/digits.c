@@ -397,48 +397,41 @@ size_t word_div_rem(digit_t *restrict rem,
 			div_digit = rem_lead / quo_lead;
 		}
 
-		rem_cnt = dec_rem_by_mult(&rem[i],
-					  &div_digit,
-					  mult_map,
-					  rem_cnt);
+
+
+
+		size_t mult_cnt = mult_map[div_digit].count;
+
+		if (mult_cnt > rem_cnt) {
+			--div_digit;
+			mult_cnt = mult_map[div_digit].count;
+		}
+
+		decrement_remainder(rem,
+				    mult_map[div_digit].digits,
+				    rem_cnt);
+
+
 
 	}
 
 }
 
 /*
- * decrements 'digits1' by 'digits2' and returns count
+ * decrements 'rem' by 'mult' and returns carry
  *
  * input conditions:
- * digits2 <= digits1
- */
-size_t decrement_digits(digit_t *restrict digits1,
-			const digit_t *restrict digits2,
-			const size_t count1,
-			const size_t count2)
+ *
+ * 1. mult's count <= count == rem's count
+/* 2. 'rem' and 'mult' have zero-padded upper digits */
+
+bool decrement_remainder(digit_t *restrict rem,
+			 const digit_t *restrict mult,
+			 const size_t count)
 {
-}
-
-/* TODO: clean up lots of unneccessary steps, redundancy */
-/* 'rem' and 'mult' have zero-padded upper digits */
-size_t dec_rem_by_mult(digit_t *restrict rem,
-		       digit_t *div,
-		       struct DCell *mult_map,
-		       size_t rem_cnt)
-{
-	size_t mult_cnt = mult_map[*div].count;
-
-	if (mult_cnt > rem_cnt) {
-		--(*div);
-		mult_cnt = mult_map[*div].count;
-	}
-
-	digit_t *mult = mult_map[*div].digits;
 
 	bool carry;
-
 	digit_t buffer = NINES_COMP[rem[0ul]] + mult[0ul];
-
 	size_t i;
 
 	if (buffer > 9u) {
@@ -449,7 +442,7 @@ size_t dec_rem_by_mult(digit_t *restrict rem,
 		carry	 = false;
 	}
 
-	for (i = 1ul; i < mult_cnt; ++i) {
+	for (i = 1ul; i < count; ++i) {
 		buffer = NINES_COMP[rem[i]] + mult[i];
 
 		if (carry) {
@@ -469,33 +462,7 @@ size_t dec_rem_by_mult(digit_t *restrict rem,
 		}
 	}
 
-	/* when 'mult' has 1 less digit than remainder 'rem' */
-	if (i < rem_cnt && carry) {
-		--rem[i];
-	}
-
-
-	while (1) {
-		if (i == 1u) {
-			rem_cnt = 1u;
-			break;
-		}
-
-		--i;
-
-		if (rem[i] > 0u) {
-			rem_cnt = i + 1u;
-			break;
-		}
-	}
-
-	if (carry) {
-		digit_t result[rem_cnt];
-
-		rem_cnt = sub
-	}
-
-	return rem_cnt;
+	return carry;
 }
 
 /*
