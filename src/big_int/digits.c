@@ -26,7 +26,7 @@ static const digit_t WORD_BASE_DIGITS[] = {
 	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
 };
 
-static const word_t TEN_POW_MAP[DPWB - 1ul] = {
+static const word_t TEN_POW_MAP[DPWB] = {
 	1ull, 10ull, 100ull, 1000ull, 10000ull, 100000ull, 1000000ull,
 	10000000ull, 100000000ull, 1000000000ull, 10000000000ull,
 	100000000000ull, 1000000000000ull, 10000000000000ull,
@@ -245,38 +245,38 @@ size_t digits_to_words(word_t **restrict words,
 
 
 
-	const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t);
+	/* const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t); */
 
-	size_t *bit_counts;
-	digit_t *base;
-	digit_t *base_acc;
-	digit_t *mlt_buff;
-	digit_t *bit_digits;
-	digit_t *tmp;
+	/* size_t *bit_counts; */
+	/* digit_t *base; */
+	/* digit_t *base_acc; */
+	/* digit_t *mlt_buff; */
+	/* digit_t *bit_digits; */
+	/* digit_t *tmp; */
 
-	size_t acc_cnt = DPWB;
+	/* size_t acc_cnt = DPWB; */
 
-	HANDLE_MALLOC(bit_counts, sizeof(size_t) * res_alloc);
+	/* HANDLE_MALLOC(bit_counts, sizeof(size_t) * res_alloc); */
 
-	HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4ul);
+	/* HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4ul); */
 
-	base_acc   = &base[buff_alloc];
-	mlt_buff   = &base_acc[buff_alloc];
-	bit_digits = &mlt_buff[buff_alloc];
+	/* base_acc   = &base[buff_alloc]; */
+	/* mlt_buff   = &base_acc[buff_alloc]; */
+	/* bit_digits = &mlt_buff[buff_alloc]; */
 
-	bit_digits[0ul] = WORD_BASE_DIGITS;
-	bit_digits[1ul] = WORD_BASE_DIGITS;
+	/* bit_digits[0ul] = WORD_BASE_DIGITS; */
+	/* bit_digits[1ul] = WORD_BASE_DIGITS; */
 
-	set_zero_padded_word_base(base,
-				  size_zeros);
+	/* set_zero_padded_word_base(base, */
+	/* 			  size_zeros); */
 
-	set_zero_padded_word_base(base_acc,
-				  size_zeros);
+	/* set_zero_padded_word_base(base_acc, */
+	/* 			  size_zeros); */
 
-	acc_cnt = do_multiply_digits(mlt_buff,
-				     base_acc,
-				     base,
-				     NEXT_POW_TWO_DPWB);
+	/* acc_cnt = do_multiply_digits(mlt_buff, */
+	/* 			     base_acc, */
+	/* 			     base, */
+	/* 			     NEXT_POW_TWO_DPWB); */
 
 
 
@@ -354,20 +354,22 @@ size_t word_div_rem(digit_t *restrict rem,
 		    word_t *restrict div,
 		    const digit_t *restrict dvd,
 		    const digit_t *restrict quo,
-		    const size_t dvd_count,
-		    const size_t quo_count)
+		    const size_t dvd_cnt,
+		    const size_t quo_cnt)
 {
 	memcpy(rem,
 	       dvd,
-	       sizeof(digit_t) * dvd_count);
+	       sizeof(digit_t) * dvd_cnt);
 
 	struct DCell *mult_map = digits_mult_map(quo,
-						 quo_count);
+						 quo_cnt);
 
 	const size_t qc_minus_one = quo_cnt - 1ul;
 	const size_t qc_plus_one  = quo_cnt + 1ul;
 
-	size_t i = dvd_count - quo_cnt;
+	const digit_t quo_lead = quo[qc_minus_one];
+
+	size_t i = dvd_cnt - quo_cnt;
 	word_t word_acc = 0ull;
 	word_t word_mag;
 	digit_t div_digit;
@@ -386,7 +388,7 @@ size_t word_div_rem(digit_t *restrict rem,
 			--i;
 
 		} else {
-			rem_cnt   = quot_cnt;
+			rem_cnt   = quo_cnt;
 			div_digit = rem_lead / quo_lead;
 		}
 

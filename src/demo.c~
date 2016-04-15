@@ -1,13 +1,31 @@
 #include <stdio.h>
 #include <limits.h>
 #include "big_int.h"
+#include "big_int/big_digits.h"
 
 int main(void)
 {
 
-	word_t words[] = {0ull, 1ull, 0ull, 1ull};
+	digit_t test_digits[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+	struct DCell *mult_map = digits_mult_map(&test_digits[0ul],
+						 10ul);
+
+	size_t count;
 	digit_t *digits;
-	words_to_digits(&digits, &words[0ull], 4ul);
+
+	for (size_t i = 0ul; i < 10ul; i++) {
+
+		count  = mult_map[i].count;
+		digits = mult_map[i].digits;
+
+		printf("\nmult_map[%zu].count  = %zu\n"
+		       "mult_map[%zu].digits = ", i, count, i);
+
+		for (int j = count - 1; j > -1; --j) printf("%u", digits[j]);
+	}
+	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */
+	/* digit_t *digits; */
+	/* words_to_digits(&digits, &words[0ull], 4ul); */
 
 	/* struct BigInt *lmax = init_big_int(LONG_MAX); */
 	/* struct BigInt *res1 = init_big_int(LONG_MAX); */

@@ -73,8 +73,8 @@ size_t word_div_rem(digit_t *restrict remainder,
 		    word_t *restrict divisor,
 		    const digit_t *restrict dividend,
 		    const digit_t *restrict quotient,
-		    const size_t dvd_count,
-		    const size_t quo_count);
+		    const size_t dvd_cnt,
+		    const size_t quo_cnt);
 
 struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count);
