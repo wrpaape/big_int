@@ -80,6 +80,12 @@ struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count);
 
 
+size_t dec_rem_by_mult(digit_t *restrict rem,
+		       digit_t *div,
+		       struct DCell *mult_map,
+		       size_t rem_cnt);
+
+
 static inline void set_zero_padded_word_base(digit_t *restrict base,
 					     const size_t pad_size);
 
@@ -90,10 +96,6 @@ static inline word_t digits_to_word(const digit_t *restrict digits,
 				    const size_t count);
 
 static inline void free_digits_mult_map(struct DCell *mult_map);
-
-static inline word_t estimate_divisor(const size_t delta_mag,
-				      const digit_t dvd_lead,
-				      const digit_t quo_lead);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

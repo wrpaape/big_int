@@ -34,8 +34,8 @@ static const word_t TEN_POW_MAP[DPWB - 1ul] = {
 	100000000000000000ull, 1000000000000000000ull, 10000000000000000000ull
 };
 
-static const digit_t MAX_CARRY_MAP[] = {
-	0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 8u
+static const digit_t NINES_COMP[] = {
+	9u, 8u, 7u, 6u, 5u, 4u, 3u, 2u, 1u, 0u
 };
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -298,12 +298,12 @@ do {									\
 					digits,				\
 					mult_map[i - 1ul].count,	\
 					count);				\
-
+	mult_map[i].digits[mult_map[i].count] = 0u;			\
 } while (0)
 struct DCell *digits_mult_map(const digit_t *restrict digits,
 			      const size_t count)
 {
-	const size_t buff_cnt  = count + 1ul;
+	const size_t buff_cnt  = count + 2ul;
 	const size_t buff_size = sizeof(digit_t) * buff_cnt;
 
 	struct DCell *mult_map;
@@ -319,6 +319,7 @@ struct DCell *digits_mult_map(const digit_t *restrict digits,
 	memcpy(mult_map[1ul].digits,
 	       digits,
 	       buff_size - sizeof(digit_t));
+	mult_map[1ul].digits[count] = 0u;
 
 	mult_map[2ul].digits = &mult_map[1ul].digits[buff_cnt];
 	mult_map[2ul].count  = add_digits(mult_map[2ul].digits,
@@ -326,6 +327,7 @@ struct DCell *digits_mult_map(const digit_t *restrict digits,
 					  digits,
 					  count,
 					  count);
+	mult_map[2ul].digits[mult_map[2ul].count] = 0u;
 
 	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul);
 	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul);
@@ -355,25 +357,20 @@ size_t word_div_rem(digit_t *restrict rem,
 		    const size_t dvd_count,
 		    const size_t quo_count)
 {
-	/* word_t div_est = estimate_divisor(dvd_count - quo_count, */
-	/* 				  div[dvd_count - 1ul], */
-	/* 				  quo[quo_count - 1ul]); */
-
 	memcpy(rem,
 	       dvd,
 	       sizeof(digit_t) * dvd_count);
 
-	const digit_t quo_lead = quo[quo_count - 1ul];
+	struct DCell *mult_map = digits_mult_map(quo,
+						 quo_count);
 
-	const size_t quo_ceil_cnt = quo_count + 1ul;
+	const size_t qc_minus_one = quo_cnt - 1ul;
+	const size_t qc_plus_one  = quo_cnt + 1ul;
 
-	size_t i = quo_count - dvd_count;
-
+	size_t i = dvd_count - quo_cnt;
 	word_t word_acc = 0ull;
-
 	word_t word_mag;
-
-	digit_t quo_digit;
+	digit_t div_digit;
 	digit_t rem_lead;
 	size_t rem_cnt;
 	size_t j;
@@ -381,17 +378,68 @@ size_t word_div_rem(digit_t *restrict rem,
 
 	while (1) {
 
-		rem_lead = rem[i];
+		rem_lead = rem[i + qc_minus_one];
 
 		if (quo_lead > rem_lead) {
-			rem_cnt   = quot_ceil_cnt;
-			quo_digit = rem_lead * 10u / quo_lead;
+			rem_cnt   = qc_plus_one;
+			div_digit = rem_lead * 10u / quo_lead;
 			--i;
 
+		} else {
+			rem_cnt   = quot_cnt;
+			div_digit = rem_lead / quo_lead;
 		}
+
+		rem_cnt = dec_rem_by_mult(&rem[i],
+					  &div_digit,
+					  mult_map,
+					  rem_cnt);
 
 	}
 
+}
+
+size_t dec_rem_by_mult(digit_t *restrict rem,
+		       digit_t *div,
+		       struct DCell *mult_map,
+		       size_t rem_cnt)
+{
+	digit_t *mult	      = mult_map[*div].digits;
+	const size_t mult_cnt = mult_map[*div].count;
+
+	bool carry;
+
+	digit_t buffer = NINES_COMP[rem[0ul]] + mult[0ul];
+
+	if (buffer > 9u) {
+		rem[0ul] = NINES_COMP[10u - buffer];
+		carry = true;
+	} else {
+		rem[0ul] = NINES_COMP[buffer];
+		carry = false;
+	}
+
+	for (size_t i = 1ul; i < mult_cnt; ++i) {
+		buffer = NINES_COMP[rem[i]] + mult[i];
+
+		if (carry) {
+
+			if (buffer > 8u) {
+				rem[i] = NINES_COMP[buffer - 9u];
+
+			} else {
+				rem[i] = NINES_COMP[buffer + 1u];
+				carry = false;
+			}
+
+		} else if (buffer > 9u) {
+
+			rem[i] = NINES_COMP[buffer - 10u];
+			carry = true;
+		}
+	}
+
+	return rem_cnt;
 }
 
 /*
@@ -971,18 +1019,5 @@ inline void free_digits_mult_map(struct DCell *mult_map)
 {
 	free(mult_map[0ul].digits);
 	free(mult_map);
-}
-
-inline word_t estimate_divisor(const size_t delta_mag,
-			       const digit_t dvd_lead,
-			       const digit_t quo_lead)
-{
-	if (quo_lead > dvd_lead) {
-		return ((word_t) ((dvd_lead * 10u / quo_lead))
-		     * TEN_POW_MAP[delta_mag - 1ul];
-	} else {
-		return ((word_t) (dvd_lead / quo_lead))
-		     * TEN_POW_MAP[delta_mag];
-	}
 }
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
