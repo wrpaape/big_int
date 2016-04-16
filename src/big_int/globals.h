@@ -40,15 +40,15 @@ struct MultNode {
 };
 
 struct MultMapKey {
-	size_t i0;
-	size_t i1;
-	size_t i2;
+	size_t i;
+	size_t j;
+	size_t k;
 };
 
 
 struct MultMap {
 	struct MultMapKey keys[2ul];
-	struct MultNode ****counts;
+	struct MultNode ****map;
 	struct MultNode ***leads;
 	struct MultNode **seconds;
 	struct MultNode *nodes;
