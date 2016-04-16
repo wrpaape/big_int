@@ -290,16 +290,6 @@ size_t digits_to_words(word_t **restrict words,
 
 /* HELPER FUNCTION DEFINITIONS ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-#define PUT_MULT(i)							\
-do {									\
-	mult_map[i].digits = &mult_map[i - 1ul].digits[buff_cnt];	\
-	mult_map[i].count  = add_digits(mult_map[i].digits,		\
-					mult_map[i - 1ul].digits,	\
-					digits,				\
-					mult_map[i - 1ul].count,	\
-					count);				\
-	mult_map[i].digits[mult_map[i].count] = 0u;			\
-} while (0)
 
 
 /*
@@ -331,6 +321,16 @@ do {									\
  *
  *
  */
+#define PUT_NODE(i)							\
+do {									\
+	nodes[i].digits = &nodes[i - 1ul].digits[buff_cnt];	\
+	nodes[i].count  = add_digits(nodes[i].digits,		\
+					nodes[i - 1ul].digits,	\
+					digits,				\
+					nodes[i - 1ul].count,	\
+					count);				\
+	nodes[i].digits[nodes[i].count] = 0u;			\
+} while (0)
 struct MultMap *build_mult_map(const digit_t *restrict digits,
 			       const size_t count)
 {
@@ -343,14 +343,15 @@ struct MultMap *build_mult_map(const digit_t *restrict digits,
 	struct MultNode **digit_map;
 	struct MultNode *node_buff;
 	digit_t *digit_buff;
+	size_t mult_cnt;
 	size_t i;
 
 
-	HANDLE_MALLOC(mult_map,  sizeof(struct MultMap));
-	HANDLE_MALLOC(count_map, sizeof(struct MultNode **) * 2ul);
-	HANDLE_MALLOC(digit_map, sizeof(struct MultNode *)  * 200ul);
-	HANDLE_MALLOC(node_buff,	 sizeof(struct MultNode)    * 9ul);
-	HANDLE_MALLOC(digit_buff,	 buff_size		    * 9ul);
+	HANDLE_MALLOC(mult_map,   sizeof(struct MultMap));
+	HANDLE_MALLOC(count_map,  sizeof(struct MultNode **) * 2ul);
+	HANDLE_MALLOC(digit_map,  sizeof(struct MultNode *)  * 220ul);
+	HANDLE_MALLOC(node_buff,  sizeof(struct MultNode)    * 9ul);
+	HANDLE_MALLOC(digit_buff, buff_size		     * 9ul);
 
 	mult_map->count_map  = count_map;
 	mult_map->digit_map  = digit_map;
@@ -358,30 +359,36 @@ struct MultMap *build_mult_map(const digit_t *restrict digits,
 	mult_map->digit_buff = digit_buff;
 
 	for (i = 0ul; i < 20ul; ++i)
-		digit_map[i] = digit_map[10ul * i];
+		digit_map[i] = &digit_map[10ul * i + 20ul];
 
 	count_map[0ul] = digit_map;
-	count_map[1ul] = &digit_map[100ul];
+	count_map[1ul] = &digit_map[10ul];
 
-	/* skipping 0... */
+	/* starting at multiple of 1... */
+
+	memcpy(digit_buff, digits, buff_size - (2 * sizeof(digit_t)));
 
 	node_buff[0ul].mult   = 1u;
-	node_buff[0ul].count  = count;
 	node_buff[0ul].digits = digit_buff;
-	memcpy(digit_buff, digits, buff_size - (2 * sizeof(digit_t)));
+	node_buff[0ul].count  = count;
 	node_buff[0ul].digits[count] = 0u;
 
+	digit_buff = &digit_buff[buff_cnt];
 
-	nodes[1ul].digits = nodes[0ul];
-	nodes[1ul].count  = add_digits(nodes[2ul].digits,
-					  digits,
-					  digits,
-					  count,
-					  count);
-	nodes[2ul].digits[nodes[2ul].count] = 0u;
+	/* multiple of 2... */
 
-	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul);
-	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul);
+	mult_cnt = add_digits(digit_buff, digits, digits, count, count);
+
+	node_buff[1ul].mult   = 2u;
+	node_buff[1ul].digits = digit_buff;
+	node_buff[1ul].count  = mult_cnt;
+	node_buff[1ul].digits[mult_cnt] = 0u;
+
+
+	/* remaining multiples... */
+
+	PUT_NODE(2ul); PUT_NODE(3ul); PUT_NODE(4ul); PUT_NODE(5ul);
+	PUT_NODE(6ul); PUT_NODE(7ul); PUT_NODE(8ul);
 
 
 
