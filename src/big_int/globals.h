@@ -39,11 +39,20 @@ struct MultNode {
 	size_t count;
 };
 
+struct MultMapKey {
+	size_t i0;
+	size_t i1;
+	size_t i2;
+};
+
+
 struct MultMap {
-	struct MultNode ***count_map;
-	struct MultNode **digit_map;
-	struct MultNode *node_buff;
-	digit_t *digit_buff;
+	struct MultMapKey keys[2ul];
+	struct MultNode ****counts;
+	struct MultNode ***leads;
+	struct MultNode **seconds;
+	struct MultNode *nodes;
+	digit_t *digits;
 };
 
 
