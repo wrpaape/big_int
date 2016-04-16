@@ -331,43 +331,99 @@ do {									\
  *
  *
  */
-struct DCell *digits_mult_map(const digit_t *restrict digits,
-			      const size_t count)
+struct MultMap *build_mult_map(const digit_t *restrict digits,
+			       const size_t count)
 {
+
 	const size_t buff_cnt  = count + 2ul;
 	const size_t buff_size = sizeof(digit_t) * buff_cnt;
 
-	struct DCell *mult_map;
+	struct MultMap *mult_map;
+	struct MultNode ***count_map;
+	struct MultNode **digit_map;
+	struct MultNode *node_buff;
+	digit_t *digit_buff;
+	size_t i;
 
-	HANDLE_MALLOC(mult_map,  sizeof(struct DCell) * 10ul);
-	HANDLE_MALLOC(mult_map[0ul].digits, buff_size * 10ul);
 
-	/* TODO: may not need sentinel zero mult or so much zero-padding */
-	memset(mult_map[0ul].digits,
-	       0,
-	       buff_size);
-	mult_map[0ul].count = 1ul;
+	HANDLE_MALLOC(mult_map,  sizeof(struct MultMap));
+	HANDLE_MALLOC(count_map, sizeof(struct MultNode **) * 2ul);
+	HANDLE_MALLOC(digit_map, sizeof(struct MultNode *)  * 200ul);
+	HANDLE_MALLOC(node_buff,	 sizeof(struct MultNode)    * 9ul);
+	HANDLE_MALLOC(digit_buff,	 buff_size		    * 9ul);
 
-	mult_map[1ul].digits = &mult_map[0ul].digits[buff_cnt];
-	mult_map[1ul].count  = count;
-	memcpy(mult_map[1ul].digits,
-	       digits,
-	       buff_size - (2 * sizeof(digit_t)));
-	mult_map[1ul].digits[count] = 0u;
+	mult_map->count_map  = count_map;
+	mult_map->digit_map  = digit_map;
+	mult_map->node_buff  = node_buff;
+	mult_map->digit_buff = digit_buff;
 
-	mult_map[2ul].digits = &mult_map[1ul].digits[buff_cnt];
-	mult_map[2ul].count  = add_digits(mult_map[2ul].digits,
+	for (i = 0ul; i < 20ul; ++i)
+		digit_map[i] = digit_map[10ul * i];
+
+	count_map[0ul] = digit_map;
+	count_map[1ul] = &digit_map[100ul];
+
+	/* skipping 0... */
+
+	node_buff[0ul].mult   = 1u;
+	node_buff[0ul].count  = count;
+	node_buff[0ul].digits = digit_buff;
+	memcpy(digit_buff, digits, buff_size - (2 * sizeof(digit_t)));
+	node_buff[0ul].digits[count] = 0u;
+
+
+	nodes[1ul].digits = nodes[0ul];
+	nodes[1ul].count  = add_digits(nodes[2ul].digits,
 					  digits,
 					  digits,
 					  count,
 					  count);
-	mult_map[2ul].digits[mult_map[2ul].count] = 0u;
+	nodes[2ul].digits[nodes[2ul].count] = 0u;
 
 	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul);
 	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul);
 
+
+
+
+
 	return mult_map;
 }
+
+/* { */
+/* 	const size_t buff_cnt  = count + 2ul; */
+/* 	const size_t buff_size = sizeof(digit_t) * buff_cnt; */
+
+
+/* 	HANDLE_MALLOC(mult_map,  sizeof(struct DCell) * 10ul); */
+/* 	HANDLE_MALLOC(mult_map[0ul].digits, buff_size * 10ul); */
+
+/* 	/1* TODO: may not need sentinel zero mult or so much zero-padding *1/ */
+/* 	memset(mult_map[0ul].digits, */
+/* 	       0, */
+/* 	       buff_size); */
+/* 	mult_map[0ul].count = 1ul; */
+
+/* 	mult_map[1ul].digits = &mult_map[0ul].digits[buff_cnt]; */
+/* 	mult_map[1ul].count  = count; */
+/* 	memcpy(mult_map[1ul].digits, */
+/* 	       digits, */
+/* 	       buff_size - (2 * sizeof(digit_t))); */
+/* 	mult_map[1ul].digits[count] = 0u; */
+
+/* 	mult_map[2ul].digits = &mult_map[1ul].digits[buff_cnt]; */
+/* 	mult_map[2ul].count  = add_digits(mult_map[2ul].digits, */
+/* 					  digits, */
+/* 					  digits, */
+/* 					  count, */
+/* 					  count); */
+/* 	mult_map[2ul].digits[mult_map[2ul].count] = 0u; */
+
+/* 	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul); */
+/* 	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul); */
+
+/* 	return mult_map; */
+/* } */
 #undef PUT_MULT
 
 /*
@@ -397,8 +453,8 @@ size_t word_div_rem(digit_t *restrict rem,
 
 	rem[dvd_cnt] = 0u;
 
-	struct DCell *mult_map = digits_mult_map(quo,
-						 quo_cnt);
+	struct MultMap *mult_map = build_mult_map(quo,
+						  quo_cnt);
 
 	const size_t qc_minus_one = quo_cnt - 1ul;
 	const size_t qc_plus_one  = quo_cnt + 1ul;
@@ -1069,9 +1125,12 @@ inline word_t digits_to_word(const digit_t *restrict digits,
 	return word;
 }
 
-inline void free_digits_mult_map(struct DCell *mult_map)
+inline void free_mult_map(struct MultMap *mult_map)
 {
-	free(mult_map[0ul].digits);
+	free(mult_map->count_map);
+	free(mult_map->digit_map);
+	free(mult_map->node_buff);
+	free(mult_map->digit_buff);
 	free(mult_map);
 }
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

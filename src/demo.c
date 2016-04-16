@@ -8,8 +8,6 @@ int main(void)
 	digit_t test_rem[] = {1u, 1u, 1u, 2u, 0u};
 	digit_t test_quo[] = {1u, 1u, 1u, 1u, 0u};
 
-	struct DCell *mult_map = digits_mult_map(&test_quo[0ul],
-						 4ul);
 
 
 	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */

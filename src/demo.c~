@@ -12,8 +12,6 @@ int main(void)
 						 4ul);
 
 
-
-
 	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */
 	/* digit_t *digits; */
 	/* words_to_digits(&digits, &words[0ull], 4ul); */

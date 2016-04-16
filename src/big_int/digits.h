@@ -76,8 +76,8 @@ size_t word_div_rem(digit_t *restrict remainder,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt);
 
-struct DCell *digits_mult_map(const digit_t *restrict digits,
-			      const size_t count);
+struct MultMap *build_mult_map(const digit_t *restrict digits,
+			       const size_t count);
 
 
 bool decrement_remainder(digit_t *restrict rem,
@@ -94,7 +94,7 @@ static inline size_t word_to_digits(digit_t *restrict digits,
 static inline word_t digits_to_word(const digit_t *restrict digits,
 				    const size_t count);
 
-static inline void free_digits_mult_map(struct DCell *mult_map);
+static inline void free_mult_map(struct MultMap *mult_map);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

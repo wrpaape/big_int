@@ -33,17 +33,17 @@ struct BigInt {
 	word_t *words;
 };
 
-struct DCell {
-	digit_t *digits;
-	size_t count;
-};
-
 struct MultNode {
 	digit_t mult;
 	digit_t *digits;
 	size_t count;
-	struct DMTrieNode *prev;
-	struct DMTrieNode *next;
+};
+
+struct MultMap {
+	struct MultNode ***count_map;
+	struct MultNode **digit_map;
+	struct MultNode *node_buff;
+	digit_t *digit_buff;
 };
 
 
