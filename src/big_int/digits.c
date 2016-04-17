@@ -461,10 +461,13 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	 * pointers greater than base node to the immediate previous valid node
 	 * so as to "round down" accesses to a "floor multiple"...
 	 * ================================================================== */
+
+	int i = 199;
 	do {
 		while (*seconds == NULL) {
-			/* printf("seconds:   %p\n", seconds); */
-			/* fflush(stdout); */
+			printf("i:   %d\n", i);
+			--i;
+			fflush(stdout);
 			*seconds = node;
 			--seconds;
 		}
