@@ -321,17 +321,17 @@ size_t digits_to_words(word_t **restrict words,
  *
  *
  */
-#define SET_NODE(i)							\
+#define SET_NODE(MULT)							\
 do {									\
-	prev	= next;							\
-	next	= &next[buff_cnt];					\
+	prev  = next;							\
+	next += buff_cnt;						\
 	mlt_cnt = add_digits(next, prev, prev, mlt_cnt, mlt_cnt);	\
-	nodes[i].mult   = i + 1u;					\
-	nodes[i].digits = next;						\
-	nodes[i].count  = mlt_cnt;					\
-	next[mlt_cnt]   = 0u;						\
-	key = keys[mlt_cnt & 1ul];					\
-	map[ key.i ][ next[key.j] ][ next[key.k] ] = nodes[i];		\
+	node->mult    = MULT;						\
+	node->digits  = next;						\
+	node->count   = mlt_cnt;					\
+	next[mlt_cnt] = 0u;						\
+	key = keys[mlt_cnt & 1l];					\
+	map[ key.i ][ next[key.j] ][ next[key.k] ] = node;		\
 } while (0)
 struct MultMap *build_mult_map(const digit_t *restrict base,
 			       const size_t count)
@@ -340,20 +340,20 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	const size_t buff_cnt  = count + 2ul;
 	const size_t buff_size = sizeof(digit_t) * buff_cnt;
 
-
 	struct MultMap *mult_map;
 	struct MultMapKey key;
 	struct MultMapKey *key;
 	struct MultNode ****map;
 	struct MultNode ***leads;
+	struct MultNode ***bound_ptr;
 	struct MultNode **seconds;
+	struct MultNode **start_ptr;
 	struct MultNode *node;
+	struct MultNode *base_node;
 	digit_t *prev;
 	digit_t *next;
 	size_t mlt_cnt;
 	size_t i;
-
-
 
 	HANDLE_MALLOC(mult_map, sizeof(struct MultMap));
 	HANDLE_MALLOC(map,	sizeof(struct MultNode ***) * 2ul);
@@ -370,43 +370,49 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 
 	/* cache key indices for multiples having 'count' (less) and 'count + 1'
 	 * (more) digits */
-	const size_t cnt_m1 = count - 1ul;
-	const size_t cnt_m2 = count - 2ul;
+	const ptrdiff_t cnt_m1 = count - 1l;
+	const ptrdiff_t cnt_m2 = count - 2l;
 
 	struct MultMapKey less_key = {
-		.i = 0ul;
+		.i = 0l;
 		.j = cnt_m1;
 		.k = cnt_m2;
 	};
 
 	struct MultMapKey more_key = {
-		.i = 1ul;
+		.i = 1l;
 		.j = count;
 		.k = cnt_m1;
 	};
-	keys = &mult_map->keys[0ul];
 
-	keys[count  & 1ul] = less_key;
-	keys[cnt_m1 & 1ul] = more_key;
+	keys = &mult_map->keys[0l];
 
-	/* hook up pointer blocks */
-	map[0ul] = leads;
-	map[1ul] = &leads[10ul];
+	keys[count  & 1l] = less_key;
+	keys[cnt_m1 & 1l] = more_key;
 
-	for (i = 0ul; i < 10ul; ++i)
-		leads[i] = &seconds[10ul * i];
+	/* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d) array */
+	base_node = node;
+	start_ptr = seconds;
+	bound_ptr = leads + 10l;
+	map[0l] = leads;
+	map[1l] = bound_ptr;
+	bound_ptr += 10l;
 
-	leads   += &leads[10ul];
-	seconds += &seconds[100ul];
+	while (1) {
+		*leads = seconds;
+		++leads;
+		if (leads == bound_ptr) {
+			seconds += 9l; /* set 'seconds' to last valid pointer */
+			break;
+		}
+		seconds += 10l;	/* advance to next valid 10-node block */
+	}
 
-	for (i = 0ul; i < 10ul; ++i)
-		leads[i] = &seconds[10ul * i];
 
 	/* starting with multiple of 1...
 	 * ================================================================== */
-
 	/* copy base into digits buffer 'next' */
-	memcpy(next, base, buff_size - (2 * sizeof(digit_t)));
+	memcpy(next, base, buff_size - (2ul * sizeof(digit_t)));
 
 	/* set fields */
 	node->mult   = 1u;
@@ -416,7 +422,7 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 			      convenient nine's compliment subtraction) */
 
 	/* set base node according to its count, lead digit, and second digit */
-	map[ 0ul ][ next[cnt_m1] ][ next[cnt_m2] ] = node;
+	map[ 0l ][ next[cnt_m1] ][ next[cnt_m2] ] = node;
 
 
 	/* multiple of 2...
@@ -425,70 +431,51 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	/* advance buffer pointers */
 	++node;
 	next += buff_cnt;
-	next = &next[buff_cnt];
 
 	/* calculate base * 2 */
 	mlt_cnt = add_digits(next, base, base, count, count);
 
 	/* set fields */
-	nodes[1ul].mult   = 2u;
-	nodes[1ul].digits = next;
-	nodes[1ul].count  = mlt_cnt;
-	next[mlt_cnt]	  = 0u; /* pad lead */
+	node->mult    = 2u;
+	node->digits  = next;
+	node->count   = mlt_cnt;
+	next[mlt_cnt] = 0u; /* pad lead */
 
 	/* set node */
-	key = keys[mlt_cnt & 1ul];
-	map[ key.i ][ next[key.j] ][ next[key.k] ] = nodes[1ul];
+	key = keys[mlt_cnt & 1l];
+	map[ key.i ][ next[key.j] ][ next[key.k] ] = node;
 
 
 	/* remaining multiples...
 	 * ================================================================== */
-
-	SET_NODE(2ul); SET_NODE(3ul); SET_NODE(4ul); SET_NODE(5ul);
-	SET_NODE(6ul); SET_NODE(7ul); SET_NODE(8ul);
-
+	SET_NODE(3u); SET_NODE(4u); SET_NODE(5u); SET_NODE(6u);
+	SET_NODE(7u); SET_NODE(8u); SET_NODE(9u);
 
 
 
+	/* starting from the last slot in the node buffer 'seconds', set unset
+	 * pointers greater than base node to the immediate previous valid node
+	 * so as to "round down" accesses to a "floor multiple"...
+	 * ================================================================== */
+	do {
+		while (*seconds != node) {
+			*seconds = node;
+			--seconds;
+		}
+
+		--node;
+
+	} while (node > base_node);
+
+	/* set pointers below base node to NULL to signal a base multiple of '0'
+	 * ================================================================== */
+	while (seconds > start_ptr) {
+		*seconds = NULL;
+		--seconds;
+	}
 
 	return mult_map;
 }
-
-
-/* { */
-/* 	const size_t buff_cnt  = count + 2ul; */
-/* 	const size_t buff_size = sizeof(digit_t) * buff_cnt; */
-
-
-/* 	HANDLE_MALLOC(mult_map,  sizeof(struct DCell) * 10ul); */
-/* 	HANDLE_MALLOC(mult_map[0ul].digits, buff_size * 10ul); */
-
-/* 	/1* TODO: may not need sentinel zero mult or so much zero-padding *1/ */
-/* 	memset(mult_map[0ul].digits, */
-/* 	       0, */
-/* 	       buff_size); */
-/* 	mult_map[0ul].count = 1ul; */
-
-/* 	mult_map[1ul].digits = &mult_map[0ul].digits[buff_cnt]; */
-/* 	mult_map[1ul].count  = count; */
-/* 	memcpy(mult_map[1ul].digits, */
-/* 	       digits, */
-/* 	       buff_size - (2 * sizeof(digit_t))); */
-/* 	mult_map[1ul].digits[count] = 0u; */
-
-/* 	mult_map[2ul].digits = &mult_map[1ul].digits[buff_cnt]; */
-/* 	mult_map[2ul].count  = add_digits(mult_map[2ul].digits, */
-/* 					  digits, */
-/* 					  digits, */
-/* 					  count, */
-/* 					  count); */
-/* 	mult_map[2ul].digits[mult_map[2ul].count] = 0u; */
-
-/* 	PUT_MULT(3ul); PUT_MULT(4ul); PUT_MULT(5ul); PUT_MULT(6ul); */
-/* 	PUT_MULT(7ul); PUT_MULT(8ul); PUT_MULT(9ul); */
-
-/* 	return mult_map; */
-/* } */
 #undef PUT_MULT
 
 /*

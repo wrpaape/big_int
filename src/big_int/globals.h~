@@ -40,9 +40,9 @@ struct MultNode {
 };
 
 struct MultMapKey {
-	size_t i;
-	size_t j;
-	size_t k;
+	ptrdiff_t i;
+	ptrdiff_t j;
+	ptrdiff_t k;
 };
 
 
