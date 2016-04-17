@@ -341,32 +341,38 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 
 	struct MultMap *mult_map;
 	struct MultMapKey key;
-	struct MultMapKey *keys;
-	struct MultNode ****map;
-	struct MultNode ***lead;
-	struct MultNode **second;
-	struct MultNode *node;
+	/* struct MultMapKey *keys; */
+	/* struct MultNode ****map; */
+	/* struct MultNode ***lead; */
+	/* struct MultNode **second; */
+	/* struct MultNode *node; */
 	digit_t *prev;
 	digit_t *next;
 	size_t mlt_cnt;
 
 	HANDLE_MALLOC(mult_map, sizeof(struct MultMap));
-	HANDLE_MALLOC(map,	sizeof(struct MultNode ***) * 2ul);
-	HANDLE_MALLOC(lead,     sizeof(struct MultNode **)  * 20ul);
-	HANDLE_MALLOC(second,   sizeof(struct MultNode *)   * 200ul);
-	HANDLE_MALLOC(node,     sizeof(struct MultNode)     * 9ul);
-	HANDLE_MALLOC(next,     buff_size		    * 9ul);
-
-	mult_map->map    = map;
-	mult_map->lead	 = lead;
-	mult_map->second = second;
-	mult_map->nodes  = node;
+	HANDLE_MALLOC(next,     buff_size * 9ul);
 	mult_map->digits = next;
+
+	struct MultMapKey *keys  = &mult_map->keys[0l];
+	struct MultNode ****map  = &mult_map->map[0l];
+	struct MultNode ***lead  = &mult_map->lead[0l];
+	struct MultNode **second = &mult_map->second[0l];
+	struct MultNode *node	 = &mult_map->nodes[0l];
+
+	/* HANDLE_MALLOC(map,	sizeof(struct MultNode ***) * 2ul); */
+	/* HANDLE_MALLOC(lead,     sizeof(struct MultNode **)  * 20ul); */
+	/* HANDLE_MALLOC(second,   sizeof(struct MultNode *)   * 200ul); */
+	/* HANDLE_MALLOC(node,     sizeof(struct MultNode)     * 9ul); */
+
+	/* mult_map->map    = map; */
+	/* mult_map->lead	 = lead; */
+	/* mult_map->second = second; */
+	/* mult_map->nodes  = node; */
 
 	const ptrdiff_t cnt_m1 = count - 1l;
 	const ptrdiff_t cnt_m2 = count - 2l;
 
-	keys = &mult_map->keys[0l];
 
 	/* for digits of 'count' length */
 	key.i = 0l;
@@ -471,13 +477,6 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	printf("diff: %zd\n", second - start_ptr);
 
 	memset(start_ptr, 0, sizeof(struct MultNode *) * (second - start_ptr));
-
-	/* while (second >= start_ptr) { */
-	/* 	printf("second: %p\n",    second); */
-	/* 	printf("start_ptr: %p\n", start_ptr); */
-	/* 	*second = NULL; */
-	/* 	--second; */
-	/* } */
 
 	printf("mult_map->keys: %p\n", mult_map->keys);
 	printf("count & 1: %zd\n", count & 1);
@@ -1293,10 +1292,10 @@ inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 
 inline void free_mult_map(struct MultMap *mult_map)
 {
-	free(mult_map->map);
-	free(mult_map->lead);
-	free(mult_map->second);
-	free(mult_map->nodes);
+	/* free(mult_map->map); */
+	/* free(mult_map->lead); */
+	/* free(mult_map->second); */
+	/* free(mult_map->nodes); */
 	free(mult_map->digits);
 	free(mult_map);
 }
