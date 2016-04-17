@@ -636,19 +636,19 @@ bool decrement_remainder(digit_t *restrict rem,
 			 const size_t count)
 {
 
-	PUTS_DIGITS(rem,  count, "remainder");
-	PUTS_DIGITS(mult, count, "multiple");
+	PUTS_DIGITS(rem,  count, "rem");
+	PUTS_DIGITS(mult, count, "mlt");
 
 	bool carry;
-	digit_t buffer = NINES_COMP[rem[0l]] + mult[0l];
 	ptrdiff_t i;
+	digit_t buffer = NINES_COMP[rem[0l]] + mult[0l];
 
 	if (buffer > 9u) {
 		rem[0l] = NINES_COMP[buffer - 10u];
-		carry	 = true;
+		carry	= true;
 	} else {
 		rem[0l] = NINES_COMP[buffer];
-		carry	 = false;
+		carry	= false;
 	}
 
 	for (i = 1l; i < count; ++i) {
@@ -666,10 +666,15 @@ bool decrement_remainder(digit_t *restrict rem,
 		} else if (buffer > 9u) {
 			rem[i] = NINES_COMP[buffer - 10u];
 			carry  = true;
+		} else {
+			rem[i] = NINES_COMP[buffer];
 		}
 	}
 
-	PUTS_DIGITS(rem,  count, "new rem");
+	PUTS_DIGITS(rem, count, "new");
+	printf("carry: %s\n", carry ? "true" : "false");
+	printf("count: %zu\n", count);
+	sleep(1);
 
 	return carry;
 }
