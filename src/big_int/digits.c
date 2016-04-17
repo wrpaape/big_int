@@ -1277,6 +1277,7 @@ inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 				     const digit_t *restrict digits,
 				     const size_t count)
 {
+	printf("sizeof(mm): %p\n", sizeof(struct MultMap));
 	printf("mult_map->keys: %p\n", mult_map->keys);
 	printf("count & 1: %zd\n", count & 1);
 	printf("mult_map->keys[count & 1].i: %zd\n", mult_map->keys[count & 1].i);
