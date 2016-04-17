@@ -550,24 +550,24 @@ size_t word_div_rem(digit_t *restrict rem,
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
 							    rem_cnt);
+		rem_cnt = correct_digits_count(rem,
+					       rem_cnt);
 
-		i = rem_cnt - 1l;
+		if (mult_greater_than_rem) {
 
-		while (1) {
-			if (rem[i] > 0u) {
-				rem_cnt = i + 1ul;
-				break;
-			}
+			rem_cnt = correct_remainder(rem,
+						    quo,
+						    rem_cnt,
+						    quo_cnt);
 
-			if (i == 1l) {
-				rem_cnt = 1ul;
-				break;
-			}
+			word_acc += ((node->mult + 1ull)
+				     * TEN_POW_MAP[rem - rem_base]);
 
-			--i;
+		} else {
+
+			word_acc += (node->mult *
+				     TEN_POW_MAP[rem - rem_base]);
 		}
-
-		word_acc += (node->mult * TEN_POW_MAP[rem - rem_base]);
 
 
 	}
@@ -580,13 +580,27 @@ size_t word_div_rem(digit_t *restrict rem,
 }
 
 /*
+ * sets 'rem' to the difference 'quo - rem' and returns count
+ *
+ * input conditions:
+ *
+ * 1. rem < quo
+ */
+size_t correct_remainder(digit_t *restrict rem,
+			 const digit_t *restrict quo,
+			 const size_t rem_cnt,
+			 const size_t quo_cnt)
+{
+}
+
+/*
  * decrements 'rem' by 'mult' and returns carry
  *
  * input conditions:
  *
  * 1. mult's count <= count == rem's count
- * 2. 'rem' and 'mult' have zero-padded upper digits */
-
+ * 2. 'rem' and 'mult' have zero-padded upper digits
+ */
 bool decrement_remainder(digit_t *restrict rem,
 			 const digit_t *restrict mult,
 			 const size_t count)
@@ -930,19 +944,9 @@ size_t subtract_digits(digit_t *restrict res_digits,
 		++i;
 	}
 
-	if (i == count1) {
-
-		while (1) {
-			if (i == 1u)
-				return 1u;
-
-			--i;
-
-			if (res_digits[i] > 0u)
-				return i + 1u;
-		}
-	}
-
+	if (i == count1)
+		return correct_digits_count(res_digits,
+					    count1);
 
 	memcpy(&res_digits[i],
 	       &digits1[i],
@@ -1198,6 +1202,22 @@ inline word_t digits_to_word(const digit_t *restrict digits,
 	}
 
 	return word;
+}
+
+inline size_t correct_digits_count(const digit_t *restrict digits,
+				   const size_t init_cnt)
+{
+	ptrdiff_t i = init_cnt - 1l;
+
+	while (1) {
+		if (i < 2l)
+			return 1ul;
+
+		if (digits[i] > 0u)
+			return i + 1ul;
+
+		--i;
+	}
 }
 
 inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
