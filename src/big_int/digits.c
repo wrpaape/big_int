@@ -524,13 +524,15 @@ size_t word_div_rem(digit_t *restrict rem,
 	bool mult_greater_than_rem;
 
 	digit_t *const rem_base = rem;
-	size_t rem_cnt = quo_cnt;
+	size_t rem_cnt;
 
 	ptrdiff_t i;
 
 	rem += (dvd_cnt - quo_cnt);
 
-	while (1) {
+	do {
+		rem_cnt = quo_cnt;
+
 		node = closest_mult(quo_mults,
 				    rem,
 				    rem_cnt);
@@ -554,7 +556,6 @@ size_t word_div_rem(digit_t *restrict rem,
 					       rem_cnt);
 
 		if (mult_greater_than_rem) {
-
 			rem_cnt = correct_remainder(rem,
 						    quo,
 						    rem_cnt,
@@ -564,13 +565,14 @@ size_t word_div_rem(digit_t *restrict rem,
 				     * TEN_POW_MAP[rem - rem_base]);
 
 		} else {
-
-			word_acc += (node->mult *
-				     TEN_POW_MAP[rem - rem_base]);
+			word_acc += (node->mult
+				     * TEN_POW_MAP[rem - rem_base]);
 		}
 
+		rem -= (quo_cnt - rem_cnt);
 
-	}
+	} while (rem >= rem_base);
+
 
 	free_mult_map(quo_mults);
 
@@ -584,13 +586,72 @@ size_t word_div_rem(digit_t *restrict rem,
  *
  * input conditions:
  *
- * 1. rem < quo
+ * 1. rem has plenty of memory
+ * 2. rem < quo
  */
 size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
 			 const size_t rem_cnt,
 			 const size_t quo_cnt)
 {
+	bool carry;
+	digit_t large;
+	digit_t small;
+	ptrdiff_t i;
+
+	large = quo[0l];
+	small = rem[0l];
+
+	if (small > large) {
+		rem[0l] = (10u + large) - small;
+		carry = true;
+	} else {
+		rem[0l] = large - small;
+		carry = false;
+	}
+
+	for (i = 1l; i < rem_cnt; ++i) {
+
+		large = quo[i];
+		small = rem[i];
+
+		if (carry) {
+			if (small >= large) {
+				rem[i] = (9u + large) - small;
+
+			} else {
+				rem[i] = large - (small + 1ul);
+				carry = false;
+			}
+
+		} else if (small > large) {
+			rem[i] = (10u + large) - small;
+			carry = true;
+
+		} else {
+			rem[i] = large - small;
+		}
+	}
+
+	if (carry) {
+		while (quo[i] == 0u) {
+			rem[i] = 9u;
+			++i;
+		}
+
+		rem[i] = quo[i] - 1u;
+		++i;
+	}
+
+	if (i == quo_cnt)
+		return correct_digits_count(rem,
+					    quo_cnt);
+
+	memcpy(&rem[i],
+	       &quo[i],
+	       sizeof(digit_t) * (quo_cnt - i));
+
+	return quo_cnt;
 }
 
 /*
@@ -622,7 +683,6 @@ bool decrement_remainder(digit_t *restrict rem,
 		buffer = NINES_COMP[rem[i]] + mult[i];
 
 		if (carry) {
-
 			if (buffer > 8u) {
 				rem[i] = NINES_COMP[buffer - 9u];
 
@@ -632,7 +692,6 @@ bool decrement_remainder(digit_t *restrict rem,
 			}
 
 		} else if (buffer > 9u) {
-
 			rem[i] = NINES_COMP[buffer - 10u];
 			carry  = true;
 		}
@@ -913,7 +972,6 @@ size_t subtract_digits(digit_t *restrict res_digits,
 		small = digits2[i];
 
 		if (carry) {
-
 			if (small >= large) {
 				res_digits[i] = (9u + large) - small;
 
@@ -922,15 +980,12 @@ size_t subtract_digits(digit_t *restrict res_digits,
 				carry = false;
 			}
 
+		} else if (small > large) {
+			res_digits[i] = (10u + large) - small;
+			carry = true;
+
 		} else {
-
-			if (small > large) {
-				res_digits[i] = (10u + large) - small;
-				carry = true;
-
-			} else {
-				res_digits[i] = large - small;
-			}
+			res_digits[i] = large - small;
 		}
 	}
 
