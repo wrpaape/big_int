@@ -528,7 +528,6 @@ size_t word_div_rem(digit_t *restrict rem,
 		if (mult_greater_than_rem) {
 			rem_cnt = correct_remainder(rem,
 						    quo,
-						    rem_cnt,
 						    quo_cnt);
 
 			word_acc += ((node->mult - 1ull)
@@ -560,25 +559,27 @@ size_t word_div_rem(digit_t *restrict rem,
  */
 size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
-			 const size_t rem_cnt,
 			 const size_t quo_cnt)
 {
+	ptrdiff_t i = quo_cnt - 1l;
+
+	while (rem[i] == 9u) {
+		if (i == 0l)
+			return subtract_digit_from_digits(rem,
+							  quo,
+							  1u,
+							  quo_cnt);
+		--i;
+	}
+
+	const size_t rem_cnt = i + 1ul;
+
 	bool carry;
 	digit_t large;
 	digit_t small;
-	ptrdiff_t i;
-
-	puts("YOLO");
-
-
-	PUTS_DIGITS("rem", rem, rem_cnt);
-	PUTS_DIGITS("quo", quo, quo_cnt);
-	printf("rem_cnt: %zu\n", rem_cnt);
-	printf("quo_cnt: %zu\n", quo_cnt);
-
 
 	large = quo[0l];
-	small = rem[0l];
+	small = NINES_COMP[rem[0l]] + 1u;
 
 	if (small > large) {
 		rem[0l] = (10u + large) - small;
@@ -591,7 +592,7 @@ size_t correct_remainder(digit_t *restrict rem,
 	for (i = 1l; i < rem_cnt; ++i) {
 
 		large = quo[i];
-		small = rem[i];
+		small = NINES_COMP[rem[i]];
 
 		if (carry) {
 			if (small >= large) {
@@ -1266,5 +1267,41 @@ inline void free_mult_map(struct MultMap *mult_map)
 {
 	free(mult_map->digits);
 	free(mult_map);
+}
+
+inline size_t subtract_digit_from_digits(digit_t *restrict res_digits,
+					 const digit_t *restrict digits,
+					 const digit_t digit,
+					 const size_t count)
+{
+	if (digits[0l] > digit) {
+		res_digits[0l] = digits[0l] - digit;
+		memcpy(&res_digits[1l],
+		       &digits[1l],
+		       sizeof(digit_t) * (count - 1ul));
+		return count;
+	}
+
+
+	res_digits[0l] = digits[0l] + 10u - digit;
+
+	ptrdiff_t i = 1l;
+
+	while (digits[i] == 0u) {
+		res_digits[i] = 9u;
+		++i;
+	}
+
+	res_digits[i] = digits[i] - 1u;
+
+	if (i == count)
+		return correct_digits_count(res_digits,
+					    count);
+
+	memcpy(&res_digits[i],
+	       &digits[i],
+	       sizeof(digit_t) * (count - i));
+
+	return count;
 }
 /* HELPER FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

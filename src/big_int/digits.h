@@ -86,7 +86,6 @@ bool decrement_remainder(digit_t *restrict rem,
 
 size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
-			 const size_t rem_cnt,
 			 const size_t quo_cnt);
 
 static inline void set_zero_padded_word_base(digit_t *restrict base,
@@ -106,6 +105,11 @@ static inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 					    const size_t count);
 
 static inline void free_mult_map(struct MultMap *restrict mult_map);
+
+static inline size_t subtract_digit_from_digits(digit_t *restrict res_digits,
+						const digit_t *restrict digits,
+						const digit_t digit,
+						const size_t count);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
