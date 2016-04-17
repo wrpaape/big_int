@@ -382,8 +382,13 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 
 	keys = &mult_map->keys[0l];
 
-	keys[count  & 1] = less_key;
-	keys[cnt_m1 & 1] = more_key;
+
+	memcpy(&keys[count  & 1], &less_key, sizeof(struct MultMapKey));
+	memcpy(&keys[cnt_m1 & 1], &more_key, sizeof(struct MultMapKey));
+
+	/* keys[count  & 1] = less_key; */
+	/* keys[cnt_m1 & 1] = more_key; */
+
 
 	/* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d)
 	 * array, 'map' */
@@ -477,6 +482,13 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 		--second;
 	}
 
+	printf("mult_map->keys: %p\n", mult_map->keys);
+	printf("count & 1: %zd\n", count & 1);
+	printf("mult_map->keys[count & 1].i: %zd\n", mult_map->keys[count & 1].i);
+	printf("mult_map->keys[count & 1].j: %zd\n", mult_map->keys[count & 1].j);
+	printf("mult_map->keys[count & 1].k: %zd\n", mult_map->keys[count & 1].k);
+	fflush(stdout);
+
 	return mult_map;
 }
 #undef PUT_MULT
@@ -516,9 +528,16 @@ size_t word_div_rem(digit_t *restrict rem,
 
 	rem[dvd_cnt] = 0u;
 
+	PUTS_DIGITS(rem, dvd_cnt, "DIVIDEND");
+
+	PUTS_DIGITS(quo, quo_cnt, "QUOTIENT");
+
+
 	word_t word_acc = 0ull;
 
 	rem += (dvd_cnt - quo_cnt);
+
+	PUTS_DIGITS(rem, quo_cnt, "INITIAL REMAINDER");
 
 	do {
 		node = closest_mult(quo_mults,
@@ -537,6 +556,9 @@ size_t word_div_rem(digit_t *restrict rem,
 			rem_cnt = quo_cnt;
 		}
 
+		printf("node->mult: %llu\n", node->mult);
+		PUTS_DIGITS(node->digits, node->count, "node->digits");
+		sleep(1);
 
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
@@ -1240,8 +1262,6 @@ inline word_t digits_to_word(const digit_t *restrict digits,
 	word_t word = (word_t) digits[0l];
 
 	for (ptrdiff_t i = 1l; i < count; ++i) {
-		printf("word: %llu, digit: %u, 10^%zd: %llu\n",
-		       word, digits[i], i, TEN_POW_MAP[i]);
 		word += (((word_t) digits[i]) * TEN_POW_MAP[i]);
 	}
 
@@ -1269,6 +1289,15 @@ inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 				     const size_t count)
 {
 	struct MultMapKey key = mult_map->keys[count & 1];
+
+	printf("sizeof(MultMap): %zu\n", sizeof(struct MultMap));
+	printf("sizeof(ptrdiff_t): %zu\n", sizeof(ptrdiff_t));
+	printf("mult_map->keys: %p\n", mult_map->keys);
+	printf("count & 1: %zd\n", count & 1);
+	printf("mult_map->keys[count & 1].i: %zd\n", mult_map->keys[count & 1].i);
+	printf("mult_map->keys[count & 1].j: %zd\n", mult_map->keys[count & 1].j);
+	printf("mult_map->keys[count & 1].k: %zd\n", mult_map->keys[count & 1].k);
+	fflush(stdout);
 
 	return mult_map->map[ key.i ][ digits[key.j] ][ digits[ key.k ] ];
 }

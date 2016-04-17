@@ -7,13 +7,14 @@ int main(void)
 {
 	const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 	const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
 	word_t *words;
 
 	size_t count = digits_to_words(&words,
-				       &small[0l],
-				       10ul);
+				       &large[0l],
+				       30ul);
 
 	while (count > 0ul) {
 		--count;

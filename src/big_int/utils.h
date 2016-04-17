@@ -20,6 +20,14 @@ do {					\
 	y = __swap_tmp;			\
 } while(0)
 
+#define PUTS_DIGITS(DIGITS, COUNT, LABEL)		\
+do {							\
+	fputs(LABEL ": ", stdout);			\
+	for (ptrdiff_t i = COUNT - 1l; i > -1l; --i)	\
+		putc(DIGITS[i] + '0', stdout);		\
+	putc('\n', stdout);				\
+	fflush(stdout);					\
+} while (0)
 
 /* FUNCTION-LIKE MACROS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
