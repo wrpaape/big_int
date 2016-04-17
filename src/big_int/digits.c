@@ -330,7 +330,6 @@ do {								\
 	mlt_cnt = add_digits(next, prev, base, mlt_cnt, count);	\
 	node->mult    = MULT;					\
 	node->digits  = next;					\
-	node->count   = mlt_cnt;				\
 	next[mlt_cnt] = 0u;					\
 	key = keys[mlt_cnt & 1];				\
 	map[ key.i ][ next[key.j] ][ next[key.k] ] = node;	\
@@ -403,7 +402,6 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	/* set fields */
 	node->mult   = 1ull;
 	node->digits = next;
-	node->count  = count;
 	next[count]  = 0u; /* provide one zero pad above lead digit (for
 			      convenient nine's compliment subtraction) */
 
@@ -424,7 +422,6 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	/* set fields */
 	node->mult    = 2ull;
 	node->digits  = next;
-	node->count   = mlt_cnt;
 	next[mlt_cnt] = 0u; /* pad lead */
 
 	/* set node */
@@ -518,14 +515,13 @@ size_t word_div_rem(digit_t *restrict rem,
 		}
 
 		printf("node->mult: %llu\n", node->mult);
-		PUTS_DIGITS("node->digits", node->digits, node->count);
+		PUTS_DIGITS("node->digits", node->digits, quo_cnt + 1ul);
 		PUTS_DIGITS("remainder   ", rem, rem_cnt);
 		usleep(100000);
 
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
 							    rem_cnt);
-
 		if (mult_greater_than_rem) {
 			rem_cnt = correct_remainder(rem,
 						    quo,
@@ -547,6 +543,10 @@ size_t word_div_rem(digit_t *restrict rem,
 	} while (rem >= rem_base);
 
 	free_mult_map(quo_mults);
+
+	puts("DONE");
+
+	printf("word_acc: %llu\n", word_acc);
 
 	*div = word_acc;
 

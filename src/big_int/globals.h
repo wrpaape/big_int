@@ -37,7 +37,6 @@ struct BigInt {
 struct MultNode {
 	word_t mult;
 	digit_t *digits;
-	size_t count;
 };
 
 struct MultMapKey {
