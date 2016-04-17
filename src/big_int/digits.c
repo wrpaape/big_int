@@ -382,12 +382,11 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 
 	keys = &mult_map->keys[0l];
 
+	/* memcpy(&keys[count  & 1], &less_key, sizeof(struct MultMapKey)); */
+	/* memcpy(&keys[cnt_m1 & 1], &more_key, sizeof(struct MultMapKey)); */
 
-	memcpy(&keys[count  & 1], &less_key, sizeof(struct MultMapKey));
-	memcpy(&keys[cnt_m1 & 1], &more_key, sizeof(struct MultMapKey));
-
-	/* keys[count  & 1] = less_key; */
-	/* keys[cnt_m1 & 1] = more_key; */
+	keys[count  & 1] = less_key;
+	keys[cnt_m1 & 1] = more_key;
 
 
 	/* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d)
@@ -528,16 +527,9 @@ size_t word_div_rem(digit_t *restrict rem,
 
 	rem[dvd_cnt] = 0u;
 
-	PUTS_DIGITS(rem, dvd_cnt, "DIVIDEND");
-
-	PUTS_DIGITS(quo, quo_cnt, "QUOTIENT");
-
-
 	word_t word_acc = 0ull;
 
 	rem += (dvd_cnt - quo_cnt);
-
-	PUTS_DIGITS(rem, quo_cnt, "INITIAL REMAINDER");
 
 	do {
 		node = closest_mult(quo_mults,
@@ -556,9 +548,9 @@ size_t word_div_rem(digit_t *restrict rem,
 			rem_cnt = quo_cnt;
 		}
 
-		printf("node->mult: %llu\n", node->mult);
-		PUTS_DIGITS(node->digits, node->count, "node->digits");
-		sleep(1);
+		/* printf("node->mult: %llu\n", node->mult); */
+		/* PUTS_DIGITS(node->digits, node->count, "node->digits"); */
+		/* sleep(1); */
 
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
@@ -1288,8 +1280,6 @@ inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 				     const digit_t *restrict digits,
 				     const size_t count)
 {
-	struct MultMapKey key = mult_map->keys[count & 1];
-
 	printf("sizeof(MultMap): %zu\n", sizeof(struct MultMap));
 	printf("sizeof(ptrdiff_t): %zu\n", sizeof(ptrdiff_t));
 	printf("mult_map->keys: %p\n", mult_map->keys);
@@ -1298,6 +1288,8 @@ inline struct MultNode *closest_mult(struct MultMap *restrict mult_map,
 	printf("mult_map->keys[count & 1].j: %zd\n", mult_map->keys[count & 1].j);
 	printf("mult_map->keys[count & 1].k: %zd\n", mult_map->keys[count & 1].k);
 	fflush(stdout);
+
+	struct MultMapKey key = mult_map->keys[count & 1];
 
 	return mult_map->map[ key.i ][ digits[key.j] ][ digits[ key.k ] ];
 }

@@ -48,12 +48,12 @@ struct MultMapKey {
 
 
 struct MultMap {
-	struct MultMapKey keys[2ul];
 	struct MultNode ****map;
 	struct MultNode ***lead;
 	struct MultNode **second;
 	struct MultNode *nodes;
 	digit_t *digits;
+	struct MultMapKey keys[2ul];
 };
 
 
