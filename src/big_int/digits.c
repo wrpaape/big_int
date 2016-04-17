@@ -323,7 +323,7 @@ do {									\
 	++node;								\
 	prev  = next;							\
 	next += buff_cnt;						\
-	mlt_cnt = add_digits(next, prev, prev, mlt_cnt, mlt_cnt);	\
+	mlt_cnt = add_digits(next, prev, base, mlt_cnt, count);		\
 	node->mult    = MULT;						\
 	node->digits  = next;						\
 	node->count   = mlt_cnt;					\
@@ -470,9 +470,14 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 		}
 
 		printf("node->mult:  %u\n", node->mult);
-		printf("node->count: %zu\n", node->count);
-		printf("secs->mult:  %u\n", (*seconds)->mult);
-		printf("secs->count: %zu\n", (*seconds)->count);
+		printf("node->count: %zu\n\n", node->count);
+		for (ptrdiff_t i = node->count - 1l; i > -1l; --i)
+			printf("%u", node->digits[i]);
+		printf("\nsecs->mult:  %u\n", (*seconds)->mult);
+		printf("secs->count: %zu\n\n\n", (*seconds)->count);
+		for (ptrdiff_t i = (*seconds)->count - 1l; i > -1l; --i)
+			printf("%u", (*seconds)->digits[i]);
+		puts("\n******");
 		fflush(stdout);
 		sleep(1);
 
