@@ -472,20 +472,21 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 			--seconds;
 		}
 
-		printf("node->mult:  %u\n", node->mult);
-		printf("node->count: %zu\n\n", node->count);
-		for (ptrdiff_t i = node->count - 1l; i > -1l; --i)
-			printf("%u", node->digits[i]);
-		printf("\nsecs->mult:  %u\n", (*seconds)->mult);
-		printf("secs->count: %zu\n\n\n", (*seconds)->count);
-		for (ptrdiff_t i = (*seconds)->count - 1l; i > -1l; --i)
-			printf("%u", (*seconds)->digits[i]);
-		puts("\n******");
-		fflush(stdout);
-		sleep(1);
+/* 		printf("node->mult:  %u\n", node->mult); */
+/* 		printf("node->count: %zu\n\n", node->count); */
+/* 		for (ptrdiff_t i = node->count - 1l; i > -1l; --i) */
+/* 			printf("%u", node->digits[i]); */
+/* 		printf("\nsecs->mult:  %u\n", (*seconds)->mult); */
+/* 		printf("secs->count: %zu\n\n\n", (*seconds)->count); */
+/* 		for (ptrdiff_t i = (*seconds)->count - 1l; i > -1l; --i) */
+/* 			printf("%u", (*seconds)->digits[i]); */
+/* 		puts("\n******"); */
+/* 		fflush(stdout); */
+/* 		sleep(1); */
 
 
 		--node;
+		--seconds;
 
 	} while (node > base_node);
 
