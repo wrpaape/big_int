@@ -37,6 +37,9 @@ static const word_t TEN_POW_MAP[DPWB] = {
 static const digit_t NINES_COMP[] = {
 	9u, 8u, 7u, 6u, 5u, 4u, 3u, 2u, 1u, 0u
 };
+static const digit_t TENS_COMP[] = {
+	10u, 9u, 8u, 7u, 6u, 5u, 4u, 3u, 2u, 1u, 0u
+};
 
 /* CONSTANTS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -522,8 +525,6 @@ size_t word_div_rem(digit_t *restrict rem,
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
 							    rem_cnt);
-		rem_cnt = correct_digits_count(rem,
-					       rem_cnt);
 
 		if (mult_greater_than_rem) {
 			rem_cnt = correct_remainder(rem,
@@ -534,6 +535,9 @@ size_t word_div_rem(digit_t *restrict rem,
 				     * TEN_POW_MAP[rem - rem_base]);
 
 		} else {
+			rem_cnt = correct_digits_count(rem,
+						       rem_cnt);
+
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
@@ -561,14 +565,17 @@ size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
 			 const size_t quo_cnt)
 {
-	ptrdiff_t i = quo_cnt - 1l;
+	/* lead and second digit had to have matched, ignore */
+	ptrdiff_t i = quo_cnt - 3l;
 
-	while (rem[i] == 9u) {
-		if (i == 0l)
+	while (1) {
+		if (i < 1l)
 			return subtract_digit_from_digits(rem,
 							  quo,
-							  1u,
+							  TENS_COMP[ rem[0l] ],
 							  quo_cnt);
+		if (rem[i] != 9u)
+			break;
 		--i;
 	}
 
@@ -579,7 +586,7 @@ size_t correct_remainder(digit_t *restrict rem,
 	digit_t small;
 
 	large = quo[0l];
-	small = NINES_COMP[rem[0l]] + 1u;
+	small = TENS_COMP[ rem[0l] ];
 
 	if (small > large) {
 		rem[0l] = (10u + large) - small;
@@ -590,9 +597,8 @@ size_t correct_remainder(digit_t *restrict rem,
 	}
 
 	for (i = 1l; i < rem_cnt; ++i) {
-
 		large = quo[i];
-		small = NINES_COMP[rem[i]];
+		small = NINES_COMP[ rem[i] ];
 
 		if (carry) {
 			if (small >= large) {
@@ -625,7 +631,6 @@ size_t correct_remainder(digit_t *restrict rem,
 	if (i == quo_cnt)
 		return correct_digits_count(rem,
 					    quo_cnt);
-
 	memcpy(&rem[i],
 	       &quo[i],
 	       sizeof(digit_t) * (quo_cnt - i));
@@ -634,46 +639,52 @@ size_t correct_remainder(digit_t *restrict rem,
 }
 
 /*
- * decrements 'rem' by 'mult' and returns carry
+ * decrements 'rem' by 'q_mlt' and returns carry
  *
  * input conditions:
  *
- * 1. mult's count <= count == rem's count
- * 2. 'rem' and 'mult' have zero-padded upper digits
+ * 1. q_mlt's count <= count == rem's count
+ * 2. 'rem' and 'q_mlt' have zero-padded upper digits
  */
 bool decrement_remainder(digit_t *restrict rem,
-			 const digit_t *restrict mult,
+			 const digit_t *restrict q_mlt,
 			 const size_t count)
 {
 	bool carry;
+	digit_t large;
+	digit_t small;
 	ptrdiff_t i;
-	digit_t buffer = NINES_COMP[rem[0l]] + mult[0l];
 
-	if (buffer > 9u) {
-		rem[0l] = NINES_COMP[buffer - 10u];
-		carry	= true;
+	large = rem[0l];
+	small = q_mlt[0l];
+
+	if (small > large) {
+		rem[0l] = (10u + large) - small;
+		carry = true;
 	} else {
-		rem[0l] = NINES_COMP[buffer];
-		carry	= false;
+		rem[0l] = large - small;
+		carry = false;
 	}
 
 	for (i = 1l; i < count; ++i) {
-		buffer = NINES_COMP[rem[i]] + mult[i];
+		large = rem[i];
+		small = q_mlt[i];
 
 		if (carry) {
-			if (buffer > 8u) {
-				rem[i] = NINES_COMP[buffer - 9u];
+			if (small >= large) {
+				rem[i] = (9u + large) - small;
 
 			} else {
-				rem[i] = NINES_COMP[buffer + 1u];
-				carry  = false;
+				rem[i] = large - (small + 1ul);
+				carry = false;
 			}
 
-		} else if (buffer > 9u) {
-			rem[i] = NINES_COMP[buffer - 10u];
-			carry  = true;
+		} else if (small > large) {
+			rem[i] = (10u + large) - small;
+			carry = true;
+
 		} else {
-			rem[i] = NINES_COMP[buffer];
+			rem[i] = large - small;
 		}
 	}
 
@@ -982,7 +993,6 @@ size_t subtract_digits(digit_t *restrict res_digits,
 	if (i == count1)
 		return correct_digits_count(res_digits,
 					    count1);
-
 	memcpy(&res_digits[i],
 	       &digits1[i],
 	       sizeof(digit_t) * (count1 - i));
