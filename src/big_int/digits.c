@@ -320,6 +320,7 @@ size_t digits_to_words(word_t **restrict words,
  */
 #define SET_NODE(MULT)							\
 do {									\
+	++node;								\
 	prev  = next;							\
 	next += buff_cnt;						\
 	mlt_cnt = add_digits(next, prev, prev, mlt_cnt, mlt_cnt);	\
@@ -354,7 +355,7 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	HANDLE_MALLOC(mult_map, sizeof(struct MultMap));
 	HANDLE_MALLOC(map,	sizeof(struct MultNode ***) * 2ul);
 	HANDLE_MALLOC(leads,    sizeof(struct MultNode **)  * 20ul);
-	HANDLE_MALLOC(seconds,  sizeof(struct MultNode *)   * 200ul);
+	HANDLE_CALLOC(seconds,  200ul, sizeof(struct MultNode *));
 	HANDLE_MALLOC(node,     sizeof(struct MultNode)     * 9ul);
 	HANDLE_MALLOC(next,     buff_size		    * 9ul);
 
@@ -447,30 +448,47 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	SET_NODE(3u); SET_NODE(4u); SET_NODE(5u); SET_NODE(6u);
 	SET_NODE(7u); SET_NODE(8u); SET_NODE(9u);
 
+	/* printf("node:	   %p\n", node); */
+	/* printf("base_node: %p\n", base_node); */
+	/* printf("diff:	   %ld\n", node - base_node); */
+	/* printf("seconds:   %p\n", seconds); */
+	/* printf("start_ptr: %p\n", start_ptr); */
+	/* printf("diff:	   %ld\n", seconds - start_ptr); */
+	/* printf("*seconds:  %p\n", *seconds); */
+	/* fflush(stdout); */
 
 	/* starting from the last slot in the node buffer 'seconds', set unset
 	 * pointers greater than base node to the immediate previous valid node
 	 * so as to "round down" accesses to a "floor multiple"...
 	 * ================================================================== */
 	do {
-		while (*seconds != node) {
-			printf("node:	  %p\n", node);
-			printf("*seconds: %p\n", *seconds);
-			fflush(stdout);
+		while (*seconds == NULL) {
+			/* printf("seconds:   %p\n", seconds); */
+			/* fflush(stdout); */
 			*seconds = node;
 			--seconds;
 		}
+
+		printf("node->mult:  %u\n", node->mult);
+		printf("node->count: %zu\n", node->count);
+		printf("secs->mult:  %u\n", (*seconds)->mult);
+		printf("secs->count: %zu\n", (*seconds)->count);
+		fflush(stdout);
+		sleep(1);
+
 
 		--node;
 
 	} while (node > base_node);
 
-	/* set pointers below base node to NULL to signal a base multiple of '0'
-	 * ================================================================== */
-	while (seconds > start_ptr) {
-		*seconds = NULL;
-		--seconds;
-	}
+	puts("DONE");
+
+	/* /1* set pointers below base node to NULL to signal a base multiple of '0' */
+	/*  * ================================================================== *1/ */
+	/* while (seconds > start_ptr) { */
+	/* 	*seconds = NULL; */
+	/* 	--seconds; */
+	/* } */
 
 	return mult_map;
 }
