@@ -198,8 +198,8 @@ size_t digits_to_words(word_t **restrict words,
 
 	if (count < DPWB) {
 		HANDLE_MALLOC(*words, sizeof(word_t));
-		(*words)[0l] = digits_to_word(digits,
-					      count);
+		**words = digits_to_word(digits,
+					 count);
 		return 1ul;
 	}
 
@@ -212,18 +212,16 @@ size_t digits_to_words(word_t **restrict words,
 		HANDLE_MALLOC(*words,	  sizeof(word_t)  * 2ul);
 
 		const size_t rem_cnt = word_div_rem(rem_digits,
-						    &(*words)[1l],
+						    words[1l],
 						    digits,
 						    &WORD_BASE_DIGITS[0l],
 						    count,
 						    DPWB);
 
-		(*words)[0l] = digits_to_word(rem_digits,
-					      rem_cnt);
+		**words = digits_to_word(rem_digits,
+					 rem_cnt);
 
 		free(rem_digits);
-
-
 	}
 
 	/* generate string of digit_t arrays representing
@@ -504,50 +502,41 @@ size_t word_div_rem(digit_t *restrict rem,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt)
 {
+	struct MultNode *node;
+	bool mult_greater_than_rem;
+	size_t rem_cnt;
+
+	digit_t *const rem_base = rem;
+
 	struct MultMap *quo_mults = build_mult_map(quo,
 						   quo_cnt);
-
 	memcpy(rem,
 	       dvd,
 	       sizeof(digit_t) * (dvd_cnt + 1ul));
 
 	rem[dvd_cnt] = 0u;
 
-
-	struct MultNode *node;
-
-	const size_t qc_p1 = quo_cnt + 1ul;
-
 	word_t word_acc = 0ull;
-	digit_t div_digit;
-	digit_t rem_lead;
-	bool mult_greater_than_rem;
-
-	digit_t *const rem_base = rem;
-	size_t rem_cnt;
-
-	ptrdiff_t i;
 
 	rem += (dvd_cnt - quo_cnt);
 
 	do {
-		rem_cnt = quo_cnt;
-
 		node = closest_mult(quo_mults,
 				    rem,
-				    rem_cnt);
+				    quo_cnt);
 
 		if (node == NULL) {
 			if (rem == rem_base)
 				break;
-
 			--rem;
-			++rem_cnt;
-
-			node = closest_mult(quo_mults,
-					    rem,
-					    rem_cnt);
+			rem_cnt = quo_cnt + 1ul;
+			node	= closest_mult(quo_mults,
+					       rem,
+					       rem_cnt);
+		} else {
+			rem_cnt = quo_cnt;
 		}
+
 
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
@@ -1248,12 +1237,12 @@ inline size_t word_to_digits(digit_t *restrict digits,
 inline word_t digits_to_word(const digit_t *restrict digits,
 			     const size_t count)
 {
-	word_t word     = (word_t) digits[0l];
-	word_t word_acc = 10ull;
+	word_t word = (word_t) digits[0l];
 
 	for (ptrdiff_t i = 1l; i < count; ++i) {
-		word     += (((word_t) digits[i]) * word_acc);
-		word_acc *= 10ull;
+		printf("word: %llu, digit: %u, 10^%zd: %llu\n",
+		       word, digits[i], i, TEN_POW_MAP[i]);
+		word += (((word_t) digits[i]) * TEN_POW_MAP[i]);
 	}
 
 	return word;

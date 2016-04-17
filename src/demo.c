@@ -5,23 +5,20 @@
 
 int main(void)
 {
-	const digit_t test_rem[] = {1u, 1u, 1u, 2u, 0u};
-	const digit_t test_quo[] = {5u, 5u, 5u, 5u, 0u};
+	const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+	const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	const digit_t *rem_ptr = test_rem;
-	const digit_t *quo_ptr = test_quo;
+	word_t *words;
 
+	size_t count = digits_to_words(&words,
+				       &small[0l],
+				       10ul);
 
-	/* printf("node: %p\n", node); */
-	/* fflush(stdout); */
-
-	/* printf("node->mult: %u\nnode->count: %zu\nnode->digits: ", */
-	/*        node->mult, node->count); */
-
-
-	/* for (ptrdiff_t i = node->count - 1l; i > -1l; --i) */
-	/* 	printf("%u", node->digits[i]); */
-
+	while (count > 0ul) {
+		--count;
+		printf("words[%zu]: %llu \n", count, words[count]);
+	}
 
 
 
