@@ -215,16 +215,17 @@ size_t digits_to_words(word_t **restrict words,
 		HANDLE_MALLOC(*words,	  sizeof(word_t)  * 2ul);
 
 		const size_t rem_cnt = word_div_rem(rem_digits,
-						    words[1l],
+						    &(*words)[1l],
 						    digits,
 						    &WORD_BASE_DIGITS[0l],
 						    count,
 						    DPWB);
 
-		**words = digits_to_word(rem_digits,
-					 rem_cnt);
-
+		(*words)[0l] = digits_to_word(rem_digits,
+					      rem_cnt);
 		free(rem_digits);
+
+		return 2ul;
 	}
 
 	/* generate string of digit_t arrays representing
@@ -514,11 +515,6 @@ size_t word_div_rem(digit_t *restrict rem,
 			rem_cnt = quo_cnt;
 		}
 
-		printf("node->mult: %llu\n", node->mult);
-		PUTS_DIGITS("node->digits", node->digits, quo_cnt + 1ul);
-		PUTS_DIGITS("remainder   ", rem, rem_cnt);
-		usleep(100000);
-
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
 							    rem_cnt);
@@ -543,10 +539,6 @@ size_t word_div_rem(digit_t *restrict rem,
 	} while (rem >= rem_base);
 
 	free_mult_map(quo_mults);
-
-	puts("DONE");
-
-	printf("word_acc: %llu\n", word_acc);
 
 	*div = word_acc;
 
