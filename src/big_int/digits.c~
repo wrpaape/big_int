@@ -470,7 +470,7 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	 * ================================================================== */
 	printf("diff: %zd\n", second - start_ptr);
 
-	memset(start_ptr, 0, sizeof(struct MultNode *) * (second - start_ptr));
+	/* memset(start_ptr, 0, sizeof(struct MultNode *) * (second - start_ptr)); */
 
 	/* while (second >= start_ptr) { */
 	/* 	printf("second: %p\n",    second); */

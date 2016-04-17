@@ -48,7 +48,7 @@ struct MultMapKey {
 
 
 struct MultMap {
-	struct MultNode ***map[2ul];
+	struct MultNode ****map;
 	struct MultNode ***lead;
 	struct MultNode **second;
 	struct MultNode *nodes;
