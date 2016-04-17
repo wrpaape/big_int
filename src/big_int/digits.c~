@@ -69,7 +69,7 @@ size_t words_to_digits(digit_t **restrict digits,
 		HANDLE_MALLOC(*digits, sizeof(digit_t) * DPWB);
 
 		const size_t res_cnt = word_to_digits(*digits,
-						      words[0ul]);
+						      words[0l]);
 
 		HANDLE_REALLOC(*digits, sizeof(digit_t) * res_cnt);
 
@@ -101,16 +101,16 @@ size_t words_to_digits(digit_t **restrict digits,
 	HANDLE_MALLOC(res_digits, buff_size);
 
 	size_t res_cnt = word_to_digits(res_digits,
-					words[0ul]);
+					words[0l]);
 
 	digit_t *mlt_buff;
 
 	HANDLE_MALLOC(mlt_buff,	  buff_size * 3ul);
 
 	size_t buff_cnt = multiply_digits_by_word(mlt_buff,
-						  &WORD_BASE_DIGITS[0ul],
+						  &WORD_BASE_DIGITS[0l],
 						  DPWB,
-						  words[1ul]);
+						  words[1l]);
 
 	res_cnt = increment_digits(res_digits,
 				   mlt_buff,
@@ -141,8 +141,8 @@ size_t words_to_digits(digit_t **restrict digits,
 					    base,
 					    NEXT_POW_TWO_DPWB);
 
-	size_t i = 3ul;
-	word_t word = words[2ul];
+	ptrdiff_t i = 3l;
+	word_t word = words[2l];
 
 	while (1) {
 		tmp = base_acc;
@@ -194,12 +194,12 @@ size_t digits_to_words(word_t **restrict words,
 		       const digit_t *restrict digits,
 		       const size_t count)
 {
-	size_t i;
+	/* ptrdiff_t i; */
 
 	if (count < DPWB) {
 		HANDLE_MALLOC(*words, sizeof(word_t));
-		(*words)[0ul] = digits_to_word(digits,
-					     count);
+		(*words)[0l] = digits_to_word(digits,
+					      count);
 		return 1ul;
 	}
 
@@ -209,17 +209,17 @@ size_t digits_to_words(word_t **restrict words,
 
 		digit_t *rem_digits;
 		HANDLE_MALLOC(rem_digits, sizeof(digit_t) * DPWB);
-		HANDLE_MALLOC(*words,	  sizeof(word_t) * 2ul);
+		HANDLE_MALLOC(*words,	  sizeof(word_t)  * 2ul);
 
 		const size_t rem_cnt = word_div_rem(rem_digits,
-						    &(*words)[1ul],
+						    &(*words)[1l],
 						    digits,
-						    &WORD_BASE_DIGITS[0ul],
+						    &WORD_BASE_DIGITS[0l],
 						    count,
 						    DPWB);
 
-		(*words)[0ul] = digits_to_word(rem_digits,
-					     rem_cnt);
+		(*words)[0l] = digits_to_word(rem_digits,
+					      rem_cnt);
 
 		free(rem_digits);
 
@@ -234,13 +234,13 @@ size_t digits_to_words(word_t **restrict words,
 	 * where 'half_count <= count((word base)ⁿ) < count'
 	 */
 
-	const size_t res_alloc = (count / DPWB) + 1ul;
+/* 	const size_t res_alloc = (count / DPWB) + 1ul; */
 
-	word_t *res_words;
+/* 	word_t *res_words; */
 
-	HANDLE_MALLOC(res_words,  sizeof(word_t) * res_alloc);
+/* 	HANDLE_MALLOC(res_words,  sizeof(word_t) * res_alloc); */
 
-	const size_t buff_alloc = next_pow_two(half_count);
+/* 	const size_t buff_alloc = next_pow_two(half_count); */
 
 
 
@@ -264,8 +264,8 @@ size_t digits_to_words(word_t **restrict words,
 	/* mlt_buff   = &base_acc[buff_alloc]; */
 	/* bit_digits = &mlt_buff[buff_alloc]; */
 
-	/* bit_digits[0ul] = WORD_BASE_DIGITS; */
-	/* bit_digits[1ul] = WORD_BASE_DIGITS; */
+	/* bit_digits[0l] = WORD_BASE_DIGITS; */
+	/* bit_digits[1l] = WORD_BASE_DIGITS; */
 
 	/* set_zero_padded_word_base(base, */
 	/* 			  size_zeros); */
@@ -277,9 +277,6 @@ size_t digits_to_words(word_t **restrict words,
 	/* 			     base_acc, */
 	/* 			     base, */
 	/* 			     NEXT_POW_TWO_DPWB); */
-
-
-
 	return 42ul;
 
 }
@@ -330,7 +327,7 @@ do {									\
 	node->digits  = next;						\
 	node->count   = mlt_cnt;					\
 	next[mlt_cnt] = 0u;						\
-	key = keys[mlt_cnt & 1l];					\
+	key = keys[mlt_cnt & 1];					\
 	map[ key.i ][ next[key.j] ][ next[key.k] ] = node;		\
 } while (0)
 struct MultMap *build_mult_map(const digit_t *restrict base,
@@ -342,7 +339,7 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 
 	struct MultMap *mult_map;
 	struct MultMapKey key;
-	struct MultMapKey *key;
+	struct MultMapKey *keys;
 	struct MultNode ****map;
 	struct MultNode ***leads;
 	struct MultNode ***bound_ptr;
@@ -353,7 +350,6 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	digit_t *prev;
 	digit_t *next;
 	size_t mlt_cnt;
-	size_t i;
 
 	HANDLE_MALLOC(mult_map, sizeof(struct MultMap));
 	HANDLE_MALLOC(map,	sizeof(struct MultNode ***) * 2ul);
@@ -374,21 +370,21 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	const ptrdiff_t cnt_m2 = count - 2l;
 
 	struct MultMapKey less_key = {
-		.i = 0l;
-		.j = cnt_m1;
-		.k = cnt_m2;
+		.i = 0l,
+		.j = cnt_m1,
+		.k = cnt_m2
 	};
 
 	struct MultMapKey more_key = {
-		.i = 1l;
-		.j = count;
-		.k = cnt_m1;
+		.i = 1l,
+		.j = count,
+		.k = cnt_m1
 	};
 
 	keys = &mult_map->keys[0l];
 
-	keys[count  & 1l] = less_key;
-	keys[cnt_m1 & 1l] = more_key;
+	keys[count  & 1] = less_key;
+	keys[cnt_m1 & 1] = more_key;
 
 	/* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d) array */
 	base_node = node;
@@ -402,8 +398,8 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 		*leads = seconds;
 		++leads;
 		if (leads == bound_ptr) {
-			seconds += 9l; /* set 'seconds' to last valid pointer */
-			break;
+			seconds += 9l; /* set to last valid pointer */
+			break;	       /* (i.e. '&start_ptr[199]') */
 		}
 		seconds += 10l;	/* advance to next valid 10-node block */
 	}
@@ -442,7 +438,7 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	next[mlt_cnt] = 0u; /* pad lead */
 
 	/* set node */
-	key = keys[mlt_cnt & 1l];
+	key = keys[mlt_cnt & 1];
 	map[ key.i ][ next[key.j] ][ next[key.k] ] = node;
 
 
@@ -452,13 +448,15 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	SET_NODE(7u); SET_NODE(8u); SET_NODE(9u);
 
 
-
 	/* starting from the last slot in the node buffer 'seconds', set unset
 	 * pointers greater than base node to the immediate previous valid node
 	 * so as to "round down" accesses to a "floor multiple"...
 	 * ================================================================== */
 	do {
 		while (*seconds != node) {
+			printf("node:	  %p\n", node);
+			printf("*seconds: %p\n", *seconds);
+			fflush(stdout);
 			*seconds = node;
 			--seconds;
 		}
@@ -499,61 +497,58 @@ size_t word_div_rem(digit_t *restrict rem,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt)
 {
-	memcpy(rem,
-	       dvd,
-	       sizeof(digit_t) * dvd_cnt + 1ul);
+	/* memcpy(rem, */
+	/*        dvd, */
+	/*        sizeof(digit_t) * dvd_cnt + 1ul); */
 
-	rem[dvd_cnt] = 0u;
+	/* rem[dvd_cnt] = 0u; */
 
-	struct MultMap *mult_map = build_mult_map(quo,
-						  quo_cnt);
+	/* struct MultMap *mult_map = build_mult_map(quo, */
+	/* 					  quo_cnt); */
 
-	const size_t qc_minus_one = quo_cnt - 1ul;
-	const size_t qc_plus_one  = quo_cnt + 1ul;
+	/* const size_t qc_minus_one = quo_cnt - 1ul; */
+	/* const size_t qc_plus_one  = quo_cnt + 1ul; */
 
-	const digit_t quo_lead = quo[qc_minus_one];
+	/* const digit_t quo_lead = quo[qc_minus_one]; */
 
-	size_t i = dvd_cnt - quo_cnt;
-	word_t word_acc = 0ull;
-	word_t word_mag;
-	digit_t div_digit;
-	digit_t rem_lead;
-	size_t rem_cnt;
-	size_t j;
-
-
-	while (1) {
-
-		rem_lead = rem[i + qc_minus_one];
-
-		if (quo_lead > rem_lead) {
-			rem_cnt   = qc_plus_one;
-			div_digit = rem_lead * 10u / quo_lead;
-			--i;
-
-		} else {
-			rem_cnt   = quo_cnt;
-			div_digit = rem_lead / quo_lead;
-		}
+	/* ptrdiff_t i = dvd_cnt - quo_cnt; */
+	/* word_t word_acc = 0ull; */
+	/* word_t word_mag; */
+	/* digit_t div_digit; */
+	/* digit_t rem_lead; */
+	/* size_t rem_cnt; */
+	/* size_t j; */
 
 
+	/* while (1) { */
 
+	/* 	rem_lead = rem[i + qc_minus_one]; */
 
-		size_t mlt_cnt = mult_map[div_digit].count;
+	/* 	if (quo_lead > rem_lead) { */
+	/* 		rem_cnt   = qc_plus_one; */
+	/* 		div_digit = rem_lead * 10u / quo_lead; */
+	/* 		--i; */
 
-		if (mlt_cnt > rem_cnt) {
-			--div_digit;
-			mlt_cnt = mult_map[div_digit].count;
-		}
-
-		bool decrement_remainder(rem,
-				    mult_map[div_digit].digits,
-				    rem_cnt);
+	/* 	} else { */
+	/* 		rem_cnt   = quo_cnt; */
+	/* 		div_digit = rem_lead / quo_lead; */
+	/* 	} */
 
 
 
-	}
 
+	/* 	size_t mlt_cnt = mult_map[div_digit].count; */
+
+	/* 	if (mlt_cnt > rem_cnt) { */
+	/* 		--div_digit; */
+	/* 		mlt_cnt = mult_map[div_digit].count; */
+	/* 	} */
+
+
+
+	/* } */
+
+	return 42ul;
 }
 
 /*
@@ -562,7 +557,7 @@ size_t word_div_rem(digit_t *restrict rem,
  * input conditions:
  *
  * 1. mult's count <= count == rem's count
-/* 2. 'rem' and 'mult' have zero-padded upper digits */
+ * 2. 'rem' and 'mult' have zero-padded upper digits */
 
 bool decrement_remainder(digit_t *restrict rem,
 			 const digit_t *restrict mult,
@@ -570,18 +565,18 @@ bool decrement_remainder(digit_t *restrict rem,
 {
 
 	bool carry;
-	digit_t buffer = NINES_COMP[rem[0ul]] + mult[0ul];
-	size_t i;
+	digit_t buffer = NINES_COMP[rem[0l]] + mult[0l];
+	ptrdiff_t i;
 
 	if (buffer > 9u) {
-		rem[0ul] = NINES_COMP[buffer - 10u];
+		rem[0l] = NINES_COMP[buffer - 10u];
 		carry	 = true;
 	} else {
-		rem[0ul] = NINES_COMP[buffer];
+		rem[0l] = NINES_COMP[buffer];
 		carry	 = false;
 	}
 
-	for (i = 1ul; i < count; ++i) {
+	for (i = 1l; i < count; ++i) {
 		buffer = NINES_COMP[rem[i]] + mult[i];
 
 		if (carry) {
@@ -620,21 +615,21 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			  const size_t count)
 {
 	if (count == 1ul) {
-		res_digits[0ul] = digits1[0ul] * digits2[0ul];
+		res_digits[0l] = digits1[0l] * digits2[0l];
 
-		if (res_digits[0ul] < 10u)
+		if (res_digits[0l] < 10u)
 			return 1ul;
 
-		res_digits[1ul] = res_digits[0ul] / 10u;
-		res_digits[0ul] %= 10u;
+		res_digits[1l] = res_digits[0l] / 10u;
+		res_digits[0l] %= 10u;
 		return 2ul;
 	}
 
 	const size_t buff_alloc = count * 2;
 	const size_t half_count = count / 2ul;
 
-	digit_t *upper1 = &digits1[half_count];
-	digit_t *upper2 = &digits2[half_count];
+	const digit_t *upper1 = &digits1[half_count];
+	const digit_t *upper2 = &digits2[half_count];
 
 	size_t max_add_cnt;
 
@@ -660,7 +655,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     upper2,
 					     half_count);
 	if (carry1) {
-		const size_t half_plus_one   = half_count + 1ul;
+		const size_t half_plus_one   = half_count + 1l;
 		const size_t rem_digits_size = sizeof(digit_t)
 					     * (half_count - 1ul);
 
@@ -748,16 +743,16 @@ bool add_split_digits(digit_t *restrict res_digits,
 {
 	bool carry;
 
-	res_digits[0ul] = upper[0ul] + lower[0ul];
+	res_digits[0l] = upper[0l] + lower[0l];
 
-	if (res_digits[0ul] > 9u) {
-		res_digits[0ul] -= 10u;
+	if (res_digits[0l] > 9u) {
+		res_digits[0l] -= 10u;
 		carry = true;
 	} else {
 		carry = false;
 	}
 
-	for (size_t i = 1ul; i < count; ++i) {
+	for (ptrdiff_t i = 1l; i < count; ++i) {
 		res_digits[i] = upper[i] + lower[i];
 
 		if (carry) {
@@ -795,7 +790,7 @@ size_t add_poly_pair(digit_t *restrict res_digits,
 		     const size_t count2,
 		     const size_t n)
 {
-	if ((count1 == 1ul) && (digits1[0ul] == 0u)) {
+	if ((count1 == 1ul) && (digits1[0l] == 0u)) {
 		memcpy(res_digits,
 		       digits2,
 		       sizeof(digit_t) * count2);
@@ -857,20 +852,20 @@ size_t subtract_digits(digit_t *restrict res_digits,
 	bool carry;
 	digit_t large;
 	digit_t small;
-	size_t i;
+	ptrdiff_t i;
 
-	large = digits1[0ul];
-	small = digits2[0ul];
+	large = digits1[0l];
+	small = digits2[0l];
 
 	if (small > large) {
-		res_digits[0ul] = (10u + large) - small;
+		res_digits[0l] = (10u + large) - small;
 		carry = true;
 	} else {
-		res_digits[0ul] = large - small;
+		res_digits[0l] = large - small;
 		carry = false;
 	}
 
-	for (i = 1ul; i < count2; ++i) {
+	for (i = 1l; i < count2; ++i) {
 
 		large = digits1[i];
 		small = digits2[i];
@@ -944,7 +939,7 @@ size_t add_digits(digit_t *restrict res_digits,
 		  const size_t count2)
 {
 	bool carry;
-	size_t i;
+	ptrdiff_t i;
 
 	res_digits[0ul] = digits1[0ul] + digits2[0ul];
 
@@ -1014,18 +1009,18 @@ size_t increment_digits(digit_t *restrict digits1,
 			const size_t count2)
 {
 	bool carry;
-	size_t i;
+	ptrdiff_t i;
 
-	digits1[0ul] += digits2[0ul];
+	digits1[0l] += digits2[0l];
 
-	if (digits1[0ul] > 9u) {
-		digits1[0ul] -= 10u;
+	if (digits1[0l] > 9u) {
+		digits1[0l] -= 10u;
 		carry = true;
 	} else {
 		carry = false;
 	}
 
-	for (i = 1ul; i < count1; ++i) {
+	for (i = 1l; i < count1; ++i) {
 		digits1[i] += digits2[i];
 
 		if (carry) {
@@ -1048,7 +1043,7 @@ size_t increment_digits(digit_t *restrict digits1,
 	if (carry) {
 		while (1)  {
 			if (i == count2) {
-				digits1[count2] = 1ul;
+				digits1[count2] = 1u;
 				return count2 + 1ul;
 			}
 
@@ -1082,12 +1077,12 @@ size_t multiply_digits_by_word(digit_t *restrict res_digits,
 			       word_t word)
 {
 	const buff_t buff_word = (buff_t) word;
-	buff_t buffer = buff_word * ((buff_t) digits[0ul]);
+	buff_t buffer = buff_word * ((buff_t) digits[0l]);
 
-	res_digits[0ul] = (digit_t) (buffer % BUFF_TEN);
+	res_digits[0l] = (digit_t) (buffer % BUFF_TEN);
 	buffer /= BUFF_TEN;
 
-	size_t i = 1ul;
+	ptrdiff_t i = 1l;
 
 	while (i < count) {
 		buffer += (buff_word * ((buff_t) digits[i]));
@@ -1118,12 +1113,12 @@ size_t multiply_digits_by_digit(digit_t *restrict res_digits,
 			       digit_t digit)
 {
 
-	digit_t buffer = digits[0ul] * digit;
+	digit_t buffer = digits[0l] * digit;
 
-	res_digits[0ul] = buffer % 10u;
-	res_digits[1ul] = buffer / 10u;
+	res_digits[0l] = buffer % 10u;
+	res_digits[1l] = buffer / 10u;
 
-	size_t i = 1ul;
+	ptrdiff_t i = 1l;
 
 	while (i < count) {
 		buffer = digits[i] * digit;
@@ -1140,7 +1135,7 @@ inline void set_zero_padded_word_base(digit_t *restrict base,
 				      const size_t pad_size)
 {
 	memcpy(base,
-	       &WORD_BASE_DIGITS[0ul],
+	       &WORD_BASE_DIGITS[0l],
 	       sizeof(digit_t) * DPWB);
 
 	memset(&base[DPWB],
@@ -1152,7 +1147,7 @@ inline void set_zero_padded_word_base(digit_t *restrict base,
 inline size_t word_to_digits(digit_t *restrict digits,
 			     word_t word)
 {
-	size_t i = 0ul;
+	ptrdiff_t i = 0l;
 
 	do {
 		digits[i] = (digit_t) (word % 10ull);
@@ -1166,16 +1161,34 @@ inline size_t word_to_digits(digit_t *restrict digits,
 inline word_t digits_to_word(const digit_t *restrict digits,
 			     const size_t count)
 {
-	word_t word     = (word_t) digits[0ul];
+	word_t word     = (word_t) digits[0l];
 	word_t word_acc = 10ull;
 
-	for (size_t i = 1ul; i < count; ++i) {
+	for (ptrdiff_t i = 1l; i < count; ++i) {
 		word     += (((word_t) digits[i]) * word_acc);
 		word_acc *= 10ull;
 	}
 
 	return word;
 }
+
+/* static inline struct MultNode *closest_multiple(struct MultMap *restrict mult_map, */
+/* 						const digit_t *restrict digits, */
+/* 						const size_t count) */
+struct MultNode *closest_multiple(struct MultMap *restrict mult_map,
+				  const digit_t *restrict digits,
+				  const size_t count)
+{
+	struct MultMapKey key = mult_map->keys[count & 1];
+
+	printf("key.i: %zu\n", key.i);
+	printf("key.j: %zu\n", key.j);
+	printf("key.k: %zu\n", key.k);
+	fflush(stdout);
+
+	return mult_map->map[ key.i ][ digits[key.j] ][ digits[ key.k ] ];
+}
+
 
 inline void free_mult_map(struct MultMap *mult_map)
 {

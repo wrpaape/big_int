@@ -94,7 +94,14 @@ static inline size_t word_to_digits(digit_t *restrict digits,
 static inline word_t digits_to_word(const digit_t *restrict digits,
 				    const size_t count);
 
-static inline void free_mult_map(struct MultMap *mult_map);
+/* static inline struct MultNode *closest_multiple(struct MultMap *restrict mult_map, */
+/* 						const digit_t *restrict digits, */
+/* 						const size_t count); */
+struct MultNode *closest_multiple(struct MultMap *restrict mult_map,
+				  const digit_t *restrict digits,
+				  const size_t count);
+
+static inline void free_mult_map(struct MultMap *restrict mult_map);
 
 /* HELPER FUNCTION PROTOTYPES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 

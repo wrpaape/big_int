@@ -5,8 +5,30 @@
 
 int main(void)
 {
-	digit_t test_rem[] = {1u, 1u, 1u, 2u, 0u};
-	digit_t test_quo[] = {1u, 1u, 1u, 1u, 0u};
+	const digit_t test_rem[] = {1u, 1u, 1u, 2u, 0u};
+	const digit_t test_quo[] = {5u, 5u, 5u, 5u, 0u};
+
+	const digit_t *rem_ptr = test_rem;
+	const digit_t *quo_ptr = test_quo;
+
+	struct MultMap *mult_map = build_mult_map(rem_ptr,
+						  4ul);
+
+	struct MultNode *node = closest_multiple(mult_map,
+						 quo_ptr,
+						 4ul);
+
+	printf("node: %p\n", node);
+	fflush(stdout);
+
+	printf("node->mult: %u\nnode->count: %zu\nnode->digits: ",
+	       node->mult, node->count);
+
+
+	for (ptrdiff_t i = node->count - 1l; i > -1l; --i)
+		printf("%u", node->digits[i]);
+
+
 
 
 

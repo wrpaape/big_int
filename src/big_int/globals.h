@@ -3,10 +3,12 @@
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
 #include <stdlib.h>	/* malloc, free, exit, size_t, uint64_t, __int128_t */
-#include <stdio.h>	/* fprintf, printf */
+#include <stddef.h>	/* ptrdiff_t */
+#include <stdio.h>	/* printf, fprintf */
 #include <errno.h>	/* errno */
 #include <string.h>	/* strerror */
 #include <limits.h>	/* max word value */
+
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
