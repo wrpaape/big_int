@@ -132,14 +132,6 @@ size_t words_to_digits(digit_t **restrict digits,
 	       0,
 	       buff_pad);
 
-	memcpy(base,
-	       &WORD_BASE_DIGITS[0l],
-	       sizeof(digit_t) * DPWB);
-
-	memset(&base[DPWB],
-	       0,
-	       pad_size);
-
 	size_t acc_cnt = do_multiply_digits(base_acc,
 					    base,
 					    base,
