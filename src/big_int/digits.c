@@ -217,54 +217,50 @@ size_t digits_to_words(word_t **restrict words,
 	 *
 	 * {(word base)², (word base)³, ..., (word base)ⁿ}
 	 *
-	 * where 'half_count <= count((word base)ⁿ) < count'
+	 * where 'half_count <= count( (word base)ⁿ ) < count'
 	 */
 
 	const size_t res_alloc = (count / DPWB) + 1ul;
 
 	word_t *res_words;
 
-	HANDLE_MALLOC(res_words,  sizeof(word_t) * res_alloc);
+	HANDLE_MALLOC(res_words, sizeof(word_t) * res_alloc);
+
+	/* size of "bits" buffer should be at least:
+	 *
+	 * buff_size = (
+	 *	  next_pow_two( count(word base)² )
+	 *  	+ next_pow_two( count(word base)³ )
+	 *  	+ ...
+	 *  	+ next_pow_two( count(word base)ⁿ ) = buff_alloc
+	 * ) * sizeof(digit_t)
+	 *
+	 * = sizeof(digit_t) * Σ next_pow_two( count (word base)^i )  for { i in 2..n }
+	 *
+	 * where
+	 *
+	 * count( (word base)^i ) <= count( (word base)¹ ) * i == DPWB * i
+	 *
+	 * with the conservative approximation that '(word base)^i' has 'DPWB * i'
+	 * digits, the growth of total required memory resembles a series
+	 * of deccelerating doubling steps:
+	 *
+	 * count
+	 *   ^
+	 *   │			   ██████████████████████████████
+	 *   │	▁▂▂▄▄▄▄▄█████████████████████████████████████████
+	 *   └──┼───────────────────────────────────────────────┼─> i
+	 *	2						n
+	 *
+	 * or rather ∫ log₂
+	 *
+	 */
+
 
 	const size_t buff_alloc = next_pow_two(half_count);
 
 	const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t);
 
-	size_t *bit_counts;
-	digit_t *base;
-	digit_t *base_acc;
-	digit_t *mlt_buff;
-	digit_t *bit_digits;
-	digit_t *tmp;
-
-	size_t acc_cnt = DPWB;
-
-	HANDLE_MALLOC(bit_counts, sizeof(size_t) * res_alloc);
-
-	HANDLE_MALLOC(base, sizeof(digit_t) * buff_alloc * 4ul);
-
-	base_acc   = &base[buff_alloc];
-	mlt_buff   = &base_acc[buff_alloc];
-	bit_digits = &mlt_buff[buff_alloc];
-
-	bit_digits[0l] = WORD_BASE_DIGITS;
-	bit_digits[1l] = WORD_BASE_DIGITS;
-
-
-	acc_cnt = do_multiply_digits(mlt_buff,
-				     base_acc,
-				     base,
-				     NEXT_POW_TWO_DPWB);
-
-	const size_t rem_cnt = word_div_rem(rem_digits,
-					    &(*words)[1l],
-					    digits,
-					    &WORD_BASE_DIGITS[0l],
-					    count,
-					    DPWB);
-
-	(*words)[0l] = digits_to_word(rem_digits,
-				      rem_cnt);
 	return 42ul;
 
 }
