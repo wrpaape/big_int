@@ -803,11 +803,6 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     mlt_cnt2, ply_cnt,
 					     count);
 
-	PUT_DIGITS("digits1", digits1, count);
-	PUT_DIGITS("digits2", digits2, count);
-	PUT_DIGITS("product", res_digits, res_cnt);
-
-
 	free(add_res1);
 
 	return res_cnt;
@@ -1294,6 +1289,7 @@ inline size_t subtract_digit_from_digits(digit_t *restrict res_digits,
 	}
 
 	res_digits[i] = digits[i] - 1u;
+	++i;
 
 	if (i == count)
 		return correct_digits_count(res_digits,
