@@ -88,9 +88,6 @@ size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
 			 const size_t quo_cnt);
 
-static inline void set_zero_padded_word_base(digit_t *restrict base,
-					     const size_t pad_size);
-
 static inline size_t word_to_digits(digit_t *restrict digits,
 				    word_t word);
 
