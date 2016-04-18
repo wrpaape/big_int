@@ -5,30 +5,30 @@
 
 int main(void)
 {
-	/* const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u}; */
-	/* const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u}; */
+	const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+	const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	/* word_t *words; */
+	word_t *words;
 
-	/* size_t count = digits_to_words(&words, */
-	/* 			       &large[0l], */
-	/* 			       30ul); */
+	size_t count = digits_to_words(&words,
+				       &large[0l],
+				       30ul);
 
-	/* while (count > 0ul) { */
-	/* 	--count; */
-	/* 	printf("words[%zu]: %llu \n", count, words[count]); */
-	/* } */
-
-
+	while (count > 0ul) {
+		--count;
+		printf("words[%zu]: %llu \n", count, words[count]);
+	}
 
 
-	word_t words[] = {0ull, 1ull, 0ull, 1ull};
-	digit_t *digits;
-	size_t count = words_to_digits(&digits, &words[0l], 4ul);
 
-	PUT_DIGITS("digits", digits, count);
+
+	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */
+	/* digit_t *digits; */
+	/* size_t count = words_to_digits(&digits, &words[0l], 4ul); */
+
+	/* PUT_DIGITS("digits", digits, count); */
 
 	/* struct BigInt *lmax = init_big_int(LONG_MAX); */
 	/* struct BigInt *res1 = init_big_int(LONG_MAX); */

@@ -47,12 +47,19 @@ struct MultMapKey {
 
 struct MultMap {
 	struct MultMapKey keys[2ul];
-	struct MultNode ***map[2ul];
-	struct MultNode **lead[20ul];
-	struct MultNode *second[200ul];
+	struct MultNode *map[2ul][10ul][10ul];
 	struct MultNode nodes[9ul];
 	digit_t *digits;
 };
+
+/* struct MultMap { */
+/* 	struct MultMapKey keys[2ul]; */
+/* 	struct MultNode ***map[2ul]; */
+/* 	struct MultNode **lead[20ul]; */
+/* 	struct MultNode *second[200ul]; */
+/* 	struct MultNode nodes[9ul]; */
+/* 	digit_t *digits; */
+/* }; */
 
 
 /* TYPEDEFS, ENUM AND STRUCT DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */

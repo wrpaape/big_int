@@ -340,9 +340,9 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	HANDLE_MALLOC(mult_map, sizeof(struct MultMap));
 	HANDLE_MALLOC(next,     buff_size * 9ul);
 
-	struct MultNode ****map  = &mult_map->map[0l];
-	struct MultNode ***lead  = &mult_map->lead[0l];
-	struct MultNode **second = &mult_map->second[0l];
+	struct MultNode *(*map)[10ul][10ul] = &mult_map->map[0l];
+	/* struct MultNode ***lead  = &mult_map->lead[0l]; */
+	/* struct MultNode **second = &mult_map->second[0l]; */
 	struct MultNode *node	 = &mult_map->nodes[0l];
 	struct MultMapKey *keys  = &mult_map->keys[0l];
 	mult_map->digits = next;
@@ -359,26 +359,26 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	kp->j = count;
 	kp->k = cnt_m1;
 
-	/* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d)
-	 * array of MultNode pointers, 'map' */
+	/* /1* hook up block and boundary pointers to imitate a 2 × 10 × 10 (3d) */
+	/*  * array of MultNode pointers, 'map' *1/ */
 
-	struct MultNode *const base_node  = node;
-	struct MultNode **const start_ptr = second;
-	struct MultNode ***bound_ptr	  = lead + 10l;
+	struct MultNode *const base_node = node;
+	/* struct MultNode **const start_ptr = second; */
+	/* struct MultNode ***bound_ptr	  = lead + 10l; */
 
-	map[0l] = lead;
-	map[1l] = bound_ptr;
-	bound_ptr += 10l;
+	/* map[0l] = lead; */
+	/* map[1l] = bound_ptr; */
+	/* bound_ptr += 10l; */
 
-	while (1) {
-		*lead = second;
-		++lead;
-		if (lead == bound_ptr) {
-			second += 9l; /* set to last valid pointer */
-			break;	      /* (i.e. '&start_ptr[199]') */
-		}
-		second += 10l;	/* advance to next valid 10-node block */
-	}
+	/* while (1) { */
+	/* 	*lead = second; */
+	/* 	++lead; */
+	/* 	if (lead == bound_ptr) { */
+	/* 		second += 9l; /1* set to last valid pointer *1/ */
+	/* 		break;	      /1* (i.e. '&start_ptr[199]') *1/ */
+	/* 	} */
+	/* 	second += 10l;	/1* advance to next valid 10-node block *1/ */
+	/* } */
 
 
 	/* starting with multiple of 1...
@@ -425,21 +425,39 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	 * pointers greater than base node to the immediate previous valid node
 	 * so as to "round down" accesses to a "floor multiple"...
 	 * ================================================================== */
+
+	/* ptrdiff_t i = 1l, j = 9l, k = 9l; */
+
+	struct MultNode **const map_start = &map[0l][0l][0l];
+	struct MultNode **node_ptr = &map[1l][9l][9l];
+
 	while (1) {
-		while (*second != node) {
-			*second = node;
-			--second;
+		while (*node_ptr != node) {
+			*node_ptr = node;
+			--node_ptr;
 		}
 		--node;
 		if (node == base_node)
 			break;
-		--second;
+		--node_ptr;
 	}
+	memset(map_start, 0, sizeof(struct MultNode *) * (node_ptr - map_start));
+
+	/* while (1) { */
+	/* 	while (*second != node) { */
+	/* 		*second = node; */
+	/* 		--second; */
+	/* 	} */
+	/* 	--node; */
+	/* 	if (node == base_node) */
+	/* 		break; */
+	/* 	--second; */
+	/* } */
 
 
-	/* set pointers below base node to NULL to signal a base multiple of '0'
-	 * ================================================================== */
-	memset(start_ptr, 0, sizeof(struct MultNode *) * (second - start_ptr));
+	/* /1* set pointers below base node to NULL to signal a base multiple of '0' */
+	/*  * ================================================================== *1/ */
+	/* memset(start_ptr, 0, sizeof(struct MultNode *) * (second - start_ptr)); */
 
 	return mult_map;
 }
