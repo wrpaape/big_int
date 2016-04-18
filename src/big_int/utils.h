@@ -20,7 +20,7 @@ do {					\
 	y = __swap_tmp;			\
 } while(0)
 
-#define PUTS_DIGITS(LABEL, DIGITS, COUNT)		\
+#define PUT_DIGITS(LABEL, DIGITS, COUNT)		\
 do {							\
 	fputs(LABEL ": ", stdout);			\
 	for (ptrdiff_t i = COUNT - 1l; i > -1l; --i)	\

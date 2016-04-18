@@ -98,10 +98,9 @@ size_t words_to_digits(digit_t **restrict digits,
 
 	size_t res_cnt = word_to_digits(res_digits,
 					words[0l]);
-
 	digit_t *mlt_buff;
 
-	HANDLE_MALLOC(mlt_buff,	  buff_size * 3ul);
+	HANDLE_MALLOC(mlt_buff, buff_size * 3ul);
 
 	size_t buff_cnt = multiply_digits_by_word(mlt_buff,
 						  &WORD_BASE_DIGITS[0l],
@@ -123,24 +122,17 @@ size_t words_to_digits(digit_t **restrict digits,
 	const size_t base_pad = buff_size - (sizeof(digit_t) * DPWB);
 	const size_t buff_pad = buff_size - (sizeof(digit_t) * DPWB_SQ);
 
-	set_zero_padded_word_base(base,
-				  base_pad);
-
-	/* set_zero_padded_word_base(base_acc, */
-	/* 			  base_pad); */
-	memset(base_acc,
-	       0,
-	       buff_pad);
-
 	memcpy(base,
 	       &WORD_BASE_DIGITS[0l],
 	       sizeof(digit_t) * DPWB);
 
-	memset(&base[DPWB],
-	       0,
-	       pad_size);
+	memset(&base[DPWB],	   0, base_pad);
 
-	size_t acc_cnt = do_multiply_digits(base_acc,
+	memset(&base_acc[DPWB_SQ], 0, buff_pad);
+
+	memset(&mlt_buff[DPWB_SQ], 0, buff_pad);
+
+	size_t acc_cnt = do_multiply_digits(mlt_buff,
 					    base,
 					    base,
 					    NEXT_POW_TWO_DPWB);
@@ -758,7 +750,7 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 			       rem_digits_size + sizeof(digit_t));
 		}
 
-		max_add_cnt   = count;
+		max_add_cnt = count;
 
 
 	} else if (carry2) {
@@ -810,6 +802,11 @@ size_t do_multiply_digits(digit_t *restrict res_digits,
 					     mlt_res2, ply_res,
 					     mlt_cnt2, ply_cnt,
 					     count);
+
+	PUT_DIGITS("digits1", digits1, count);
+	PUT_DIGITS("digits2", digits2, count);
+	PUT_DIGITS("product", res_digits, res_cnt);
+
 
 	free(add_res1);
 
@@ -1248,12 +1245,11 @@ inline size_t correct_digits_count(const digit_t *restrict digits,
 	ptrdiff_t i = init_cnt - 1l;
 
 	while (1) {
-		if (i < 2l)
-			return 1ul;
-
 		if (digits[i] > 0u)
 			return i + 1ul;
 
+		if (i < 2l)
+			return 1ul;
 		--i;
 	}
 }
