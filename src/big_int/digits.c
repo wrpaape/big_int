@@ -241,19 +241,39 @@ size_t digits_to_words(word_t **restrict words,
 	 *
 	 * count( (word base)^i ) <= count( (word base)¹ ) * i == DPWB * i
 	 *
-	 * with the conservative approximation that '(word base)^i' has 'DPWB * i'
-	 * digits, the growth of total required memory resembles a series
-	 * of deccelerating doubling steps:
+	 * Taking the conservative approximation that '(word base)^i' has
+	 * 'DPWB * i' digits (i.e. linear growth):
 	 *
-	 * count
-	 *   ^
-	 *   │			   ██████████████████████████████
-	 *   │	▁▂▂▄▄▄▄▄█████████████████████████████████████████
-	 *   └──┼───────────────────────────────────────────────┼─> i
-	 *	2						n
+	 *    count
+	 *	^
+	 *	│	 	  ▁▁▂▂▃▃▄▄▅▅▆▆▇▇██
+	 *	│ ▁▁▂▂▃▃▄▄▅▅▆▆▇▇██████████████████
+	 *	└─┼──────────────────────────────┼─> i
+	 *	  2				 n
 	 *
-	 * or rather ∫ log₂
+	 * the growth of total required digits (i.e. memory) resembles a
+	 * series of deccelerating doubling steps:
 	 *
+	 * next_pow_two(count)
+	 *	^
+	 *	│		      ████████████
+	 *	│ ▁▁▂▂▂▄▄▄▄▄██████████████████████
+	 *	└─┼──────────────────────────────┼─> i
+	 *	  2				 n
+	 *
+	 * Accordingly, the summation of total required digits can be
+	 * approximated with the definite integral:
+	 *
+	 * n
+	 * ∫ DPWB * 2^log₂(i)
+	 * 2
+	 *						n
+	 * = DPWB * [ (i * (ln(i) - 1)) / ln(2) + C ]	|
+	 *						2
+	 * = DPWB * [ (n * (ln(n) - 1)) / ln(2)
+	 *	  -   (2 * (ln(2) - 1)) / ln(2) ]
+	 *
+	 * = DPWB * [ ((n * (ln(n) - 1)) + 2) / ln(2) - 2 ]
 	 */
 
 
