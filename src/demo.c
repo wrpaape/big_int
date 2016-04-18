@@ -10,8 +10,6 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	printf("sizeof(MultMap): %zu\n", sizeof(struct MultMap));
-	printf("sizeof(MultMap): %zu\n", sizeof(struct MultNode));
 	word_t *words;
 
 	size_t count = digits_to_words(&words,
