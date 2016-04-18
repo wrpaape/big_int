@@ -94,13 +94,12 @@ size_t words_to_digits(digit_t **restrict digits,
 
 	digit_t *res_digits;
 
-	HANDLE_MALLOC(res_digits, buff_size);
+	HANDLE_MALLOC(res_digits, buff_size * 4ul);
 
 	size_t res_cnt = word_to_digits(res_digits,
 					words[0l]);
-	digit_t *mlt_buff;
 
-	HANDLE_MALLOC(mlt_buff, buff_size * 3ul);
+	digit_t *mlt_buff = &res_digits[buff_alloc];
 
 	size_t buff_cnt = multiply_digits_by_word(mlt_buff,
 						  &WORD_BASE_DIGITS[0l],
@@ -111,10 +110,9 @@ size_t words_to_digits(digit_t **restrict digits,
 				   res_cnt,
 				   buff_cnt);
 	if (count == 2ul)
-		goto FREE_TMPS_REALLOC_RETURN;
+		goto REALLOC_RETURN;
 
-	digit_t *tmp_buff = mlt_buff;
-	digit_t *base	  = &tmp_buff[buff_alloc];
+	digit_t *base	  = &mlt_buff[buff_alloc];
 	digit_t *base_acc = &base[buff_alloc];
 	digit_t *tmp_swap;
 
@@ -129,7 +127,7 @@ size_t words_to_digits(digit_t **restrict digits,
 
 	memset(&base_acc[DPWB_SQ], 0, buff_pad);
 
-	memset(&tmp_buff[DPWB_SQ], 0, buff_pad);
+	memset(&mlt_buff[DPWB_SQ], 0, buff_pad);
 
 	size_t acc_cnt = do_multiply_digits(base_acc,
 					    base,
@@ -142,13 +140,13 @@ size_t words_to_digits(digit_t **restrict digits,
 		if (word == 0ull)
 			goto NEXT_WORD;
 
-		buff_cnt = multiply_digits_by_word(tmp_buff,
+		buff_cnt = multiply_digits_by_word(mlt_buff,
 						   base_acc,
 						   acc_cnt,
 						   word);
 
 		res_cnt = increment_digits(res_digits,
-					   tmp_buff,
+					   mlt_buff,
 					   res_cnt,
 					   buff_cnt);
 		if (i == count)
@@ -157,18 +155,16 @@ NEXT_WORD:
 		word = words[i];
 		++i;
 
-		acc_cnt = do_multiply_digits(tmp_buff,
+		acc_cnt = do_multiply_digits(mlt_buff,
 					     base_acc,
 					     base,
 					     next_pow_two(acc_cnt));
 		tmp_swap = base_acc;
-		base_acc = tmp_buff;
-		tmp_buff = tmp_swap;
+		base_acc = mlt_buff;
+		mlt_buff = tmp_swap;
 	}
 
-FREE_TMPS_REALLOC_RETURN:
-
-	free(mlt_buff);
+REALLOC_RETURN:
 
 	HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 
