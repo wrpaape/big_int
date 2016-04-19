@@ -34,6 +34,11 @@ struct BigInt {
 	word_t *words;
 };
 
+struct DNode {
+	digit_t *digits;
+	size_t count;
+};
+
 struct MultNode {
 	word_t mult;
 	digit_t *digits;

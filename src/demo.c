@@ -13,13 +13,21 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
 	word_t *words;
 
 	size_t count = digits_to_words(&words,
 				       &large[0l],
-				       180ul);
+				       160ul);
 
 	/* while (count > 0ul) { */
 	/* 	--count; */

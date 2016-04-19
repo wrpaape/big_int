@@ -218,7 +218,7 @@ size_t digits_to_words(word_t **restrict words,
 	}
 
 	/* generate string of digit_t arrays representing
-	 * word "bits" > (word base)¹
+	 * word "bits" >= (word base)¹
 	 *
 	 * { (word base)², (word base)³, ..., (word base)^N }
 	 *
@@ -302,10 +302,10 @@ size_t digits_to_words(word_t **restrict words,
 	 *
 	 *	= C1 * [ N * ln(N) - 2 * ln(2) ] + (C0 - C1) * (N - 2)
 	 *
-	 *	= sum_alloc
+	 *	= sum_alloc (not including base buffer)
 	 *
 	 * Multiplying by sizeof(digit_t) yields a rough estimation of the
-	 * required memory for 'pow_bits'.
+	 * required memory for 'word_bits'.
 	 *
 	 * [{64, 2}, {128, 3}, {256 6}, {512, 13}, {1024, 26}, {2048, 49}]
 	 */
@@ -316,71 +316,76 @@ size_t digits_to_words(word_t **restrict words,
 	 * following expression: */
 
 
-	const size_t n_ceil    = (count / DPWB) + 1ul;
-	const size_t npt_cnt_ceil  = next_pow_two(count);
-	const size_t sum_alloc = (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
-	const size_t base_pad  = sizeof(digit_t) * (npt_cnt_ceil - DPWB);
+	const size_t n_ceil	  = (count / (DPWB - 1ul)) + 1ul;
+	const size_t npt_cnt_ceil = next_pow_two(count);
+	const size_t sum_alloc	  = (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
+	const size_t base_pad	  = sizeof(digit_t) * (npt_cnt_ceil - DPWB);
+	const size_t bits_alloc	  = n_ceil - 1ul;
 
 	word_t *res_words;
 	digit_t *base;
-	size_t *counts;
+	digit_t *next_bit;
+	digit_t *prev_bit;
+	digit_t **word_bits;
+	size_t *bit_cnts;
+	size_t prev_cnt;
+	size_t npt_prev_cnt;
 
-	HANDLE_MALLOC(res_words, sizeof(word_t)  * n_ceil);
-	HANDLE_MALLOC(base,	 sizeof(digit_t) * sum_alloc);
-	HANDLE_MALLOC(counts,	 sizeof(size_t)  * (n_ceil - 2ul));
 
-	printf("sum_alloc: %zu\n", sum_alloc);
-	printf("npt_cnt_ceil:   %zu\n", npt_cnt_ceil);
+	HANDLE_MALLOC(res_words, sizeof(word_t)	   * n_ceil);
+	HANDLE_MALLOC(base,	 sizeof(digit_t)   * sum_alloc);
+	HANDLE_MALLOC(word_bits, sizeof(digit_t *) * bits_alloc);
+	HANDLE_MALLOC(bit_cnts,	 sizeof(size_t)    * bits_alloc);
 
-	digit_t *next_pow = &base[npt_cnt_ceil];
-	digit_t *prev_pow;
-
+	/* set base buffer */
 	memcpy(base,
 	       &WORD_BASE_DIGITS[0l],
 	       sizeof(digit_t) * DPWB);
 
 	memset(&base[DPWB], 0, base_pad);
 
-	size_t *next_cnt = counts;
-	size_t prev_cnt;
-	/* size_t *next_cnt = prev_cnt + 1ul; */
+	next_bit = &base[npt_cnt_ceil];
 
-	size_t npt_prev_cnt = NPT_DPWB_SQ;
+	word_bits[0l] = next_bit;
 
-	*next_cnt = do_multiply_digits(next_pow,
-				       base,
-				       base,
-				       NPT_DPWB);
+	bit_cnts[0l]  = do_multiply_digits(next_bit,
+					   base,
+					   base,
+					   NPT_DPWB);
+	ptrdiff_t i = 0l;
 
-	while (*next_cnt <= count) {
+	while (bit_cnts[i] <= count) {
 
+		prev_bit = next_bit;
 
-		prev_pow = next_pow;
-
-		prev_cnt = *next_cnt;
-
-		PUT_DIGITS("next_pow", next_pow, prev_cnt);
+		prev_cnt = bit_cnts[i];
 
 		npt_prev_cnt = next_pow_two(prev_cnt);
 
-		printf("prev_cnt: %zu, (%zu)\n", prev_cnt, npt_prev_cnt);
-
-
 		/* zero-pad from 'count..next_pow_two(count)' */
-		memset(&prev_pow[prev_cnt],
+		memset(&prev_bit[prev_cnt],
 		       0,
 		       sizeof(digit_t) * (npt_prev_cnt - prev_cnt));
 
 		/* advance buffer pointers */
-		++next_cnt;
-		next_pow += npt_prev_cnt;
+		++i;
+		next_bit += npt_prev_cnt;
+
+		word_bits[i] = next_bit;
 
 		/* calculate next word base power */
-		*next_cnt = do_multiply_digits(next_pow,
-					       prev_pow,
-					       base,
-					       npt_prev_cnt);
+		bit_cnts[i] = do_multiply_digits(next_bit,
+						 prev_bit,
+						 base,
+						 npt_prev_cnt);
 	}
+
+	/* const size_t rem_cnt = word_div_rem(rem_digits, */
+	/* 				    &(*words)[1l], */
+	/* 				    digits, */
+	/* 				    &WORD_BASE_DIGITS[0l], */
+	/* 				    count, */
+	/* 				    DPWB); */
 
 	return 42ul;
 }
