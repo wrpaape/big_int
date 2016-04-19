@@ -8,18 +8,23 @@ int main(void)
 	/* const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u}; */
 	const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
 	word_t *words;
 
 	size_t count = digits_to_words(&words,
 				       &large[0l],
-				       30ul);
+				       100ul);
 
-	while (count > 0ul) {
-		--count;
-		printf("words[%zu]: %llu \n", count, words[count]);
-	}
+	/* while (count > 0ul) { */
+	/* 	--count; */
+	/* 	printf("words[%zu]: %llu \n", count, words[count]); */
+	/* } */
 
 
 

@@ -3,6 +3,7 @@
 #include "big_int/globals.h"
 #include "big_int/utils.h"
 #include "big_int/digits.h"
+#include <math.h>
 
 /* EXTERNAL DEPENDENCIES ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -16,10 +17,15 @@
 /* digits per word base */
 #define DPWB 20ul
 /* next_pow_two(DPWB) */
-#define NEXT_POW_TWO_DPWB 32ul
+#define NPT_DPWB 32ul
 
 /* digits in 2¹²⁸ */
 #define DPWB_SQ 39ul
+/* next_pow_two(DPWB) */
+#define NPT_DPWB_SQ 64ul
+
+/* ln(2) */
+#define LN_2 0.6931471805599453
 
 static const digit_t WORD_BASE_DIGITS[] = {
 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
@@ -132,7 +138,7 @@ size_t words_to_digits(digit_t **restrict digits,
 	size_t acc_cnt = do_multiply_digits(base_acc,
 					    base,
 					    base,
-					    NEXT_POW_TWO_DPWB);
+					    NPT_DPWB);
 	ptrdiff_t i = 3l;
 	word_t word = words[2l];
 
@@ -215,71 +221,123 @@ size_t digits_to_words(word_t **restrict words,
 	/* generate string of digit_t arrays representing
 	 * word "bits" > (word base)¹
 	 *
-	 * {(word base)², (word base)³, ..., (word base)ⁿ}
+	 * { (word base)², (word base)³, ..., (word base)^N }
 	 *
-	 * where 'half_count <= count( (word base)ⁿ ) < count'
-	 */
-
-	const size_t res_alloc = (count / DPWB) + 1ul;
-
-	word_t *res_words;
-
-	HANDLE_MALLOC(res_words, sizeof(word_t) * res_alloc);
-
-	/* size of "bits" buffer should be at least:
+	 * where 'half_count <= len( (word base)^N ) < count'
+	 *
+	 * size of "bits" buffer should be at least:
 	 *
 	 * buff_size = (
-	 *	  next_pow_two( count(word base)² )
-	 *  	+ next_pow_two( count(word base)³ )
+	 *	  next_pow_two( len(word base)² )
+	 *  	+ next_pow_two( len(word base)³ )
 	 *  	+ ...
-	 *  	+ next_pow_two( count(word base)ⁿ ) = buff_alloc
+	 *  	+ next_pow_two( len(word base)^N ) = buff_alloc
 	 * ) * sizeof(digit_t)
 	 *
-	 * = sizeof(digit_t) * Σ next_pow_two( count (word base)^i )  for { i in 2..n }
+	 * = sizeof(digit_t) * Σ next_pow_two( len (word base)ⁿ )  for i ∈ [2, N]
 	 *
 	 * where
 	 *
-	 * count( (word base)^i ) <= count( (word base)¹ ) * i == DPWB * i
+	 * len( (word base)^i ) <= len( (word base)¹ ) * i == DPWB * i
 	 *
 	 * Taking the conservative approximation that '(word base)^i' has
 	 * 'DPWB * i' digits (i.e. linear growth):
 	 *
-	 *    count
+	 * f(n) = len( (word base)^i )
 	 *	^
 	 *	│	 	  ▁▁▂▂▃▃▄▄▅▅▆▆▇▇██
 	 *	│ ▁▁▂▂▃▃▄▄▅▅▆▆▇▇██████████████████
 	 *	└─┼──────────────────────────────┼─> i
-	 *	  2				 n
+	 *	  2				 N
 	 *
 	 * the growth of total required digits (i.e. memory) resembles a
 	 * series of deccelerating doubling steps:
 	 *
-	 * next_pow_two(count)
+	 * g(n) = next_pow_two( fn(n) )
 	 *	^
 	 *	│		      ████████████
 	 *	│ ▁▁▂▂▂▄▄▄▄▄██████████████████████
 	 *	└─┼──────────────────────────────┼─> i
-	 *	  2				 n
+	 *	  2				 N
 	 *
-	 * Accordingly, the summation of total required digits can be
-	 * approximated with the definite integral:
+	 * Assuming logarithmic growth of the form:
 	 *
-	 * n
-	 * ∫ DPWB * 2^log₂(i)
-	 * 2
-	 *						n
-	 * = DPWB * [ (i * (ln(i) - 1)) / ln(2) + C ]	|
-	 *						2
-	 * = DPWB * [ (n * (ln(n) - 1)) / ln(2)
-	 *	  -   (2 * (ln(2) - 1)) / ln(2) ]
+	 * g(n) = C0 + C1 * ln(n)
 	 *
-	 * = DPWB * [ ((n * (ln(n) - 1)) + 2) / ln(2) - 2 ]
+	 * an g(n) can be approximated with knowledge of the boundary
+	 * conditions:
+	 *
+	 *	g(2) = next_pow_two( len( (word base)² ) )
+	 *	     ≈ 2 ^ ceil( log₂(DPWB * 2) )
+	 *	     = NPT_DPWB_SQ
+	 * and
+	 *	g(N) = next_pow_two( len( (word base)ⁿ ) )
+	 *	     ≈ 2 ^ ceil( log₂( count ) )
+	 *
+	 *  	C0 + C1 * ln(2) = g(2)
+	 *
+	 * (i)	C0 = g(2) - C1 * ln(2)
+	 *
+	 * substituting...
+	 *
+	 *	C0 + C1 * ln(N) = g(N)
+	 * →	g(2) - C1 * ln(2) + C1 * ln(N) = g(N)
+	 * →	C1 * (ln(2) + ln(N)) = g(N) - g(2)
+	 *
+	 * (ii)	C1 = (g(N) - g(2)) / (ln(2) + ln(N))
+	 *
+	 * with expressions (i) and (ii) calculated at runtime
+	 *
+	 * Thus the summation of total required digits can be
+	 * approximated with the definite integral of g(n):
+	 *
+	 *	  N
+	 * Σlen = ∫ g(n)
+	 *	  2
+	 *	  N
+	 *	= ∫ C0 + C1 * ln(n)
+	 *	  2
+	 *					    N
+	 *	≈ [n * (C1 * (ln(n) - 1) + C0) + K] |
+	 *					    2
+	 *
+	 *	= C1 * [ N * ln(N) - 2 * ln(2) ] + (C0 - C1) * (N - 2)
+	 *
+	 *	= est_alloc
+	 *
+	 * Multiplying by sizeof(digit_t) yields a rough estimation of the
+	 * required memory for 'word_bits'.
+	 *
+	 * [{32.0, 1}, {64.0, 2}, {128.0, 3}, {256.0, 6}, {512.0, 13},
+	 * {1024.0, 26}, {2048.0, 49}]
 	 */
 
 
-	const size_t buff_alloc = next_pow_two(half_count);
+	const size_t res_alloc = (count / DPWB) + 1ul;	/* >= N */
+	const double N_CEIL    = (double) res_alloc;
 
-	const size_t size_zeros = (buff_alloc - DPWB) * sizeof(digit_t);
+	/* nudge boundary conditions higher to compensate for upper-left
+	 * corners of "steps" not enclosed by g(n) approximation */
+
+	const double G_2 = (double) (3ul * NPT_DPWB_SQ / 2ul);
+	const double G_N = (double) (3ul * next_pow_two(count) / 2ul);
+
+	const double LN_N = log(N_CEIL);
+
+	const double C1 = (G_N - G_2) / (LN_2 + LN_N);
+
+	const double C0 = G_2 - (C1 * LN_2);
+
+	const double est_alloc = C1 * ((N_CEIL * LN_N) - (2.0 * LN_2))
+			       + ((C0 - C1) * (N_CEIL - 2.0));
+
+
+	printf("N_CEIL:	   %f\n", N_CEIL);
+	printf("LN_N:	   %f\n", LN_N);
+	printf("C0:	   %f\n", C0);
+	printf("C1:	   %f\n", C1);
+	printf("est_alloc: %f\n", est_alloc);
+
 
 	return 42ul;
 
