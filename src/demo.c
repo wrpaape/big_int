@@ -46,25 +46,27 @@ int main(void)
 
 /* dvd_digits: 8354570280438880660901816588598410986 */
 /* res_words[1]: 452902162411733219 wrong */
+	/*	 452902162411733222 */
+	/*	 452902162411733222 */
 /* rem_digits: 56427215838696079082 */
 
-	/* digit_t dvd_digits[] = { */
-	/* 	6, 8, 9, 0, 1, 4, 8, 9, 5, 8, 8, 5, 6, 1, 8, 1, 0, 9, 0, 6, 6, */
-	/* 	0, 8, 8, 8, 3, 4, 0, 8, 2, 0, 7, 5, 4, 5, 3, 8, 1 */
-	/* }; */
+	digit_t dvd_digits[] = {
+		6, 8, 9, 0, 1, 4, 8, 9, 5, 8, 8, 5, 6, 1, 8, 1, 0, 9, 0, 6, 6,
+		0, 8, 8, 8, 3, 4, 0, 8, 2, 0, 7, 5, 4, 5, 3, 8, 1
+	};
 
-	/* static const digit_t WORD_BASE_DIGITS[] = { */
-	/* 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u, */
-	/* 	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u */
-	/* }; */
+	static const digit_t WORD_BASE_DIGITS[] = {
+		6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
+		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
+	};
 
-	/* word_t word; */
+	word_t word;
 
-	/* size_t rem_cnt = word_div_rem(&word, */
-	/* 			      &dvd_digits[0l], */
-	/* 			      &WORD_BASE_DIGITS[0l], */
-	/* 			      37ul, */
-	/* 			      20ul); */
+	size_t rem_cnt = word_div_rem(&word,
+				      &dvd_digits[0l],
+				      &WORD_BASE_DIGITS[0l],
+				      37ul,
+				      20ul);
 
 	/* printf("word: %llu\n", word); */
 	/* PUT_DIGITS("rem_digits", dvd_digits, rem_cnt); */

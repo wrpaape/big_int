@@ -635,10 +635,10 @@ size_t word_div_rem(word_t *restrict div,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt)
 {
-	PUT_DIGITS("\n*******\ndvd_digits", rem, dvd_cnt);
-	PUT_DIGITS("quo_digits", quo, quo_cnt);
-	printf("dvd_cnt: %zu\n", dvd_cnt);
-	printf("quo_cnt: %zu\n", quo_cnt);
+	/* PUT_DIGITS("\n*******\ndvd_digits", rem, dvd_cnt); */
+	/* PUT_DIGITS("quo_digits", quo, quo_cnt); */
+	/* printf("dvd_cnt: %zu\n", dvd_cnt); */
+	/* printf("quo_cnt: %zu\n", quo_cnt); */
 
 	if (quo_cnt > dvd_cnt) {
 QUO_GREATER_THAN_DVD:
@@ -759,6 +759,8 @@ QUO_GREATER_THAN_DVD:
 						    quo,
 						    quo_cnt);
 
+			printf("\n***********\nmlt: %llu\n", (node->mult - 1ull) * TEN_POW_MAP[rem - rem_base]);
+
 			word_acc += ((node->mult - 1ull)
 				     * TEN_POW_MAP[rem - rem_base]);
 
@@ -766,17 +768,21 @@ QUO_GREATER_THAN_DVD:
 			rem_cnt = correct_digits_count(rem,
 						       rem_cnt);
 
+			printf("\n***********\nmlt: %llu\n", node->mult * TEN_POW_MAP[rem - rem_base]);
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
+
+		PUT_DIGITS("rem", rem, rem_cnt);
+		printf("acc: %llu\n", word_acc);
 
 		rem -= (quo_cnt - rem_cnt);
 
 	} while (rem >= rem_base);
 
-	PUT_DIGITS("\nrem_digits", rem, rem_cnt);
-	PUT_DIGITS("quo_digits", quo, quo_cnt);
-	printf("word_acc: %llu\n", word_acc);
+	/* PUT_DIGITS("\nrem_digits", rem, rem_cnt); */
+	/* PUT_DIGITS("quo_digits", quo, quo_cnt); */
+	/* printf("word_acc: %llu\n", word_acc); */
 
 	free_mult_map(q_mlts);
 
