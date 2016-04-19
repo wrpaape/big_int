@@ -27,6 +27,10 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
+/* dvd_digits: 8354570280438880660901816588598410986 */
+/* res_words[1]: 452902162411733219 wrong */
+/* rem_digits: 56427215838696079082 */
+
 	word_t *words;
 	digit_t *digits;
 

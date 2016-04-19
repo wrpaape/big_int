@@ -417,15 +417,22 @@ size_t digits_to_words(word_t **restrict words,
 		PUT_DIGITS("rem_digits", rem_digits, rem_cnt);
 		printf("bit_cnts[%zu]:  %zu\n",  n, bit_cnts[n]);
 		printf("res_words[%zu]: %llu\n", n, res_words[n]);
+		printf("\nrem_cnt: %zu\n\n", rem_cnt);
 		--n;
 
 	} while (n > 1l);
+
+	PUT_DIGITS("********\ndvd_digits", rem_digits, rem_cnt);
 
 	rem_cnt = word_div_rem(&res_words[1l],
 			       rem_digits,
 			       &WORD_BASE_DIGITS[0l],
 			       rem_cnt,
 			       DPWB);
+
+	printf("res_words[%zu]: %llu\n", 1ul, res_words[1l]);
+	PUT_DIGITS("rem_digits", rem_digits, rem_cnt);
+	printf("\nrem_cnt: %zu\n\n", rem_cnt);
 
 	res_words[0l] = digits_to_word(rem_digits,
 				       rem_cnt);
