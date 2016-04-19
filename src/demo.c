@@ -19,7 +19,7 @@ int main(void)
 
 	size_t count = digits_to_words(&words,
 				       &large[0l],
-				       65ul);
+				       180ul);
 
 	/* while (count > 0ul) { */
 	/* 	--count; */
