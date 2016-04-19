@@ -407,7 +407,7 @@ size_t digits_to_words(word_t **restrict words,
 	ptrdiff_t res_N = n;
 
 	do {
-		/* PUT_DIGITS("dvd_digits", rem_digits, rem_cnt); */
+		PUT_DIGITS("dvd_digits", rem_digits, rem_cnt);
 
 		rem_cnt = word_div_rem(&res_words[n],
 				       rem_digits,
@@ -643,7 +643,6 @@ size_t word_div_rem(word_t *restrict div,
 	if (quo_cnt > dvd_cnt) {
 QUO_GREATER_THAN_DVD:
 
-		puts("YOOOOOOO");
 		*div = 0ull;
 		return dvd_cnt;
 	}
