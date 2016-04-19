@@ -171,7 +171,6 @@ NEXT_WORD:
 
 REALLOC_RETURN:
 
-	puts("YOOOO");
 	HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 
 	*digits = res_digits;
@@ -326,11 +325,19 @@ size_t digits_to_words(word_t **restrict words,
 
 	const size_t n_ceil	  = (count / (DPWB - 1ul)) + 1ul;
 	const size_t npt_cnt_ceil = next_pow_two(count);
-	const size_t sum_alloc	  = (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
+	const size_t sum_alloc	  = npt_cnt_ceil
+				  + (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
 	const size_t base_pad	  = sizeof(digit_t) * (npt_cnt_ceil - DPWB);
 	const size_t bits_alloc	  = n_ceil + 1ul;
+	const size_t bit_cnt_cutoff = count - DPWB + 1ul;
 
-	const size_t bit_cnt_cutoff = count - DPWB - 1ul;
+	printf("n_ceil:		%zu\n", n_ceil);
+	printf("npt_cnt_ceil:	%zu\n", npt_cnt_ceil);
+	printf("sum_alloc:	%zu\n", sum_alloc);
+	printf("base_pad:	%zu\n", base_pad);
+	printf("bits_alloc:	%zu\n", bits_alloc);
+	printf("bit_cnt_cutoff: %zu\n", bit_cnt_cutoff);
+	fflush(stdout);
 
 	word_t *res_words;
 	digit_t *base;
@@ -389,18 +396,27 @@ size_t digits_to_words(word_t **restrict words,
 						 npt_prev_cnt);
 	} while (bit_cnts[n] < bit_cnt_cutoff);
 
+
 	/* set 'res_words' to multiples of 'word_bits' */
+
 
 	res_words[n] = 0ull;
 
 	ptrdiff_t res_N = n;
 
 	do {
+		PUT_DIGITS("dvd_digits", rem_digits, rem_cnt);
+
 		rem_cnt = word_div_rem(&res_words[n],
 				       rem_digits,
 				       word_bits[n],
 				       rem_cnt,
 				       bit_cnts[n]);
+
+		PUT_DIGITS("word_bits", word_bits[n], bit_cnts[n]);
+		PUT_DIGITS("rem_digits", rem_digits, rem_cnt);
+		printf("bit_cnts[%zu]:  %zu\n",  n, bit_cnts[n]);
+		printf("res_words[%zu]: %llu\n", n, res_words[n]);
 		--n;
 
 	} while (n > 1l);
