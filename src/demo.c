@@ -5,42 +5,42 @@
 
 int main(void)
 {
-	/* const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u}; */
+	const digit_t small[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	/* const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, */
-	/* 			 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u}; */
+	const digit_t large[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
+				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	/* word_t *words; */
-	/* digit_t *digits; */
+	word_t *words;
+	digit_t *digits;
 
-	/* size_t count = digits_to_words(&words, */
-	/* 			       &small[0l], */
-	/* 			       40ul); */
+	size_t count = digits_to_words(&words,
+				       &small[0l],
+				       40ul);
 
-	/* for (ptrdiff_t i = count - 1l; i > -1l; --i) */
-	/* 	printf("words[%zu]: %llu \n", i, words[i]); */
+	for (ptrdiff_t i = count - 1l; i > -1l; --i)
+		printf("words[%zd]: %llu \n", i, words[i]);
 
 
-	/* count = words_to_digits(&digits, */
-	/* 			words, */
-	/* 			count); */
+	count = words_to_digits(&digits,
+				words,
+				count);
 
 
 
@@ -48,26 +48,26 @@ int main(void)
 /* res_words[1]: 452902162411733219 wrong */
 /* rem_digits: 56427215838696079082 */
 
-	digit_t dvd_digits[] = {
-		6, 8, 9, 0, 1, 4, 8, 9, 5, 8, 8, 5, 6, 1, 8, 1, 0, 9, 0, 6, 6,
-		0, 8, 8, 8, 3, 4, 0, 8, 2, 0, 7, 5, 4, 5, 3, 8
-	};
+	/* digit_t dvd_digits[] = { */
+	/* 	6, 8, 9, 0, 1, 4, 8, 9, 5, 8, 8, 5, 6, 1, 8, 1, 0, 9, 0, 6, 6, */
+	/* 	0, 8, 8, 8, 3, 4, 0, 8, 2, 0, 7, 5, 4, 5, 3, 8, 1 */
+	/* }; */
 
-	static const digit_t WORD_BASE_DIGITS[] = {
-		6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u,
-		7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u
-	};
+	/* static const digit_t WORD_BASE_DIGITS[] = { */
+	/* 	6u, 1u, 6u, 1u, 5u, 5u, 9u, 0u, 7u, 3u, */
+	/* 	7u, 0u, 4u, 4u, 7u, 6u, 4u, 4u, 8u, 1u */
+	/* }; */
 
-	word_t word;
+	/* word_t word; */
 
-	size_t rem_cnt = word_div_rem(&word,
-				      &dvd_digits[0l],
-				      &WORD_BASE_DIGITS[0l],
-				      37ul,
-				      20ul);
+	/* size_t rem_cnt = word_div_rem(&word, */
+	/* 			      &dvd_digits[0l], */
+	/* 			      &WORD_BASE_DIGITS[0l], */
+	/* 			      37ul, */
+	/* 			      20ul); */
 
-	printf("word: %llu\n", word);
-	PUT_DIGITS("rem_digits", dvd_digits, rem_cnt);
+	/* printf("word: %llu\n", word); */
+	/* PUT_DIGITS("rem_digits", dvd_digits, rem_cnt); */
 
 
 	/* word_t words[] = {0ull, 1ull, 0ull, 1ull}; */

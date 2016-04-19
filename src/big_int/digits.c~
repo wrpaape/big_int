@@ -437,10 +437,10 @@ size_t digits_to_words(word_t **restrict words,
 	res_words[0l] = digits_to_word(rem_digits,
 				       rem_cnt);
 
-	free(base);
-	free(rem_digits);
-	free(word_bits);
-	free(bit_cnts);
+	/* free(base); */
+	/* free(rem_digits); */
+	/* free(word_bits); */
+	/* free(bit_cnts); */
 
 	while (res_words[res_N] == 0ull)
 		--res_N;
