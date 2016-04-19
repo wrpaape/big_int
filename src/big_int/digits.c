@@ -171,6 +171,7 @@ NEXT_WORD:
 
 REALLOC_RETURN:
 
+	puts("YOOOO");
 	HANDLE_REALLOC(res_digits, sizeof(digit_t) * res_cnt);
 
 	*digits = res_digits;
@@ -395,11 +396,11 @@ size_t digits_to_words(word_t **restrict words,
 	ptrdiff_t res_N = n;
 
 	do {
-		rem_cnt = word_div_rem(rem_digits,
-				       &res_words[n],
-				       &word_bits[n],
+		rem_cnt = word_div_rem(&res_words[n],
+				       rem_digits,
+				       word_bits[n],
 				       rem_cnt,
-				       &bit_cnts[n]);
+				       bit_cnts[n]);
 		--n;
 
 	} while (n > 1l);
