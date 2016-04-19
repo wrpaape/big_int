@@ -430,7 +430,7 @@ size_t digits_to_words(word_t **restrict words,
 	fflush(stdout);
 
 	rem_cnt = word_div_rem(&res_words[1l],
-			       rem_digits,
+			       &rem_digits[0l],
 			       &WORD_BASE_DIGITS[0l],
 			       rem_cnt,
 			       DPWB);
@@ -614,6 +614,17 @@ do {								\
 	memset(node_buff, 0,
 	       sizeof(struct MultNode *) * (node_ptr - node_buff));
 
+	printf("diff: %zd\n", node_ptr - node_buff);
+	PUT_DIGITS("\nMULT_MAP for", base, count);
+
+	for (ptrdiff_t i = 0l; i < 9l; ++i) {
+
+		/* printf("%zd. %llu\n", i, node->digits); */
+
+		PUT_DIGITS("digits", node->digits, count + 1l);
+		++node;
+	}
+
 	return mult_map;
 }
 
@@ -642,7 +653,6 @@ size_t word_div_rem(word_t *restrict div,
 {
 	if (quo_cnt > dvd_cnt) {
 QUO_GREATER_THAN_DVD:
-
 		*div = 0ull;
 		return dvd_cnt;
 	}
@@ -729,13 +739,13 @@ QUO_GREATER_THAN_DVD:
 
 	struct MultMap *q_mlts = build_mult_map(quo,
 						quo_cnt);
+
 	size_t rem_cnt;
 
 	word_t word_acc = 0ull;
 
-	rem += (dvd_cnt - quo_cnt);
 
-	PUT_DIGITS("rem", rem, quo_cnt);
+	rem += (dvd_cnt - quo_cnt);
 
 	do {
 		node = closest_mult(q_mlts,
@@ -777,6 +787,8 @@ QUO_GREATER_THAN_DVD:
 		}
 
 		/* PUT_DIGITS("rem", rem, rem_cnt); */
+		PUT_DIGITS("rem", rem, rem_cnt);
+
 		/* printf("acc: %llu\n", word_acc); */
 
 		rem -= (quo_cnt - rem_cnt);
