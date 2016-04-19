@@ -195,20 +195,26 @@ size_t digits_to_words(word_t **restrict words,
 		return 1ul;
 	}
 
-	const size_t half_count = count / 2ul;
+	const size_t digits_size = sizeof(digit_t) * count;
 
-	if (half_count < DPWB) {
-		digit_t *rem_digits;
+	size_t rem_cnt;
+	digit_t *rem_digits;
 
-		HANDLE_MALLOC(rem_digits, sizeof(digit_t) * DPWB);
-		HANDLE_MALLOC(*words,	  sizeof(word_t)  * 2ul);
+	HANDLE_MALLOC(rem_digits, digits_size + sizeof(digit_t));
 
-		const size_t rem_cnt = word_div_rem(rem_digits,
-						    &(*words)[1l],
-						    digits,
-						    &WORD_BASE_DIGITS[0l],
-						    count,
-						    DPWB);
+	memcpy(rem_digits, digits, digits_size);
+
+	rem_digits[count] = 0u;
+
+	if (count < DPWB_SQ) {
+
+		HANDLE_MALLOC(*words, sizeof(word_t) * 2ul);
+
+		rem_cnt = word_div_rem(&(*words)[1l],
+				       rem_digits,
+				       &WORD_BASE_DIGITS[0l],
+				       count,
+				       DPWB);
 
 		(*words)[0l] = digits_to_word(rem_digits,
 					      rem_cnt);
@@ -216,6 +222,8 @@ size_t digits_to_words(word_t **restrict words,
 
 		return 2ul;
 	}
+
+	rem_cnt = count;
 
 	/* generate string of digit_t arrays representing
 	 * word "bits" >= (word base)¹
@@ -311,16 +319,17 @@ size_t digits_to_words(word_t **restrict words,
 	 */
 
 
-	/* IGNORE ALL THE MATH CRAP ABOVE, for some reason an accurate and safe
+	/* IGNORE ALL THE MATH CRAP ABOVE, for some reason a safe and accurate
 	 * estimation of required memory allocation can be obtained with the
 	 * following expression: */
-
 
 	const size_t n_ceil	  = (count / (DPWB - 1ul)) + 1ul;
 	const size_t npt_cnt_ceil = next_pow_two(count);
 	const size_t sum_alloc	  = (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
 	const size_t base_pad	  = sizeof(digit_t) * (npt_cnt_ceil - DPWB);
-	const size_t bits_alloc	  = n_ceil - 1ul;
+	const size_t bits_alloc	  = n_ceil + 1ul;
+
+	const size_t bit_cnt_cutoff = count - DPWB - 1ul;
 
 	word_t *res_words;
 	digit_t *base;
@@ -329,7 +338,6 @@ size_t digits_to_words(word_t **restrict words,
 	digit_t **word_bits;
 	size_t *bit_cnts;
 	size_t prev_cnt;
-	size_t rem_cnt;
 	size_t npt_prev_cnt;
 
 
@@ -347,19 +355,18 @@ size_t digits_to_words(word_t **restrict words,
 
 	next_bit = &base[npt_cnt_ceil];
 
-	word_bits[0l] = next_bit;
+	word_bits[2l] = next_bit;
 
-	bit_cnts[0l]  = do_multiply_digits(next_bit,
+	bit_cnts[2l]  = do_multiply_digits(next_bit,
 					   base,
 					   base,
 					   NPT_DPWB);
-	ptrdiff_t i = 0l;
+	ptrdiff_t n = 2l;
 
-	while (bit_cnts[i] <= count) {
-
+	do {
 		prev_bit = next_bit;
 
-		prev_cnt = bit_cnts[i];
+		prev_cnt = bit_cnts[n];
 
 		npt_prev_cnt = next_pow_two(prev_cnt);
 
@@ -369,31 +376,56 @@ size_t digits_to_words(word_t **restrict words,
 		       sizeof(digit_t) * (npt_prev_cnt - prev_cnt));
 
 		/* advance buffer pointers */
-		++i;
+		++n;
 		next_bit += npt_prev_cnt;
 
-		word_bits[i] = next_bit;
+		word_bits[n] = next_bit;
 
 		/* calculate next word base power */
-		bit_cnts[i] = do_multiply_digits(next_bit,
+		bit_cnts[n] = do_multiply_digits(next_bit,
 						 prev_bit,
 						 base,
 						 npt_prev_cnt);
-	}
+	} while (bit_cnts[n] < bit_cnt_cutoff);
 
 	/* set 'res_words' to multiples of 'word_bits' */
-	for (ptrdiff_t n = i + 1l; n > 1l; --n) {
 
-	}
+	res_words[n] = 0ull;
 
-	/* const size_t rem_cnt = word_div_rem(rem_digits, */
-	/* 				    &(*words)[1l], */
-	/* 				    digits, */
-	/* 				    &WORD_BASE_DIGITS[0l], */
-	/* 				    count, */
-	/* 				    DPWB); */
+	ptrdiff_t res_N = n;
 
-	return 42ul;
+	do {
+		rem_cnt = word_div_rem(rem_digits,
+				       &res_words[n],
+				       &word_bits[n],
+				       rem_cnt,
+				       &bit_cnts[n]);
+		--n;
+
+	} while (n > 1l);
+
+	rem_cnt = word_div_rem(&res_words[1l],
+			       rem_digits,
+			       &WORD_BASE_DIGITS[0l],
+			       rem_cnt,
+			       DPWB);
+
+	res_words[0l] = digits_to_word(rem_digits,
+				       rem_cnt);
+
+	free(base);
+	free(rem_digits);
+	free(word_bits);
+	free(bit_cnts);
+
+	while (res_words[res_N] == 0ull)
+		--res_N;
+
+	const size_t res_cnt = res_N + 1ul;
+
+	HANDLE_REALLOC(res_words, sizeof(word_t) * res_cnt);
+
+	return res_cnt;
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
@@ -557,40 +589,34 @@ do {								\
 /*
  * long division:
  *
- * given digit_t arrays 'dvd' (dividend) and 'quo' (quotient), calculates 'div'
- * (divisor) and 'rem' (remainder) s.t.
+ * given digit_t arrays 'rem' (dividend) and 'quo' (quotient), calculates 'div'
+ * (divisor) and sets 'rem' to remainder s.t.
  *
- * quo * div + rem = dvd
+ * quotient * divisor + remainder (output rem) = dividend (input rem)
  *
- * sets 'rem' and 'div' and returns count(rem);
+ * and returns count(rem);
  *
  * input conditions:
- *	1. quo <= dvd <= quo * WORD_MAX
- *	2. sizeof(rem) >= sizeof(dvd)
+ *	1. quo <= rem <= quo * WORD_MAX
+ *	2. rem_alloc >= rem_cnt + 1
+ *	3. rem[rem_cnt] = 0
  *
  * TODO: allow input 'dvd' to be clobbered instead of copying on each call
  */
-size_t word_div_rem(digit_t *restrict rem,
-		    word_t *restrict div,
-		    const digit_t *restrict dvd,
+size_t word_div_rem(word_t *restrict div,
+		    digit_t *restrict rem,
 		    const digit_t *restrict quo,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt)
 {
-	struct MultNode *node;
 	bool mult_greater_than_rem;
+	struct MultNode *node;
 	size_t rem_cnt;
 
 	digit_t *const rem_base = rem;
 
 	struct MultMap *quo_mults = build_mult_map(quo,
 						   quo_cnt);
-	memcpy(rem,
-	       dvd,
-	       sizeof(digit_t) * dvd_cnt);
-
-	rem[dvd_cnt] = 0u;
-
 	word_t word_acc = 0ull;
 
 	rem += (dvd_cnt - quo_cnt);
