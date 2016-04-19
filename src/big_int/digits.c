@@ -313,30 +313,39 @@ size_t digits_to_words(word_t **restrict words,
 	 */
 
 
-	const size_t res_alloc = (count / DPWB) + 1ul;	/* >= N */
-	const double N_CEIL    = (double) res_alloc;
+	/* const size_t res_alloc = (count / DPWB) + 1ul;	/1* >= N *1/ */
+	/* const double N_CEIL    = (double) res_alloc; */
 
 	/* nudge boundary conditions higher to compensate for upper-left
-	 * corners of "steps" not enclosed by g(n) approximation */
+	 * corners of "steps" not enclosed under g(n) approximation */
 
-	const double G_2 = (double) (3ul * NPT_DPWB_SQ / 2ul);
-	const double G_N = (double) (3ul * next_pow_two(count) / 2ul);
+	/* const double G_2 = (double) (2ul * NPT_DPWB_SQ); */
+	/* const double G_N = (double) (2ul * next_pow_two(count)); */
 
-	const double LN_N = log(N_CEIL);
+	/* const double LN_N = log(N_CEIL); */
 
-	const double C1 = (G_N - G_2) / (LN_2 + LN_N);
+	/* const double C1 = (G_N - G_2) / (LN_2 + LN_N); */
 
-	const double C0 = G_2 - (C1 * LN_2);
+	/* const double C0 = G_2 - (C1 * LN_2); */
 
-	const double est_alloc = C1 * ((N_CEIL * LN_N) - (2.0 * LN_2))
-			       + ((C0 - C1) * (N_CEIL - 2.0));
+	/* const double est_alloc = C1 * ((N_CEIL * LN_N) - (2.0 * LN_2)) */
+	/* 		       + ((C0 - C1) * (N_CEIL - 2.0)); */
 
 
-	printf("N_CEIL:	   %f\n", N_CEIL);
-	printf("LN_N:	   %f\n", LN_N);
-	printf("C0:	   %f\n", C0);
-	printf("C1:	   %f\n", C1);
-	printf("est_alloc: %f\n", est_alloc);
+	/* IGNORE ALL THE MATH CRAP ABOVE, for some reason an accurate and safe
+	 * estimation of required memory allocation can be obtained with the
+	 * following expression: */
+
+
+	const size_t N_CEIL  = (count / DPWB) + 1ul;
+	const size_t MAX_CNT = next_pow_two(N_CEIL * DPWB);
+
+	const size_t est_alloc = ((N_CEIL - 1ul) * MAX_CNT * 2ul) / 3ul;
+
+
+	printf("N_CEIL:	   %zu\n", N_CEIL);
+	printf("MAX_CNT:   %zu\n", MAX_CNT);
+	printf("est_alloc: %zu\n", est_alloc);
 
 
 	return 42ul;
