@@ -442,6 +442,8 @@ size_t digits_to_words(word_t **restrict words,
 
 	HANDLE_REALLOC(res_words, sizeof(word_t) * res_cnt);
 
+	*words = res_words;
+
 	return res_cnt;
 }
 
