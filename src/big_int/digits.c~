@@ -568,7 +568,7 @@ do {								\
  *	1. quo <= dvd <= quo * WORD_MAX
  *	2. sizeof(rem) >= sizeof(dvd)
  *
- * TODO: allow input 'dvd' to be clobbered instead of copying on each call
+ * TODO: allow input dvd to be clobbered instead of copying on each call
  */
 size_t word_div_rem(digit_t *restrict rem,
 		    word_t *restrict div,
