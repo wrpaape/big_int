@@ -90,13 +90,12 @@ size_t words_to_digits(digit_t **restrict digits,
 	 *
 	 * to ensure no truncation on division by 2
 	 */
-	const size_t alloc_count = ((count + 1ul) * count * DPWB) / 2ul
-				 + count - 1ul;
+	const size_t alloc_sum = ((count + 1ul) * count * DPWB) / 2ul
+			       + count - 1ul;
 
-	const size_t buff_alloc = next_pow_two(alloc_count);
+	const size_t buff_alloc = next_pow_two(alloc_sum);
 
 	const size_t buff_size = sizeof(digit_t) * buff_alloc;
-
 
 	digit_t *res_digits;
 
@@ -303,32 +302,13 @@ size_t digits_to_words(word_t **restrict words,
 	 *
 	 *	= C1 * [ N * ln(N) - 2 * ln(2) ] + (C0 - C1) * (N - 2)
 	 *
-	 *	= est_alloc
+	 *	= sum_alloc
 	 *
 	 * Multiplying by sizeof(digit_t) yields a rough estimation of the
-	 * required memory for 'word_bits'.
+	 * required memory for 'pow_bits'.
 	 *
 	 * [{64, 2}, {128, 3}, {256 6}, {512, 13}, {1024, 26}, {2048, 49}]
 	 */
-
-
-	/* const size_t res_alloc = (count / DPWB) + 1ul;	/1* >= N *1/ */
-	/* const double N_CEIL    = (double) res_alloc; */
-
-	/* nudge boundary conditions higher to compensate for upper-left
-	 * corners of "steps" not enclosed under g(n) approximation */
-
-	/* const double G_2 = (double) (2ul * NPT_DPWB_SQ); */
-	/* const double G_N = (double) (2ul * next_pow_two(count)); */
-
-	/* const double LN_N = log(N_CEIL); */
-
-	/* const double C1 = (G_N - G_2) / (LN_2 + LN_N); */
-
-	/* const double C0 = G_2 - (C1 * LN_2); */
-
-	/* const double est_alloc = C1 * ((N_CEIL * LN_N) - (2.0 * LN_2)) */
-	/* 		       + ((C0 - C1) * (N_CEIL - 2.0)); */
 
 
 	/* IGNORE ALL THE MATH CRAP ABOVE, for some reason an accurate and safe
@@ -336,13 +316,73 @@ size_t digits_to_words(word_t **restrict words,
 	 * following expression: */
 
 
-	const size_t N_CEIL    = (count / DPWB) + 1ul;
-	const size_t CNT_CEIL  = next_pow_two(count);
-	const size_t est_alloc = ((N_CEIL - 1ul) * CNT_CEIL * 2ul) / 3ul;
+	const size_t n_ceil    = (count / DPWB) + 1ul;
+	const size_t npt_cnt_ceil  = next_pow_two(count);
+	const size_t sum_alloc = (n_ceil * npt_cnt_ceil * 2ul) / 3ul;
+	const size_t base_pad  = sizeof(digit_t) * (npt_cnt_ceil - DPWB);
 
+	word_t *res_words;
+	digit_t *base;
+	size_t *counts;
+
+	HANDLE_MALLOC(res_words, sizeof(word_t)  * n_ceil);
+	HANDLE_MALLOC(base,	 sizeof(digit_t) * sum_alloc);
+	HANDLE_MALLOC(counts,	 sizeof(size_t)  * (n_ceil - 2ul));
+
+	printf("sum_alloc: %zu\n", sum_alloc);
+	printf("npt_cnt_ceil:   %zu\n", npt_cnt_ceil);
+
+	digit_t *next_pow = &base[npt_cnt_ceil];
+	digit_t *prev_pow;
+
+	memcpy(base,
+	       &WORD_BASE_DIGITS[0l],
+	       sizeof(digit_t) * DPWB);
+
+	memset(&base[DPWB], 0, base_pad);
+
+	size_t *next_cnt = counts;
+	size_t prev_cnt;
+	/* size_t *next_cnt = prev_cnt + 1ul; */
+
+	size_t npt_prev_cnt = NPT_DPWB_SQ;
+
+	*next_cnt = do_multiply_digits(next_pow,
+				       base,
+				       base,
+				       NPT_DPWB);
+
+	while (*next_cnt <= count) {
+
+
+		prev_pow = next_pow;
+
+		prev_cnt = *next_cnt;
+
+		PUT_DIGITS("next_pow", next_pow, prev_cnt);
+
+		npt_prev_cnt = next_pow_two(prev_cnt);
+
+		printf("prev_cnt: %zu, (%zu)\n", prev_cnt, npt_prev_cnt);
+
+
+		/* zero-pad from 'count..next_pow_two(count)' */
+		memset(&prev_pow[prev_cnt],
+		       0,
+		       sizeof(digit_t) * (npt_prev_cnt - prev_cnt));
+
+		/* advance buffer pointers */
+		++next_cnt;
+		next_pow += npt_prev_cnt;
+
+		/* calculate next word base power */
+		*next_cnt = do_multiply_digits(next_pow,
+					       prev_pow,
+					       base,
+					       npt_prev_cnt);
+	}
 
 	return 42ul;
-
 }
 
 /* TOP-LEVEL FUNCTION DEFINITIONS ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
