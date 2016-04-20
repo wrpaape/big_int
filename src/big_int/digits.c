@@ -403,7 +403,6 @@ size_t digits_to_words(word_t **restrict words,
 				       word_bits[n],
 				       rem_cnt,
 				       bit_cnts[n]);
-
 		--n;
 
 	} while (n > 1l);
@@ -614,6 +613,13 @@ size_t word_div_rem(word_t *restrict div,
 		    const size_t dvd_cnt,
 		    const size_t quo_cnt)
 {
+
+	printf("dvd_cnt: %zu\n", dvd_cnt);
+	printf("quo_cnt: %zu\n", quo_cnt);
+
+	PUT_DIGITS(rem, dvd_cnt);
+	PUT_DIGITS(quo, quo_cnt);
+
 	if (quo_cnt > dvd_cnt) {
 QUO_GREATER_THAN_DVD:
 		*div = 0ull;
@@ -702,7 +708,6 @@ QUO_GREATER_THAN_DVD:
 
 	struct MultMap *q_mlts = build_mult_map(quo,
 						quo_cnt);
-
 	size_t rem_cnt;
 
 	word_t word_acc = 0ull;
@@ -745,6 +750,11 @@ QUO_GREATER_THAN_DVD:
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
+
+		printf("quo_cnt: %zu\n", quo_cnt);
+		printf("rem_cnt: %zu\n", rem_cnt);
+
+		PUT_DIGITS(rem, rem_cnt);
 
 		rem -= (quo_cnt - rem_cnt);
 
