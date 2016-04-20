@@ -731,7 +731,10 @@ QUO_GREATER_THAN_DVD:
 		} else {
 			rem_cnt = quo_cnt;
 		}
+		printf("old quo_cnt: %zu\n", quo_cnt);
+		printf("old rem_cnt: %zu\n", rem_cnt);
 
+		PUT_DIGITS(rem, rem_cnt);
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
 							    rem_cnt);
@@ -750,9 +753,13 @@ QUO_GREATER_THAN_DVD:
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
+		/* usleep(100000); */
+		PUT_DIGITS(rem, rem_cnt);
+		/* usleep(1000000); */
 
-		printf("quo_cnt: %zu\n", quo_cnt);
-		printf("rem_cnt: %zu\n", rem_cnt);
+		printf("new quo_cnt: %zu\n", quo_cnt);
+		printf("new rem_cnt: %zu\n", rem_cnt);
+		printf("diff: %zd\n", quo_cnt - rem_cnt);
 
 		PUT_DIGITS(rem, rem_cnt);
 
@@ -779,20 +786,21 @@ size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
 			 const size_t quo_cnt)
 {
-	/* lead and second digit had to have matched, ignore */
-	ptrdiff_t i = quo_cnt - 3l;
+	/* lead digit had to have matched, ignore */
+	ptrdiff_t i = quo_cnt - 2l;
 
 	digit_t small = 10u - rem[0l]; /* ten's compliment */
 
 	while (1) {
+		if (rem[i] != 9u)
+			break;
+		--i;
+
 		if (i < 1l)
 			return subtract_digit_from_digits(rem,
 							  quo,
 							  small,
 							  quo_cnt);
-		if (rem[i] != 9u)
-			break;
-		--i;
 	}
 
 	const size_t rem_cnt = i + 1ul;
