@@ -614,14 +614,9 @@ size_t word_div_rem(word_t *restrict div,
 		    const size_t quo_cnt)
 {
 
-	printf("dvd_cnt: %zu\n", dvd_cnt);
-	printf("quo_cnt: %zu\n", quo_cnt);
-
-	PUT_DIGITS(rem, dvd_cnt);
-	PUT_DIGITS(quo, quo_cnt);
-
 	if (quo_cnt > dvd_cnt) {
 QUO_GREATER_THAN_DVD:
+
 		*div = 0ull;
 		return dvd_cnt;
 	}
@@ -701,16 +696,14 @@ QUO_GREATER_THAN_DVD:
 		}
 	}
 
-
 	struct MultNode *node;
 
 	digit_t *const rem_base = rem;
 
 	struct MultMap *q_mlts = build_mult_map(quo,
 						quo_cnt);
-	/* size_t rem_cnt; */
-	size_t prev_cnt;
-	size_t next_cnt;
+	size_t prv_rem_cnt;
+	size_t nxt_rem_cnt;
 
 	word_t word_acc = 0ull;
 
@@ -719,69 +712,55 @@ QUO_GREATER_THAN_DVD:
 
 
 	do {
-		prev_cnt = quo_cnt;
+		prv_rem_cnt = quo_cnt;
 
 		node = closest_mult(q_mlts,
 				    rem,
-				    prev_cnt);
+				    prv_rem_cnt);
 
 		if (node == NULL) {
 MULT_ZERO:
 			if (rem == rem_base)
 				break;
 			--rem;
-			++prev_cnt;
+			++prv_rem_cnt;
 			node = closest_mult(q_mlts,
 					    rem,
-					    prev_cnt);
+					    prv_rem_cnt);
 		}
 
-		/* printf("old quo_cnt: %zu\n", quo_cnt); */
-		/* printf("old rem_cnt: %zu\n", rem_cnt); */
-
-		/* puts("\n******"); */
-		/* PUT_DIGITS(rem, rem_cnt); */
-		/* puts(" - "); */
-		/* PUT_DIGITS(node->digits, rem_cnt + 1); */
-		/* puts(" = "); */
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
-							    prev_cnt);
-		/* PUT_DIGITS(rem, rem_cnt); */
-		/* printf("mult_greater_than_rem: %s\n", mult_greater_than_rem ? "true" : "false"); */
-		/* puts("******\n"); */
+							    prv_rem_cnt);
 
 		if (mult_greater_than_rem) {
 
 			if (node->mult == 1ull)
 				goto MULT_ZERO;
 
-			next_cnt = correct_remainder(rem,
-						     quo,
-						     quo_cnt);
+			nxt_rem_cnt = correct_remainder(rem,
+							quo,
+							quo_cnt);
+
+			printf("mult - 1: %llu\n", node->mult - 1ull);
 
 			word_acc += ((node->mult - 1ull)
 				     * TEN_POW_MAP[rem - rem_base]);
 
 		} else {
-			next_cnt = correct_digits_count(rem,
-							prev_cnt);
+			nxt_rem_cnt = correct_digits_count(rem,
+							   prv_rem_cnt);
+
+			PUT_DIGITS(rem, nxt_rem_cnt);
+			printf("mult: %llu\n", node->mult);
 
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
-		/* usleep(100000); */
-		/* PUT_DIGITS(rem, rem_cnt); */
-		/* usleep(1000000); */
 
-		printf("quo_cnt:  %zu\n", quo_cnt);
-		printf("prev_cnt: %zu\n", prev_cnt);
-		printf("next_cnt: %zu\n", next_cnt);
-		printf("diff: %zd\n", prev_cnt - next_cnt);
-
-		/* PUT_DIGITS(rem, rem_cnt); */
-
-		rem -= (prev_cnt - next_cnt);
+		printf("diff: %zd\n", prv_rem_cnt - nxt_rem_cnt);
+		printf("wacc: %llu\n", word_acc);
+		rem -= (prv_rem_cnt - nxt_rem_cnt);
 
 	} while (rem >= rem_base);
 
@@ -789,7 +768,7 @@ MULT_ZERO:
 
 	*div = word_acc;
 
-	return next_cnt;
+	return nxt_rem_cnt;
 }
 
 /*
@@ -804,6 +783,7 @@ size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
 			 const size_t quo_cnt)
 {
+	/* TODO: maybe second digit as well */
 	/* lead digit had to have matched, ignore */
 	ptrdiff_t i = quo_cnt - 2l;
 
@@ -812,13 +792,13 @@ size_t correct_remainder(digit_t *restrict rem,
 	while (1) {
 		if (rem[i] != 9u)
 			break;
-		--i;
 
-		if (i < 1l)
+		if (i < 2l)
 			return subtract_digit_from_digits(rem,
 							  quo,
 							  small,
 							  quo_cnt);
+		--i;
 	}
 
 	const size_t rem_cnt = i + 1ul;
@@ -1475,11 +1455,12 @@ inline size_t correct_digits_count(const digit_t *restrict digits,
 	ptrdiff_t i = init_cnt - 1l;
 
 	while (1) {
+		if (i < 1l)
+			return 1ul;
+
 		if (digits[i] > 0u)
 			return i + 1ul;
 
-		if (i < 2l)
-			return 1ul;
 		--i;
 	}
 }
