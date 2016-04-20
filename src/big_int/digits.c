@@ -104,6 +104,8 @@ size_t words_to_digits(digit_t **restrict digits,
 	size_t res_cnt = word_to_digits(res_digits,
 					words[0l]);
 
+	PUT_DIGITS(res_digits, res_cnt);
+
 	digit_t *mlt_buff = &res_digits[buff_alloc];
 
 	size_t buff_cnt = multiply_digits_by_word(mlt_buff,
@@ -114,6 +116,9 @@ size_t words_to_digits(digit_t **restrict digits,
 				   mlt_buff,
 				   res_cnt,
 				   buff_cnt);
+
+	PUT_DIGITS(res_digits, res_cnt);
+
 	if (count == 2ul)
 		goto REALLOC_RETURN;
 
@@ -150,10 +155,17 @@ size_t words_to_digits(digit_t **restrict digits,
 						   acc_cnt,
 						   word);
 
+		PUT_DIGITS(res_digits, res_cnt);
+		puts("+");
+		PUT_DIGITS(mlt_buff, buff_cnt);
+
 		res_cnt = increment_digits(res_digits,
 					   mlt_buff,
 					   res_cnt,
 					   buff_cnt);
+
+		PUT_DIGITS(res_digits, res_cnt);
+
 		if (i == count)
 			break;
 NEXT_WORD:
@@ -1329,13 +1341,14 @@ size_t increment_digits(digit_t *restrict digits1,
 			++i;
 		}
 
-		++digits1[i];
+		digits1[i] = digits2[i] + 1u;
 		++i;
 	}
 
 	memcpy(&digits1[i],
 	       &digits2[i],
 	       sizeof(digit_t) * (count2 - i));
+
 
 	return count2;
 }

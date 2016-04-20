@@ -27,7 +27,7 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	PUT_DIGITS("digits", small, 40ul);
+	PUT_DIGITS(small, 40ul);
 
 	word_t *words;
 	digit_t *digits;
@@ -44,7 +44,7 @@ int main(void)
 				words,
 				count);
 
-PUT_DIGITS("digits", digits, count);
+	PUT_DIGITS(digits, count);
 
 	digit_t dvd_digits[] = {
 		6, 8, 9, 0, 1, 4, 8, 9, 5, 8, 8, 5, 6, 1, 8, 1, 0, 9, 0, 6, 6,

@@ -27,7 +27,7 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	PUT_DIGITS("digits", small, 40u);
+	PUT_DIGITS("digits", small, 40ul);
 
 	word_t *words;
 	digit_t *digits;
