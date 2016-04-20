@@ -397,18 +397,23 @@ size_t digits_to_words(word_t **restrict words,
 
 	ptrdiff_t res_N = n;
 
-	do {
+	while (1) {
 		rem_cnt = word_div_rem(&res_words[n],
 				       rem_digits,
 				       word_bits[n],
 				       rem_cnt,
 				       bit_cnts[n]);
+
+		if (n == 2l)
+			break;
 		--n;
 
-	} while (n > 1l);
+	}
+
+	PUT_DIGITS(rem_digits, rem_cnt);
 
 	rem_cnt = word_div_rem(&res_words[1l],
-			       &rem_digits[0l],
+			       rem_digits,
 			       &WORD_BASE_DIGITS[0l],
 			       rem_cnt,
 			       DPWB);
@@ -705,30 +710,31 @@ QUO_GREATER_THAN_DVD:
 	size_t rem_cnt;
 
 	word_t word_acc = 0ull;
+	/* TODO: AAAAAAAAAAAAAFIXITFIXITFIXITFIXITFIXIT */
 
+	ptrdiff_t mag = dvd_cnt - quo_cnt;
 
-	rem += (dvd_cnt - quo_cnt);
+	ptrdiff_t shift;
 
-
-	do {
-		rem_cnt = quo_cnt;
-
+	while (1) {
 		node = closest_mult(q_mlts,
-				    rem,
-				    rem_cnt);
+				    &rem[mag],
+				    quo_cnt);
 
 		if (node == NULL) {
 MULT_ZERO:
-			if (rem == rem_base)
+			if (mag == 0l)
 				break;
-			--rem;
-			++rem_cnt;
+			--mag;
+			rem_cnt = quo_cnt + 1ul;
 			node = closest_mult(q_mlts,
-					    rem,
+					    &rem[mag],
 					    rem_cnt);
+		} else {
+			rem_cnt = quo_cnt;
 		}
 
-		mult_greater_than_rem = decrement_remainder(rem,
+		mult_greater_than_rem = decrement_remainder(&rem[mag],
 							    node->digits,
 							    rem_cnt);
 
@@ -737,33 +743,37 @@ MULT_ZERO:
 			if (node->mult == 1ull)
 				goto MULT_ZERO;
 
-			rem_cnt = correct_remainder(rem,
-							quo,
-							quo_cnt);
+			rem_cnt = correct_remainder(&rem[mag],
+						    quo,
+						    quo_cnt);
 
-			word_acc += ((node->mult - 1ull)
-				     * TEN_POW_MAP[rem - rem_base]);
+			word_acc += ((node->mult - 1ull) * TEN_POW_MAP[mag]);
 
 		} else {
-			PUT_DIGITS(rem, rem_cnt);
 
-			rem_cnt = correct_digits_count(rem,
+			rem_cnt = correct_digits_count(&rem[mag],
 						       rem_cnt);
-			PUT_DIGITS(rem, rem_cnt);
 
-			word_acc += (node->mult
-				     * TEN_POW_MAP[rem - rem_base]);
+			word_acc += (node->mult * TEN_POW_MAP[mag]);
 		}
 
-		rem -= (quo_cnt - rem_cnt);
+		shift = quo_cnt - rem_cnt;
 
-	} while (rem >= rem_base);
+		printf("shift: %zd\n", shift);
+		printf("mag:   %zd\n", mag);
+
+		if (shift > mag)
+			break;
+
+		mag -= shift;
+
+	}
 
 	free_mult_map(q_mlts);
 
 	*div = word_acc;
 
-	return rem_cnt + rem - rem_base;
+	return rem_cnt + (shift - mag);
 }
 
 /*
