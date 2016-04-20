@@ -404,6 +404,7 @@ size_t digits_to_words(word_t **restrict words,
 				       rem_cnt,
 				       bit_cnts[n]);
 
+		PUT_DIGITS(rem_digits, rem_cnt);
 		--n;
 
 	} while (n > 1l);
