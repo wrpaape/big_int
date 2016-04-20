@@ -743,12 +743,16 @@ QUO_GREATER_THAN_DVD:
 						    quo,
 						    quo_cnt);
 
+			printf("mult: %llu\n", node->mult - 1ull);
+
 			word_acc += ((node->mult - 1ull)
 				     * TEN_POW_MAP[rem - rem_base]);
 
 		} else {
 			rem_cnt = correct_digits_count(rem,
 						       rem_cnt);
+
+			printf("mult: %llu\n", node->mult);
 
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
