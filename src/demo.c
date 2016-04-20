@@ -29,14 +29,14 @@ int main(void)
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u,
 				 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
-	PUT_DIGITS(large, 50ul);
+	PUT_DIGITS(large, 40ul);
 
 	word_t *words;
 	digit_t *digits;
 
 	size_t count = digits_to_words(&words,
 				       &large[0l],
-				       50ul);
+				       40ul);
 
 	for (ptrdiff_t i = count - 1l; i > -1l; --i)
 		printf("words[%zd]: %llu \n", i, words[i]);

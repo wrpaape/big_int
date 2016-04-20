@@ -80,11 +80,12 @@ struct MultMap *build_mult_map(const digit_t *restrict digits,
 
 
 bool decrement_remainder(digit_t *restrict rem,
-			 const digit_t *restrict mult,
+			 const digit_t *restrict q_mlt,
 			 const size_t count);
 
 size_t correct_remainder(digit_t *restrict rem,
 			 const digit_t *restrict quo,
+			 const size_t mlt_cnt,
 			 const size_t quo_cnt);
 
 static inline size_t word_to_digits(digit_t *restrict digits,
