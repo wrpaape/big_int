@@ -524,6 +524,9 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	struct MultNode **const node_buff = &map[0l][0l][0l];
 	struct MultNode *const base_node  = node;
 
+	memset(node_buff, 0,
+	       sizeof(struct MultNode *) * 200ul);
+
 	mult_map->digits = next;
 
 	/* for digits of 'count' length */
