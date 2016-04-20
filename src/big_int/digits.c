@@ -708,66 +708,80 @@ QUO_GREATER_THAN_DVD:
 
 	struct MultMap *q_mlts = build_mult_map(quo,
 						quo_cnt);
-	size_t rem_cnt;
+	/* size_t rem_cnt; */
+	size_t prev_cnt;
+	size_t next_cnt;
 
 	word_t word_acc = 0ull;
 
 
 	rem += (dvd_cnt - quo_cnt);
 
+
 	do {
+		prev_cnt = quo_cnt;
+
 		node = closest_mult(q_mlts,
 				    rem,
-				    quo_cnt);
+				    prev_cnt);
 
 		if (node == NULL) {
+MULT_ZERO:
 			if (rem == rem_base)
 				break;
 			--rem;
-			rem_cnt = quo_cnt + 1ul;
-			node	= closest_mult(q_mlts,
-					       rem,
-					       rem_cnt);
-		} else {
-			rem_cnt = quo_cnt;
+			++prev_cnt;
+			node = closest_mult(q_mlts,
+					    rem,
+					    prev_cnt);
 		}
-		printf("old quo_cnt: %zu\n", quo_cnt);
-		printf("old rem_cnt: %zu\n", rem_cnt);
 
-		PUT_DIGITS(rem, rem_cnt);
+		/* printf("old quo_cnt: %zu\n", quo_cnt); */
+		/* printf("old rem_cnt: %zu\n", rem_cnt); */
+
+		/* puts("\n******"); */
+		/* PUT_DIGITS(rem, rem_cnt); */
+		/* puts(" - "); */
+		/* PUT_DIGITS(node->digits, rem_cnt + 1); */
+		/* puts(" = "); */
 		mult_greater_than_rem = decrement_remainder(rem,
 							    node->digits,
-							    rem_cnt);
-		if (mult_greater_than_rem) {
-			rem_cnt = correct_remainder(rem,
-						    quo,
-						    quo_cnt);
+							    prev_cnt);
+		/* PUT_DIGITS(rem, rem_cnt); */
+		/* printf("mult_greater_than_rem: %s\n", mult_greater_than_rem ? "true" : "false"); */
+		/* puts("******\n"); */
 
-			printf("mult: %llu\n", node->mult - 1ull);
+		if (mult_greater_than_rem) {
+
+			if (node->mult == 1ull)
+				goto MULT_ZERO;
+
+			next_cnt = correct_remainder(rem,
+						     quo,
+						     quo_cnt);
 
 			word_acc += ((node->mult - 1ull)
 				     * TEN_POW_MAP[rem - rem_base]);
 
 		} else {
-			rem_cnt = correct_digits_count(rem,
-						       rem_cnt);
-
-			printf("mult: %llu\n", node->mult);
+			next_cnt = correct_digits_count(rem,
+							prev_cnt);
 
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
 		/* usleep(100000); */
-		PUT_DIGITS(rem, rem_cnt);
+		/* PUT_DIGITS(rem, rem_cnt); */
 		/* usleep(1000000); */
 
-		printf("new quo_cnt: %zu\n", quo_cnt);
-		printf("new rem_cnt: %zu\n", rem_cnt);
-		printf("diff: %zd\n", quo_cnt - rem_cnt);
+		printf("quo_cnt:  %zu\n", quo_cnt);
+		printf("prev_cnt: %zu\n", prev_cnt);
+		printf("next_cnt: %zu\n", next_cnt);
+		printf("diff: %zd\n", prev_cnt - next_cnt);
 
-		PUT_DIGITS(rem, rem_cnt);
+		/* PUT_DIGITS(rem, rem_cnt); */
 
-		rem -= (quo_cnt - rem_cnt);
+		rem -= (prev_cnt - next_cnt);
 
 	} while (rem >= rem_base);
 
@@ -775,7 +789,7 @@ QUO_GREATER_THAN_DVD:
 
 	*div = word_acc;
 
-	return rem_cnt;
+	return next_cnt;
 }
 
 /*
