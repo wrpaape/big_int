@@ -225,7 +225,6 @@ size_t digits_to_words(word_t **restrict words,
 	}
 
 	rem_cnt = count;
-	PUT_DIGITS("rem_digits", rem_digits, rem_cnt);
 
 	/* generate string of digit_t arrays representing
 	 * word "bits" >= (word base)¹
@@ -333,14 +332,6 @@ size_t digits_to_words(word_t **restrict words,
 	const size_t bits_alloc	  = n_ceil + 1ul;
 	const size_t bit_cnt_cutoff = count - DPWB + 1ul;
 
-	printf("n_ceil:		%zu\n", n_ceil);
-	printf("npt_cnt_ceil:	%zu\n", npt_cnt_ceil);
-	printf("sum_alloc:	%zu\n", sum_alloc);
-	printf("base_pad:	%zu\n", base_pad);
-	printf("bits_alloc:	%zu\n", bits_alloc);
-	printf("bit_cnt_cutoff: %zu\n", bit_cnt_cutoff);
-	fflush(stdout);
-
 	word_t *res_words;
 	digit_t *base;
 	digit_t *next_bit;
@@ -401,43 +392,25 @@ size_t digits_to_words(word_t **restrict words,
 
 	/* set 'res_words' to multiples of 'word_bits' */
 
-
 	res_words[n] = 0ull;
 
 	ptrdiff_t res_N = n;
 
 	do {
-		PUT_DIGITS("dvd_digits", rem_digits, rem_cnt);
-
 		rem_cnt = word_div_rem(&res_words[n],
 				       rem_digits,
 				       word_bits[n],
 				       rem_cnt,
 				       bit_cnts[n]);
-
-		/* PUT_DIGITS("word_bits", word_bits[n], bit_cnts[n]); */
-		/* PUT_DIGITS("rem_digits", rem_digits, rem_cnt); */
-		/* printf("bit_cnts[%zu]:  %zu\n",  n, bit_cnts[n]); */
-		/* printf("res_words[%zu]: %llu\n", n, res_words[n]); */
-		/* printf("\nrem_cnt: %zu\n\n", rem_cnt); */
 		--n;
 
 	} while (n > 1l);
-
-	/* PUT_DIGITS("********\ndvd_digits", rem_digits, rem_cnt); */
-
-	puts("AWOOOGA\n\nAWOOGA\n\nAWOOGA\n\n");
-	fflush(stdout);
 
 	rem_cnt = word_div_rem(&res_words[1l],
 			       &rem_digits[0l],
 			       &WORD_BASE_DIGITS[0l],
 			       rem_cnt,
 			       DPWB);
-
-	/* printf("res_words[%zu]: %llu\n", 1ul, res_words[1l]); */
-	/* PUT_DIGITS("rem_digits", rem_digits, rem_cnt); */
-	/* printf("\nrem_cnt: %zu\n\n", rem_cnt); */
 
 	res_words[0l] = digits_to_word(rem_digits,
 				       rem_cnt);
@@ -524,9 +497,11 @@ struct MultMap *build_mult_map(const digit_t *restrict base,
 	struct MultNode **const node_buff = &map[0l][0l][0l];
 	struct MultNode *const base_node  = node;
 
+	/* set all node pointers in 'map' to NULL */
 	memset(node_buff, 0,
-	       sizeof(struct MultNode *) * 200ul);
+	       sizeof(struct MultNode *[2ul][10ul][10ul]));
 
+	/* track malloc'd digit_t buffer */
 	mult_map->digits = next;
 
 	/* for digits of 'count' length */
@@ -594,41 +569,24 @@ do {								\
 	PUT_NODE(7ull); PUT_NODE(8ull); PUT_NODE(9ull);
 #undef PUT_NODE
 
-	/* starting from the last slot in 'map', set unset pointers greater
+	/* Starting from the last slot in 'map', set unset pointers greater
 	 * than base node to the immediate previous valid node so as to
-	 * "round down" accesses to a "floor multiple"...
+	 * "round down" accesses to a "floor multiple". Let pointers below
+	 * base node remain NULL to signal a base multiple of '0'
 	 * ================================================================== */
 
 	struct MultNode **node_ptr = &map[1l][9l][9l];
 
 	while (1) {
-		while (*node_ptr != node) {
+		while (*node_ptr == NULL) {
 			*node_ptr = node;
 			--node_ptr;
 		}
 		--node;
 		if (node == base_node)
-			break;
+			return mult_map;
 		--node_ptr;
 	}
-
-	/* set pointers below base node to NULL to signal a base multiple of '0'
-	 * ================================================================== */
-	memset(node_buff, 0,
-	       sizeof(struct MultNode *) * (node_ptr - node_buff));
-
-	printf("diff: %zd\n", node_ptr - node_buff);
-	PUT_DIGITS("\nMULT_MAP for", base, count);
-
-	for (ptrdiff_t i = 0l; i < 9l; ++i) {
-
-		/* printf("%zd. %llu\n", i, node->digits); */
-
-		PUT_DIGITS("digits", node->digits, count + 1l);
-		++node;
-	}
-
-	return mult_map;
 }
 
 /*
@@ -775,8 +733,6 @@ QUO_GREATER_THAN_DVD:
 						    quo,
 						    quo_cnt);
 
-			/* printf("\n***********\nmlt: %llu\n", (node->mult - 1ull) * TEN_POW_MAP[rem - rem_base]); */
-
 			word_acc += ((node->mult - 1ull)
 				     * TEN_POW_MAP[rem - rem_base]);
 
@@ -784,23 +740,13 @@ QUO_GREATER_THAN_DVD:
 			rem_cnt = correct_digits_count(rem,
 						       rem_cnt);
 
-			/* printf("\n***********\nmlt: %llu\n", node->mult * TEN_POW_MAP[rem - rem_base]); */
 			word_acc += (node->mult
 				     * TEN_POW_MAP[rem - rem_base]);
 		}
 
-		/* PUT_DIGITS("rem", rem, rem_cnt); */
-		PUT_DIGITS("rem", rem, rem_cnt);
-
-		/* printf("acc: %llu\n", word_acc); */
-
 		rem -= (quo_cnt - rem_cnt);
 
 	} while (rem >= rem_base);
-
-	/* PUT_DIGITS("\nrem_digits", rem, rem_cnt); */
-	/* PUT_DIGITS("quo_digits", quo, quo_cnt); */
-	/* printf("word_acc: %llu\n", word_acc); */
 
 	free_mult_map(q_mlts);
 
